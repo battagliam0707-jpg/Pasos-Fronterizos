@@ -1,8 +1,10 @@
 import csv
 import os
 import re
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta, timezone
 from urllib.parse import unquote
-from datetime import datetime, timezone, timedelta
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -25,7 +27,6 @@ HEADERS = {
 
 
 def extraer_campo(diccionario, claves_posibles):
-    """Busca el primer valor no vacío entre varias claves posibles."""
     for clave in claves_posibles:
         val = diccionario.get(clave)
         if isinstance(val, dict):
@@ -36,33 +37,85 @@ def extraer_campo(diccionario, claves_posibles):
 
 
 def limpiar_html(texto):
-    """Elimina etiquetas HTML si el JSON trae enlaces o formato."""
     if "<" in texto and ">" in texto:
         return BeautifulSoup(texto, "html.parser").get_text(" ", strip=True)
     return texto.strip()
 
 
-def extraer_url_detalle(p):
-    """Encuentra la URL de la ficha individual dentro del objeto JSON."""
-    url = extraer_campo(p, ["url", "alias", "link", "ruta", "path", "url_detalle", "detalle"])
-    if not url:
-        for val in p.values():
-            if isinstance(val, str) and "/seguridad/pasosinternacionales/detalle/" in val:
-                match = re.search(r'href=["\']([^"\']+)["\']', val)
-                return match.group(1) if match else val.strip()
+def extraer_url_detalle(p, id_paso, tipo_raw):
+    # 1. Buscar en claves habituales
+    url = extraer_campo(p, ["url", "alias", "link", "ruta", "path", "url_detalle", "detalle", "view_node"])
     if "<a " in url:
         match = re.search(r'href=["\']([^"\']+)["\']', url)
         if match:
             return match.group(1)
-    return url
+    if url:
+        return url
+
+    # 2. Buscar cualquier enlace a /detalle/ dentro de todos los campos del registro
+    for val in p.values():
+        if isinstance(val, str) and "/seguridad/pasosinternacionales/detalle/" in val:
+            match = re.search(r'href=["\']([^"\']+)["\']', val)
+            return match.group(1) if match else val.strip()
+
+    # 3. Reconstruir URL a partir de tipo (ruta/rio) e ID si están disponibles
+    tipo_norm = tipo_raw.lower()
+    if "rio" in tipo_norm or "fluvial" in tipo_norm:
+        return f"/seguridad/pasosinternacionales/detalle/rio/{id_paso}"
+    if id_paso.isdigit():
+        return f"/seguridad/pasosinternacionales/detalle/ruta/{id_paso}"
+    return ""
 
 
 def nombre_desde_url(url):
-    """Si el JSON no trae el nombre limpio, lo reconstruye desde el slug de la URL."""
     if not url:
         return ""
-    slug = url.rstrip("/").split("/")[-1]
-    return unquote(slug).replace("-", " ").strip()
+    partes = [seg for seg in url.rstrip("/").split("/") if seg]
+    if partes and not partes[-1].isdigit():
+        return unquote(partes[-1]).replace("-", " ").strip()
+    return ""
+
+
+def clasificar_medio(texto_completo, url_detalle="", tipo_raw=""):
+    txt = f"{texto_completo} {url_detalle} {tipo_raw}".lower()
+
+    if (
+        "/rio/" in txt
+        or any(k in txt for k in ["fluvial", "balsa", "lancha", "barcaza", "ferry", "catamarán", "catamaran", "embarcación", "embarcacion", "puerto "])
+    ):
+        return "Fluvial"
+
+    if any(k in txt for k in ["ferroviario", "ferrocarril", "tren"]):
+        return "Ferroviario"
+
+    if re.search(r"cruce de veh[íi]culos[:\s]+no\b", txt) and re.search(r"cruce de personas[:\s]+s[íi]\b", txt):
+        return "Peatonal / Sendero"
+
+    return "Vial"
+
+
+def consultar_ficha_detalle(tarea):
+    id_paso, url_relativa, nombre_actual, tipo_raw = tarea
+    if not url_relativa:
+        return id_paso, nombre_actual, clasificar_medio(nombre_actual, "", tipo_raw)
+
+    url_completa = url_relativa if url_relativa.startswith("http") else f"{BASE_URL}{url_relativa}"
+    try:
+        resp = requests.get(url_completa, headers=HEADERS, timeout=15)
+        if resp.status_code == 200:
+            soup = BeautifulSoup(resp.text, "html.parser")
+            h1 = soup.find("h1")
+            nombre_ficha = h1.get_text(" ", strip=True) if h1 else ""
+            nombre_ficha = re.sub(r"^Paso\s+", "", nombre_ficha, flags=re.IGNORECASE).strip()
+
+            texto_pagina = soup.get_text(" ", strip=True)
+            medio = clasificar_medio(f"{nombre_ficha} {texto_pagina}", resp.url, tipo_raw)
+            nombre_final = nombre_actual if nombre_actual and not nombre_actual.startswith("Paso ") else (nombre_ficha or nombre_actual)
+            return id_paso, nombre_final, medio
+    except requests.RequestException:
+        pass
+
+    return id_paso, nombre_actual, clasificar_medio(nombre_actual, url_relativa, tipo_raw)
 
 
 def cargar_csv(ruta, clave):
@@ -77,29 +130,6 @@ def guardar_csv(ruta, filas, columnas):
         writer = csv.DictWriter(f, fieldnames=columnas)
         writer.writeheader()
         writer.writerows(filas)
-
-
-def inferir_medio_desde_detalle(url_relativa, nombre):
-    if not url_relativa:
-        return "Fluvial" if "fluvial" in nombre.lower() or "puerto" in nombre.lower() else "Vial"
-
-    url_completa = url_relativa if url_relativa.startswith("http") else f"{BASE_URL}{url_relativa}"
-    es_rio = "/rio/" in url_completa or "fluvial" in nombre.lower() or "puerto" in nombre.lower()
-
-    try:
-        resp = requests.get(url_completa, headers=HEADERS, timeout=15)
-        if resp.status_code == 200:
-            soup = BeautifulSoup(resp.text, "html.parser")
-            texto = soup.get_text(" ", strip=True)
-            match = re.search(r"Medio de paso[:\s]+([^\n|]+)", texto, re.IGNORECASE)
-            if match:
-                medio_raw = match.group(1).strip()
-                if "No hay registro" not in medio_raw and len(medio_raw) < 60:
-                    return f"Fluvial ({medio_raw})" if es_rio else medio_raw
-    except requests.RequestException:
-        pass
-
-    return "Fluvial" if es_rio else "Vial"
 
 
 def normalizar_estado(estado_raw):
@@ -118,7 +148,7 @@ def ejecutar_extraccion():
 
     pasos = data if isinstance(data, list) else data.get("data") or data.get("pasos") or []
     if pasos:
-        print("Muestra del primer registro JSON:", pasos[0])
+        print("Claves del JSON oficial:", list(pasos[0].keys()))
 
     maestro = cargar_csv(ARCHIVO_MAESTRO, "id_paso")
     historico = {}
@@ -126,13 +156,23 @@ def ejecutar_extraccion():
     if os.path.exists(ARCHIVO_HISTORICO):
         with open(ARCHIVO_HISTORICO, mode="r", encoding="utf-8-sig", newline="") as f:
             for row in csv.DictReader(f):
-                historico[(row["fecha"], row["id_paso"])] = row
+                if "fecha" in row and "id_paso" in row:
+                    historico[(row["fecha"], row["id_paso"])] = {
+                        "fecha": row["fecha"],
+                        "id_paso": row["id_paso"],
+                        "nombre_paso": row.get("nombre_paso", ""),
+                        "estado": row.get("estado", "SIN_DATO"),
+                    }
+
+    tareas_detalle = []
+    datos_base = {}
 
     for p in pasos:
         id_paso = extraer_campo(p, ["id", "nid", "id_paso", "codigo"]) or extraer_campo(
             p, ["nombre", "titulo", "title"]
         )
-        url_detalle = extraer_url_detalle(p)
+        tipo_raw = extraer_campo(p, ["tipo", "categoria", "modalidad", "medio", "entorno"])
+        url_detalle = extraer_url_detalle(p, id_paso, tipo_raw)
 
         nombre = limpiar_html(
             extraer_campo(p, ["nombre", "titulo", "nombre_paso", "paso", "title", "name", "label"])
@@ -150,42 +190,63 @@ def ejecutar_extraccion():
             p, ["estado_prioridad", "estado", "estado_paso", "status", "situacion"]
         )
 
-        # Si el paso es nuevo o tenía campos vacíos de una corrida anterior, los completa
-        registro_previo = maestro.get(id_paso, {})
-        medio_actual = registro_previo.get("medio", "")
-        if not medio_actual:
-            medio_actual = inferir_medio_desde_detalle(url_detalle, nombre)
-
-        maestro[id_paso] = {
-            "id_paso": id_paso,
-            "nombre_paso": nombre or registro_previo.get("nombre_paso", ""),
-            "provincia": provincia or registro_previo.get("provincia", ""),
-            "pais": pais or registro_previo.get("pais", ""),
-            "medio": medio_actual,
-        }
-
-        historico[(HOY, id_paso)] = {
-            "fecha": HOY,
-            "id_paso": id_paso,
-            "nombre_paso": maestro[id_paso]["nombre_paso"],
+        previo = maestro.get(id_paso, {})
+        datos_base[id_paso] = {
+            "nombre": nombre or previo.get("nombre_paso", ""),
+            "provincia": provincia or previo.get("provincia", ""),
+            "pais": pais or previo.get("pais", ""),
             "estado": normalizar_estado(estado_raw),
         }
 
-    # 1. Guardar maestro actualizado
+        # Consultar ficha si nunca se verificó o si falta el nombre/medio
+        if previo.get("verificado") != "SI" or not previo.get("medio") or previo.get("nombre_paso", "").startswith("Paso "):
+            tareas_detalle.append((id_paso, url_detalle, datos_base[id_paso]["nombre"], tipo_raw))
+        else:
+            datos_base[id_paso]["medio"] = previo["medio"]
+
+    if tareas_detalle:
+        print(f"Verificando ficha individual de {len(tareas_detalle)} pasos...")
+        with ThreadPoolExecutor(max_workers=6) as executor:
+            for id_p, nombre_ficha, medio_ficha in executor.map(consultar_ficha_detalle, tareas_detalle):
+                if nombre_ficha:
+                    datos_base[id_p]["nombre"] = nombre_ficha
+                datos_base[id_p]["medio"] = medio_ficha
+
+    for id_p, info in datos_base.items():
+        maestro[id_p] = {
+            "id_paso": id_p,
+            "nombre_paso": info["nombre"],
+            "provincia": info["provincia"],
+            "pais": info["pais"],
+            "medio": info.get("medio", "Vial"),
+            "verificado": "SI",
+        }
+        historico[(HOY, id_p)] = {
+            "fecha": HOY,
+            "id_paso": id_p,
+            "nombre_paso": info["nombre"],
+            "estado": info["estado"],
+        }
+
+    # Actualizar nombres en registros históricos previos
+    for key, reg in historico.items():
+        id_p = reg["id_paso"]
+        if id_p in maestro:
+            reg["nombre_paso"] = maestro[id_p]["nombre_paso"]
+
     guardar_csv(
         ARCHIVO_MAESTRO,
         list(maestro.values()),
-        ["id_paso", "nombre_paso", "provincia", "pais", "medio"],
+        ["id_paso", "nombre_paso", "provincia", "pais", "medio", "verificado"],
     )
 
-    # 2. Guardar histórico diario ordenado (incluyendo nombre para fácil lectura)
     filas_hist = sorted(historico.values(), key=lambda x: (x["fecha"], x.get("nombre_paso", "")))
     guardar_csv(ARCHIVO_HISTORICO, filas_hist, ["fecha", "id_paso", "nombre_paso", "estado"])
 
-    # 3. Calcular acumulados anuales por paso
+    # Calcular acumulados anuales por paso
     conteos = {id_p: {"ABIERTO": 0, "CERRADO": 0, "SIN_DATO": 0} for id_p in maestro}
     for (fecha, id_p), reg in historico.items():
-        if id_p in conteos:
+        if id_p in conteos and reg["estado"] in conteos[id_p]:
             conteos[id_p][reg["estado"]] += 1
 
     filas_consolidado = []
@@ -216,7 +277,7 @@ def ejecutar_extraccion():
             "Días Sin Dato",
         ],
     )
-    print(f"[{HOY}] Consolidado actualizado: {len(filas_consolidado)} pasos.")
+    print(f"[{HOY}] Consolidado generado en {ARCHIVO_CONSOLIDADO} ({len(filas_consolidado)} pasos).")
 
 
 if __name__ == "__main__":
