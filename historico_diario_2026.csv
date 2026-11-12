@@ -1,107 +1,107 @@
-﻿fecha,id_paso,nombre_paso,estado
-2026-11-12,27,Agua Negra,CERRADO
-2026-11-12,23,Aguas Blancas - Bermejo,ABIERTO
-2026-11-12,106,Alfa Cullen,CERRADO
-2026-11-12,8,Andresito - Capanema,ABIERTO
-2026-11-12,12,Bernardo de Irigoyen - Dionisio Cerqueira,ABIERTO
-2026-11-12,96,Cajón del Maipo,CERRADO
-2026-11-12,94,Casa de Piedra,CERRADO
-2026-11-12,107,Cañadon Alfa,CERRADO
-2026-11-12,110,Cerro Redondo,CERRADO
-2026-11-12,3,Colón - Paysandú,ABIERTO
-2026-11-12,5,Concordia - Salto,ABIERTO
-2026-11-12,55,Coyhaique,ABIERTO
-2026-11-12,108,Cóndor - Daniel Posesión,CERRADO
-2026-11-12,109,Cóndor II,CERRADO
-2026-11-12,102,De Buta Mallin,CERRADO
-2026-11-12,93,El Azufre,CERRADO
-2026-11-12,35,El Condado - La Mamora,ABIERTO
-2026-11-12,87,El Soberbio - Porto Soberbo,ABIERTO
-2026-11-12,105,Hua Hum (Fluvial),ABIERTO
-2026-11-12,19,Jama,ABIERTO
-2026-11-12,100,Jama Norte,CERRADO
-2026-11-12,101,Jama Sur,CERRADO
-2026-11-12,58,Jeinimeni,ABIERTO
-2026-11-12,18,La Quiaca - Villazón,ABIERTO
-2026-11-12,99,Laguna Sico,CERRADO
-2026-11-12,97,Las Damas,CERRADO
-2026-11-12,98,Las Leñas,CERRADO
-2026-11-12,72,Misión La Paz - Pozo Hondo,ABIERTO
-2026-11-12,81,Mondaca,CERRADO
-2026-11-12,2,Monte Dinero,ABIERTO
-2026-11-12,54,Pampa Alta,ABIERTO
-2026-11-12,89,Panambí - Vera Cruz,ABIERTO
-2026-11-12,31,Pasarela La Fraternidad,ABIERTO
-2026-11-12,28,Pascua Lama,CERRADO
-2026-11-12,7,Paso El Remanso - La Verde,ABIERTO
-2026-11-12,16,Paso Lamadrid - Misión San Leonardo,ABIERTO
-2026-11-12,10,Paso de la Barca - Porto Xavier,ABIERTO
-2026-11-12,32,Pehuenche,ABIERTO
-2026-11-12,13,Pepiri Guazú - Sao Miguel,ABIERTO
-2026-11-12,34,Pichachén,CERRADO
-2026-11-12,26,Pircas Negras,CERRADO
-2026-11-12,30,Portillo de Piuquenes,CERRADO
-2026-11-12,1,Posadas - Encarnación,ABIERTO
-2026-11-12,88,Puerto Alba Posse - Porto Maua,ABIERTO
-2026-11-12,77,Puerto Almanza - Puerto Williams,CERRADO
-2026-11-12,17,Puerto Alvear - Puerto Itaqui,ABIERTO
-2026-11-12,80,Puerto Boca del Gualeguaychu - Fray Bentos,ABIERTO
-2026-11-12,24,Puerto Chalanas - Bermejo,ABIERTO
-2026-11-12,82,Puerto Colon - Puerto Paysandu,ABIERTO
-2026-11-12,92,Puerto Colonia Aurora - Porto Pratos,ABIERTO
-2026-11-12,71,Puerto Colonia Cano - Puerto Pilar,ABIERTO
-2026-11-12,79,Puerto Concepcion del Uruguay - Paysandu,ABIERTO
-2026-11-12,11,Puerto Concordia - Salto,ABIERTO
-2026-11-12,15,Puerto Eldorado - Puerto Mayor Julio Otaño,CERRADO
-2026-11-12,83,Puerto Federacion - Villa Constitucion,ABIERTO
-2026-11-12,62,Puerto Garruchos - Garruchos,ABIERTO
-2026-11-12,67,Puerto Guazu Guazucito - Carmelo,ABIERTO
-2026-11-12,56,Puerto Iguazu - Puerto Tres Fronteras,CERRADO
-2026-11-12,60,Puerto Ita Ibate - Panchito Lopez,ABIERTO
-2026-11-12,73,Puerto Itati - Puerto Ita Cora,CERRADO
-2026-11-12,65,Puerto La Cruz - Itaqui,CERRADO
-2026-11-12,75,Puerto Las Palmas - Puerto Humaita,CERRADO
-2026-11-12,49,Puerto Leoni - Puerto Triunfo,CERRADO
-2026-11-12,37,Puerto Libertad - Puerto Domingo Martínez de Irala,ABIERTO
-2026-11-12,84,Puerto Luis - Constitucion,ABIERTO
-2026-11-12,41,Puerto Mado - Puerto Lomas Valentinas,CERRADO
-2026-11-12,68,Puerto Martin Garcia - Carmelo,ABIERTO
-2026-11-12,66,Puerto Monte Caseros - Bella Union,ABIERTO
-2026-11-12,43,Puerto Montecarlo - Puerto Ape Aime,CERRADO
-2026-11-12,51,Puerto Oasis - Capitan Meza,CERRADO
-2026-11-12,86,Puerto Paranacito - Nueva Palmira,ABIERTO
-2026-11-12,76,Puerto Paso de la Patria - Paso de la Patria,CERRADO
-2026-11-12,4,Puerto Pilcomayo - Puerto Ita Enramada,ABIERTO
-2026-11-12,40,Puerto Pinares - Carlos Antonio Lopez,CERRADO
-2026-11-12,42,Puerto Piray - Puerto 7 de Agosto,CERRADO
-2026-11-12,44,Puerto Rico - Puerto Triunfo,CERRADO
-2026-11-12,85,Puerto Santa Eloisa - Belen,ABIERTO
-2026-11-12,6,Puerto Santa María - Colonia Florida,ABIERTO
-2026-11-12,39,Puerto Victoria - Capitan Urbina,CERRADO
-2026-11-12,38,Puerto Wanda - Puerto Ita Vera,ABIERTO
-2026-11-12,61,Puerto Yahape - Puerto Cerrito,ABIERTO
-2026-11-12,45,Pérez Rosales,ABIERTO
-2026-11-12,91,Quebrada Fría,CERRADO
-2026-11-12,104,Reigolil,CERRADO
-2026-11-12,59,Roballos,ABIERTO
-2026-11-12,70,Río Bella Vista (Ex Radman),ABIERTO
-2026-11-12,63,Río Don Guillermo,ABIERTO
-2026-11-12,50,Río Encuentro,ABIERTO
-2026-11-12,53,Río Frías,ABIERTO
-2026-11-12,47,Río Manso,ABIERTO
-2026-11-12,57,Río Mayer - Ribera Norte,ABIERTO
-2026-11-12,64,Río Mosco,ABIERTO
-2026-11-12,48,Río Puelo,ABIERTO
-2026-11-12,22,Salvador Mazza - Yacuiba,ABIERTO
-2026-11-12,14,San Antonio - Santo Antonio,ABIERTO
-2026-11-12,25,San Francisco,CERRADO
-2026-11-12,69,San Sebastián,ABIERTO
-2026-11-12,74,Santo Tomé - Sao Borja,ABIERTO
-2026-11-12,20,Sico,ABIERTO
-2026-11-12,29,Sistema Cristo Redentor,ABIERTO
-2026-11-12,21,Socompa,ABIERTO
-2026-11-12,52,Triana,ABIERTO
-2026-11-12,90,Valle Hermoso,CERRADO
-2026-11-12,33,Vergara,CERRADO
-2026-11-12,46,Vuriloche,CERRADO
-2026-11-12,36,Yaciretá - Yaciretá,ABIERTO
+﻿fecha,anio,mes,id_paso,nombre_paso,estado
+2026-11-12,2026,11 - Noviembre,27,Agua Negra,CERRADO
+2026-11-12,2026,11 - Noviembre,23,Aguas Blancas - Bermejo,ABIERTO
+2026-11-12,2026,11 - Noviembre,106,Alfa Cullen,CERRADO
+2026-11-12,2026,11 - Noviembre,8,Andresito - Capanema,ABIERTO
+2026-11-12,2026,11 - Noviembre,12,Bernardo de Irigoyen - Dionisio Cerqueira,ABIERTO
+2026-11-12,2026,11 - Noviembre,96,Cajón del Maipo,CERRADO
+2026-11-12,2026,11 - Noviembre,94,Casa de Piedra,CERRADO
+2026-11-12,2026,11 - Noviembre,107,Cañadon Alfa,CERRADO
+2026-11-12,2026,11 - Noviembre,110,Cerro Redondo,CERRADO
+2026-11-12,2026,11 - Noviembre,3,Colón - Paysandú,ABIERTO
+2026-11-12,2026,11 - Noviembre,5,Concordia - Salto,ABIERTO
+2026-11-12,2026,11 - Noviembre,55,Coyhaique,ABIERTO
+2026-11-12,2026,11 - Noviembre,108,Cóndor - Daniel Posesión,CERRADO
+2026-11-12,2026,11 - Noviembre,109,Cóndor II,CERRADO
+2026-11-12,2026,11 - Noviembre,102,De Buta Mallin,CERRADO
+2026-11-12,2026,11 - Noviembre,93,El Azufre,CERRADO
+2026-11-12,2026,11 - Noviembre,35,El Condado - La Mamora,ABIERTO
+2026-11-12,2026,11 - Noviembre,87,El Soberbio - Porto Soberbo,ABIERTO
+2026-11-12,2026,11 - Noviembre,105,Hua Hum (Fluvial),ABIERTO
+2026-11-12,2026,11 - Noviembre,19,Jama,ABIERTO
+2026-11-12,2026,11 - Noviembre,100,Jama Norte,CERRADO
+2026-11-12,2026,11 - Noviembre,101,Jama Sur,CERRADO
+2026-11-12,2026,11 - Noviembre,58,Jeinimeni,ABIERTO
+2026-11-12,2026,11 - Noviembre,18,La Quiaca - Villazón,ABIERTO
+2026-11-12,2026,11 - Noviembre,99,Laguna Sico,CERRADO
+2026-11-12,2026,11 - Noviembre,97,Las Damas,CERRADO
+2026-11-12,2026,11 - Noviembre,98,Las Leñas,CERRADO
+2026-11-12,2026,11 - Noviembre,72,Misión La Paz - Pozo Hondo,ABIERTO
+2026-11-12,2026,11 - Noviembre,81,Mondaca,CERRADO
+2026-11-12,2026,11 - Noviembre,2,Monte Dinero,ABIERTO
+2026-11-12,2026,11 - Noviembre,54,Pampa Alta,ABIERTO
+2026-11-12,2026,11 - Noviembre,89,Panambí - Vera Cruz,ABIERTO
+2026-11-12,2026,11 - Noviembre,31,Pasarela La Fraternidad,ABIERTO
+2026-11-12,2026,11 - Noviembre,28,Pascua Lama,CERRADO
+2026-11-12,2026,11 - Noviembre,7,Paso El Remanso - La Verde,ABIERTO
+2026-11-12,2026,11 - Noviembre,16,Paso Lamadrid - Misión San Leonardo,ABIERTO
+2026-11-12,2026,11 - Noviembre,10,Paso de la Barca - Porto Xavier,ABIERTO
+2026-11-12,2026,11 - Noviembre,32,Pehuenche,ABIERTO
+2026-11-12,2026,11 - Noviembre,13,Pepiri Guazú - Sao Miguel,ABIERTO
+2026-11-12,2026,11 - Noviembre,34,Pichachén,CERRADO
+2026-11-12,2026,11 - Noviembre,26,Pircas Negras,CERRADO
+2026-11-12,2026,11 - Noviembre,30,Portillo de Piuquenes,CERRADO
+2026-11-12,2026,11 - Noviembre,1,Posadas - Encarnación,ABIERTO
+2026-11-12,2026,11 - Noviembre,88,Puerto Alba Posse - Porto Maua,ABIERTO
+2026-11-12,2026,11 - Noviembre,77,Puerto Almanza - Puerto Williams,CERRADO
+2026-11-12,2026,11 - Noviembre,17,Puerto Alvear - Puerto Itaqui,ABIERTO
+2026-11-12,2026,11 - Noviembre,80,Puerto Boca del Gualeguaychu - Fray Bentos,ABIERTO
+2026-11-12,2026,11 - Noviembre,24,Puerto Chalanas - Bermejo,ABIERTO
+2026-11-12,2026,11 - Noviembre,82,Puerto Colon - Puerto Paysandu,ABIERTO
+2026-11-12,2026,11 - Noviembre,92,Puerto Colonia Aurora - Porto Pratos,ABIERTO
+2026-11-12,2026,11 - Noviembre,71,Puerto Colonia Cano - Puerto Pilar,ABIERTO
+2026-11-12,2026,11 - Noviembre,79,Puerto Concepcion del Uruguay - Paysandu,ABIERTO
+2026-11-12,2026,11 - Noviembre,11,Puerto Concordia - Salto,ABIERTO
+2026-11-12,2026,11 - Noviembre,15,Puerto Eldorado - Puerto Mayor Julio Otaño,CERRADO
+2026-11-12,2026,11 - Noviembre,83,Puerto Federacion - Villa Constitucion,ABIERTO
+2026-11-12,2026,11 - Noviembre,62,Puerto Garruchos - Garruchos,ABIERTO
+2026-11-12,2026,11 - Noviembre,67,Puerto Guazu Guazucito - Carmelo,ABIERTO
+2026-11-12,2026,11 - Noviembre,56,Puerto Iguazu - Puerto Tres Fronteras,CERRADO
+2026-11-12,2026,11 - Noviembre,60,Puerto Ita Ibate - Panchito Lopez,ABIERTO
+2026-11-12,2026,11 - Noviembre,73,Puerto Itati - Puerto Ita Cora,CERRADO
+2026-11-12,2026,11 - Noviembre,65,Puerto La Cruz - Itaqui,CERRADO
+2026-11-12,2026,11 - Noviembre,75,Puerto Las Palmas - Puerto Humaita,CERRADO
+2026-11-12,2026,11 - Noviembre,49,Puerto Leoni - Puerto Triunfo,CERRADO
+2026-11-12,2026,11 - Noviembre,37,Puerto Libertad - Puerto Domingo Martínez de Irala,ABIERTO
+2026-11-12,2026,11 - Noviembre,84,Puerto Luis - Constitucion,ABIERTO
+2026-11-12,2026,11 - Noviembre,41,Puerto Mado - Puerto Lomas Valentinas,CERRADO
+2026-11-12,2026,11 - Noviembre,68,Puerto Martin Garcia - Carmelo,ABIERTO
+2026-11-12,2026,11 - Noviembre,66,Puerto Monte Caseros - Bella Union,ABIERTO
+2026-11-12,2026,11 - Noviembre,43,Puerto Montecarlo - Puerto Ape Aime,CERRADO
+2026-11-12,2026,11 - Noviembre,51,Puerto Oasis - Capitan Meza,CERRADO
+2026-11-12,2026,11 - Noviembre,86,Puerto Paranacito - Nueva Palmira,ABIERTO
+2026-11-12,2026,11 - Noviembre,76,Puerto Paso de la Patria - Paso de la Patria,CERRADO
+2026-11-12,2026,11 - Noviembre,4,Puerto Pilcomayo - Puerto Ita Enramada,ABIERTO
+2026-11-12,2026,11 - Noviembre,40,Puerto Pinares - Carlos Antonio Lopez,CERRADO
+2026-11-12,2026,11 - Noviembre,42,Puerto Piray - Puerto 7 de Agosto,CERRADO
+2026-11-12,2026,11 - Noviembre,44,Puerto Rico - Puerto Triunfo,CERRADO
+2026-11-12,2026,11 - Noviembre,85,Puerto Santa Eloisa - Belen,ABIERTO
+2026-11-12,2026,11 - Noviembre,6,Puerto Santa María - Colonia Florida,ABIERTO
+2026-11-12,2026,11 - Noviembre,39,Puerto Victoria - Capitan Urbina,CERRADO
+2026-11-12,2026,11 - Noviembre,38,Puerto Wanda - Puerto Ita Vera,ABIERTO
+2026-11-12,2026,11 - Noviembre,61,Puerto Yahape - Puerto Cerrito,ABIERTO
+2026-11-12,2026,11 - Noviembre,45,Pérez Rosales,ABIERTO
+2026-11-12,2026,11 - Noviembre,91,Quebrada Fría,CERRADO
+2026-11-12,2026,11 - Noviembre,104,Reigolil,CERRADO
+2026-11-12,2026,11 - Noviembre,59,Roballos,ABIERTO
+2026-11-12,2026,11 - Noviembre,70,Río Bella Vista (Ex Radman),ABIERTO
+2026-11-12,2026,11 - Noviembre,63,Río Don Guillermo,ABIERTO
+2026-11-12,2026,11 - Noviembre,50,Río Encuentro,ABIERTO
+2026-11-12,2026,11 - Noviembre,53,Río Frías,ABIERTO
+2026-11-12,2026,11 - Noviembre,47,Río Manso,ABIERTO
+2026-11-12,2026,11 - Noviembre,57,Río Mayer - Ribera Norte,ABIERTO
+2026-11-12,2026,11 - Noviembre,64,Río Mosco,ABIERTO
+2026-11-12,2026,11 - Noviembre,48,Río Puelo,ABIERTO
+2026-11-12,2026,11 - Noviembre,22,Salvador Mazza - Yacuiba,ABIERTO
+2026-11-12,2026,11 - Noviembre,14,San Antonio - Santo Antonio,ABIERTO
+2026-11-12,2026,11 - Noviembre,25,San Francisco,CERRADO
+2026-11-12,2026,11 - Noviembre,69,San Sebastián,ABIERTO
+2026-11-12,2026,11 - Noviembre,74,Santo Tomé - Sao Borja,ABIERTO
+2026-11-12,2026,11 - Noviembre,20,Sico,ABIERTO
+2026-11-12,2026,11 - Noviembre,29,Sistema Cristo Redentor,ABIERTO
+2026-11-12,2026,11 - Noviembre,21,Socompa,ABIERTO
+2026-11-12,2026,11 - Noviembre,52,Triana,ABIERTO
+2026-11-12,2026,11 - Noviembre,90,Valle Hermoso,CERRADO
+2026-11-12,2026,11 - Noviembre,33,Vergara,CERRADO
+2026-11-12,2026,11 - Noviembre,46,Vuriloche,CERRADO
+2026-11-12,2026,11 - Noviembre,36,Yaciretá - Yaciretá,ABIERTO

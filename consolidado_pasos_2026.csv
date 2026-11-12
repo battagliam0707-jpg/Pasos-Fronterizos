@@ -1,107 +1,107 @@
-﻿Nombre del Paso,Provincia,País Limítrofe,Medio,Días Abierto,Días Cerrado,Días Sin Dato
-La Quiaca - Villazón,JUJUY,BOLIVIA,Vial,1,0,0
-Aguas Blancas - Bermejo,SALTA,BOLIVIA,Vial,1,0,0
-El Condado - La Mamora,SALTA,BOLIVIA,Vial,1,0,0
-Puerto Chalanas - Bermejo,SALTA,BOLIVIA,Fluvial,1,0,0
-Salvador Mazza - Yacuiba,SALTA,BOLIVIA,Vial,1,0,0
-Puerto Alvear - Puerto Itaqui,CORRIENTES,BRASIL,Fluvial,1,0,0
-Puerto Garruchos - Garruchos,CORRIENTES,BRASIL,Fluvial,1,0,0
-Puerto La Cruz - Itaqui,CORRIENTES,BRASIL,Fluvial,0,1,0
-Santo Tomé - Sao Borja,CORRIENTES,BRASIL,Vial,1,0,0
-Andresito - Capanema,MISIONES,BRASIL,Vial,1,0,0
-Bernardo de Irigoyen - Dionisio Cerqueira,MISIONES,BRASIL,Vial,1,0,0
-El Soberbio - Porto Soberbo,MISIONES,BRASIL,Vial,1,0,0
-Panambí - Vera Cruz,MISIONES,BRASIL,Vial,1,0,0
-Paso de la Barca - Porto Xavier,MISIONES,BRASIL,Vial,1,0,0
-Pepiri Guazú - Sao Miguel,MISIONES,BRASIL,Vial,1,0,0
-Puerto Alba Posse - Porto Maua,MISIONES,BRASIL,Fluvial,1,0,0
-Puerto Colonia Aurora - Porto Pratos,MISIONES,BRASIL,Fluvial,1,0,0
-Puerto Santa María - Colonia Florida,MISIONES,BRASIL,Fluvial,1,0,0
-San Antonio - Santo Antonio,MISIONES,BRASIL,Vial,1,0,0
-San Francisco,CATAMARCA,CHILE,Vial,0,1,0
-Coyhaique,CHUBUT,CHILE,Vial,1,0,0
-Pampa Alta,CHUBUT,CHILE,Vial,1,0,0
-Río Encuentro,CHUBUT,CHILE,Vial,1,0,0
-Río Frías,CHUBUT,CHILE,Vial,1,0,0
-Río Puelo,CHUBUT,CHILE,Vial,1,0,0
-Triana,CHUBUT,CHILE,Vial,1,0,0
-Jama,JUJUY,CHILE,Vial,1,0,0
-Jama Norte,JUJUY,CHILE,Vial,0,1,0
-Jama Sur,JUJUY,CHILE,Vial,0,1,0
-Pircas Negras,LA RIOJA,CHILE,Vial,0,1,0
-Cajón del Maipo,MENDOZA,CHILE,Vial,0,1,0
-Las Damas,MENDOZA,CHILE,Vial,0,1,0
-Las Leñas,MENDOZA,CHILE,Vial,0,1,0
-Pehuenche,MENDOZA,CHILE,Vial,1,0,0
-Portillo de Piuquenes,MENDOZA,CHILE,Vial,0,1,0
-Sistema Cristo Redentor,MENDOZA,CHILE,Vial,1,0,0
-Vergara,MENDOZA,CHILE,Vial,0,1,0
-De Buta Mallin,NEUQUEN,CHILE,Vial,0,1,0
-Hua Hum (Fluvial),NEUQUEN,CHILE,Fluvial,1,0,0
-Pichachén,NEUQUEN,CHILE,Vial,0,1,0
-Reigolil,NEUQUEN,CHILE,Vial,0,1,0
-Pérez Rosales,RIO NEGRO,CHILE,Vial,1,0,0
-Río Manso,RIO NEGRO,CHILE,Vial,1,0,0
-Vuriloche,RIO NEGRO,CHILE,Vial,0,1,0
-Laguna Sico,SALTA,CHILE,Vial,0,1,0
-Sico,SALTA,CHILE,Vial,1,0,0
-Socompa,SALTA,CHILE,Vial,1,0,0
-Agua Negra,SAN JUAN,CHILE,Vial,0,1,0
-Casa de Piedra,SAN JUAN,CHILE,Vial,0,1,0
-El Azufre,SAN JUAN,CHILE,Vial,0,1,0
-Mondaca,SAN JUAN,CHILE,Vial,0,1,0
-Pascua Lama,SAN JUAN,CHILE,Vial,0,1,0
-Quebrada Fría,SAN JUAN,CHILE,Vial,0,1,0
-Valle Hermoso,SAN JUAN,CHILE,Vial,0,1,0
-Cerro Redondo,SANTA CRUZ,CHILE,Vial,0,1,0
-Cóndor - Daniel Posesión,SANTA CRUZ,CHILE,Vial,0,1,0
-Cóndor II,SANTA CRUZ,CHILE,Vial,0,1,0
-Jeinimeni,SANTA CRUZ,CHILE,Vial,1,0,0
-Monte Dinero,SANTA CRUZ,CHILE,Vial,1,0,0
-Roballos,SANTA CRUZ,CHILE,Vial,1,0,0
-Río Don Guillermo,SANTA CRUZ,CHILE,Vial,1,0,0
-Río Mayer - Ribera Norte,SANTA CRUZ,CHILE,Vial,1,0,0
-Río Mosco,SANTA CRUZ,CHILE,Vial,1,0,0
-Puerto Almanza - Puerto Williams,TIERRA DEL FUEGO,CHILE,Fluvial,0,1,0
-Alfa Cullen,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,0,1,0
-Cañadon Alfa,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,0,1,0
-Río Bella Vista (Ex Radman),"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,1,0,0
-San Sebastián,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,1,0,0
-Puerto Las Palmas - Puerto Humaita,CHACO,PARAGUAY,Fluvial,0,1,0
-Puerto Ita Ibate - Panchito Lopez,CORRIENTES,PARAGUAY,Fluvial,1,0,0
-Puerto Itati - Puerto Ita Cora,CORRIENTES,PARAGUAY,Fluvial,0,1,0
-Puerto Paso de la Patria - Paso de la Patria,CORRIENTES,PARAGUAY,Fluvial,0,1,0
-Puerto Yahape - Puerto Cerrito,CORRIENTES,PARAGUAY,Fluvial,1,0,0
-Yaciretá - Yaciretá,CORRIENTES,PARAGUAY,Vial,1,0,0
-Pasarela La Fraternidad,FORMOSA,PARAGUAY,Vial,1,0,0
-Paso El Remanso - La Verde,FORMOSA,PARAGUAY,Vial,1,0,0
-Paso Lamadrid - Misión San Leonardo,FORMOSA,PARAGUAY,Vial,1,0,0
-Puerto Colonia Cano - Puerto Pilar,FORMOSA,PARAGUAY,Fluvial,1,0,0
-Puerto Pilcomayo - Puerto Ita Enramada,FORMOSA,PARAGUAY,Fluvial,1,0,0
-Posadas - Encarnación,MISIONES,PARAGUAY,Vial,1,0,0
-Puerto Eldorado - Puerto Mayor Julio Otaño,MISIONES,PARAGUAY,Fluvial,0,1,0
-Puerto Iguazu - Puerto Tres Fronteras,MISIONES,PARAGUAY,Fluvial,0,1,0
-Puerto Leoni - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial,0,1,0
-Puerto Libertad - Puerto Domingo Martínez de Irala,MISIONES,PARAGUAY,Fluvial,1,0,0
-Puerto Mado - Puerto Lomas Valentinas,MISIONES,PARAGUAY,Fluvial,0,1,0
-Puerto Montecarlo - Puerto Ape Aime,MISIONES,PARAGUAY,Fluvial,0,1,0
-Puerto Oasis - Capitan Meza,MISIONES,PARAGUAY,Fluvial,0,1,0
-Puerto Pinares - Carlos Antonio Lopez,MISIONES,PARAGUAY,Fluvial,0,1,0
-Puerto Piray - Puerto 7 de Agosto,MISIONES,PARAGUAY,Fluvial,0,1,0
-Puerto Rico - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial,0,1,0
-Puerto Victoria - Capitan Urbina,MISIONES,PARAGUAY,Fluvial,0,1,0
-Puerto Wanda - Puerto Ita Vera,MISIONES,PARAGUAY,Fluvial,1,0,0
-Misión La Paz - Pozo Hondo,SALTA,PARAGUAY,Vial,1,0,0
-Puerto Guazu Guazucito - Carmelo,BUENOS AIRES,URUGUAY,Fluvial,1,0,0
-Puerto Martin Garcia - Carmelo,BUENOS AIRES,URUGUAY,Fluvial,1,0,0
-Puerto Monte Caseros - Bella Union,CORRIENTES,URUGUAY,Fluvial,1,0,0
-Colón - Paysandú,ENTRE RIOS,URUGUAY,Vial,1,0,0
-Concordia - Salto,ENTRE RIOS,URUGUAY,Vial,1,0,0
-Puerto Boca del Gualeguaychu - Fray Bentos,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
-Puerto Colon - Puerto Paysandu,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
-Puerto Concepcion del Uruguay - Paysandu,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
-Puerto Concordia - Salto,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
-Puerto Federacion - Villa Constitucion,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
-Puerto Luis - Constitucion,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
-Puerto Paranacito - Nueva Palmira,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
-Puerto Santa Eloisa - Belen,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+﻿Año,Mes,Nombre del Paso,Provincia,País Limítrofe,Medio,Días Abierto,Días Cerrado,Días Sin Dato
+2026,11 - Noviembre,La Quiaca - Villazón,JUJUY,BOLIVIA,Vial,1,0,0
+2026,11 - Noviembre,Aguas Blancas - Bermejo,SALTA,BOLIVIA,Vial,1,0,0
+2026,11 - Noviembre,El Condado - La Mamora,SALTA,BOLIVIA,Vial,1,0,0
+2026,11 - Noviembre,Puerto Chalanas - Bermejo,SALTA,BOLIVIA,Fluvial,1,0,0
+2026,11 - Noviembre,Salvador Mazza - Yacuiba,SALTA,BOLIVIA,Vial,1,0,0
+2026,11 - Noviembre,Puerto Alvear - Puerto Itaqui,CORRIENTES,BRASIL,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Garruchos - Garruchos,CORRIENTES,BRASIL,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto La Cruz - Itaqui,CORRIENTES,BRASIL,Fluvial,0,1,0
+2026,11 - Noviembre,Santo Tomé - Sao Borja,CORRIENTES,BRASIL,Vial,1,0,0
+2026,11 - Noviembre,Andresito - Capanema,MISIONES,BRASIL,Vial,1,0,0
+2026,11 - Noviembre,Bernardo de Irigoyen - Dionisio Cerqueira,MISIONES,BRASIL,Vial,1,0,0
+2026,11 - Noviembre,El Soberbio - Porto Soberbo,MISIONES,BRASIL,Vial,1,0,0
+2026,11 - Noviembre,Panambí - Vera Cruz,MISIONES,BRASIL,Vial,1,0,0
+2026,11 - Noviembre,Paso de la Barca - Porto Xavier,MISIONES,BRASIL,Vial,1,0,0
+2026,11 - Noviembre,Pepiri Guazú - Sao Miguel,MISIONES,BRASIL,Vial,1,0,0
+2026,11 - Noviembre,Puerto Alba Posse - Porto Maua,MISIONES,BRASIL,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Colonia Aurora - Porto Pratos,MISIONES,BRASIL,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Santa María - Colonia Florida,MISIONES,BRASIL,Fluvial,1,0,0
+2026,11 - Noviembre,San Antonio - Santo Antonio,MISIONES,BRASIL,Vial,1,0,0
+2026,11 - Noviembre,San Francisco,CATAMARCA,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Coyhaique,CHUBUT,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Pampa Alta,CHUBUT,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Río Encuentro,CHUBUT,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Río Frías,CHUBUT,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Río Puelo,CHUBUT,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Triana,CHUBUT,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Jama,JUJUY,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Jama Norte,JUJUY,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Jama Sur,JUJUY,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Pircas Negras,LA RIOJA,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Cajón del Maipo,MENDOZA,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Las Damas,MENDOZA,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Las Leñas,MENDOZA,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Pehuenche,MENDOZA,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Portillo de Piuquenes,MENDOZA,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Sistema Cristo Redentor,MENDOZA,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Vergara,MENDOZA,CHILE,Vial,0,1,0
+2026,11 - Noviembre,De Buta Mallin,NEUQUEN,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Hua Hum (Fluvial),NEUQUEN,CHILE,Fluvial,1,0,0
+2026,11 - Noviembre,Pichachén,NEUQUEN,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Reigolil,NEUQUEN,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Pérez Rosales,RIO NEGRO,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Río Manso,RIO NEGRO,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Vuriloche,RIO NEGRO,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Laguna Sico,SALTA,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Sico,SALTA,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Socompa,SALTA,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Agua Negra,SAN JUAN,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Casa de Piedra,SAN JUAN,CHILE,Vial,0,1,0
+2026,11 - Noviembre,El Azufre,SAN JUAN,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Mondaca,SAN JUAN,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Pascua Lama,SAN JUAN,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Quebrada Fría,SAN JUAN,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Valle Hermoso,SAN JUAN,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Cerro Redondo,SANTA CRUZ,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Cóndor - Daniel Posesión,SANTA CRUZ,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Cóndor II,SANTA CRUZ,CHILE,Vial,0,1,0
+2026,11 - Noviembre,Jeinimeni,SANTA CRUZ,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Monte Dinero,SANTA CRUZ,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Roballos,SANTA CRUZ,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Río Don Guillermo,SANTA CRUZ,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Río Mayer - Ribera Norte,SANTA CRUZ,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Río Mosco,SANTA CRUZ,CHILE,Vial,1,0,0
+2026,11 - Noviembre,Puerto Almanza - Puerto Williams,TIERRA DEL FUEGO,CHILE,Fluvial,0,1,0
+2026,11 - Noviembre,Alfa Cullen,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,0,1,0
+2026,11 - Noviembre,Cañadon Alfa,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,0,1,0
+2026,11 - Noviembre,Río Bella Vista (Ex Radman),"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,1,0,0
+2026,11 - Noviembre,San Sebastián,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,1,0,0
+2026,11 - Noviembre,Puerto Las Palmas - Puerto Humaita,CHACO,PARAGUAY,Fluvial,0,1,0
+2026,11 - Noviembre,Puerto Ita Ibate - Panchito Lopez,CORRIENTES,PARAGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Itati - Puerto Ita Cora,CORRIENTES,PARAGUAY,Fluvial,0,1,0
+2026,11 - Noviembre,Puerto Paso de la Patria - Paso de la Patria,CORRIENTES,PARAGUAY,Fluvial,0,1,0
+2026,11 - Noviembre,Puerto Yahape - Puerto Cerrito,CORRIENTES,PARAGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Yaciretá - Yaciretá,CORRIENTES,PARAGUAY,Vial,1,0,0
+2026,11 - Noviembre,Pasarela La Fraternidad,FORMOSA,PARAGUAY,Vial,1,0,0
+2026,11 - Noviembre,Paso El Remanso - La Verde,FORMOSA,PARAGUAY,Vial,1,0,0
+2026,11 - Noviembre,Paso Lamadrid - Misión San Leonardo,FORMOSA,PARAGUAY,Vial,1,0,0
+2026,11 - Noviembre,Puerto Colonia Cano - Puerto Pilar,FORMOSA,PARAGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Pilcomayo - Puerto Ita Enramada,FORMOSA,PARAGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Posadas - Encarnación,MISIONES,PARAGUAY,Vial,1,0,0
+2026,11 - Noviembre,Puerto Eldorado - Puerto Mayor Julio Otaño,MISIONES,PARAGUAY,Fluvial,0,1,0
+2026,11 - Noviembre,Puerto Iguazu - Puerto Tres Fronteras,MISIONES,PARAGUAY,Fluvial,0,1,0
+2026,11 - Noviembre,Puerto Leoni - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial,0,1,0
+2026,11 - Noviembre,Puerto Libertad - Puerto Domingo Martínez de Irala,MISIONES,PARAGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Mado - Puerto Lomas Valentinas,MISIONES,PARAGUAY,Fluvial,0,1,0
+2026,11 - Noviembre,Puerto Montecarlo - Puerto Ape Aime,MISIONES,PARAGUAY,Fluvial,0,1,0
+2026,11 - Noviembre,Puerto Oasis - Capitan Meza,MISIONES,PARAGUAY,Fluvial,0,1,0
+2026,11 - Noviembre,Puerto Pinares - Carlos Antonio Lopez,MISIONES,PARAGUAY,Fluvial,0,1,0
+2026,11 - Noviembre,Puerto Piray - Puerto 7 de Agosto,MISIONES,PARAGUAY,Fluvial,0,1,0
+2026,11 - Noviembre,Puerto Rico - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial,0,1,0
+2026,11 - Noviembre,Puerto Victoria - Capitan Urbina,MISIONES,PARAGUAY,Fluvial,0,1,0
+2026,11 - Noviembre,Puerto Wanda - Puerto Ita Vera,MISIONES,PARAGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Misión La Paz - Pozo Hondo,SALTA,PARAGUAY,Vial,1,0,0
+2026,11 - Noviembre,Puerto Guazu Guazucito - Carmelo,BUENOS AIRES,URUGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Martin Garcia - Carmelo,BUENOS AIRES,URUGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Monte Caseros - Bella Union,CORRIENTES,URUGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Colón - Paysandú,ENTRE RIOS,URUGUAY,Vial,1,0,0
+2026,11 - Noviembre,Concordia - Salto,ENTRE RIOS,URUGUAY,Vial,1,0,0
+2026,11 - Noviembre,Puerto Boca del Gualeguaychu - Fray Bentos,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Colon - Puerto Paysandu,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Concepcion del Uruguay - Paysandu,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Concordia - Salto,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Federacion - Villa Constitucion,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Luis - Constitucion,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Paranacito - Nueva Palmira,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+2026,11 - Noviembre,Puerto Santa Eloisa - Belen,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
