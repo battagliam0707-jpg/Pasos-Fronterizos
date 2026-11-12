@@ -1,107 +1,107 @@
-﻿id_paso,nombre_paso,provincia,pais,medio
-27,Agua Negra,SAN JUAN,CHILE,Vial
-23,Aguas Blancas - Bermejo,SALTA,BOLIVIA,Vial
-106,Alfa Cullen,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial
-93,El Azufre,SAN JUAN,CHILE,Vial
-8,Andresito - Capanema,MISIONES,BRASIL,Vial
-91,Quebrada Fría,SAN JUAN,CHILE,Vial
-12,Bernardo de Irigoyen - Dionisio Cerqueira,MISIONES,BRASIL,Vial
-96,Cajón del Maipo,MENDOZA,CHILE,Vial
-92,Puerto Colonia Aurora - Porto Pratos,MISIONES,BRASIL,Vial
-42,Puerto Piray - Puerto 7 de Agosto,MISIONES,PARAGUAY,Vial
-41,Puerto Mado - Puerto Lomas Valentinas,MISIONES,PARAGUAY,Vial
-94,Casa de Piedra,SAN JUAN,CHILE,Vial
-107,Cañadon Alfa,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial
-110,Cerro Redondo,SANTA CRUZ,CHILE,Vial
-71,Puerto Colonia Cano - Puerto Pilar,FORMOSA,PARAGUAY,Vial
-17,Puerto Alvear - Puerto Itaqui,CORRIENTES,BRASIL,Vial
-3,Colón - Paysandú,ENTRE RIOS,URUGUAY,Vial
-5,Concordia - Salto,ENTRE RIOS,URUGUAY,Vial
-43,Puerto Montecarlo - Puerto Ape Aime,MISIONES,PARAGUAY,Vial
-55,Coyhaique,CHUBUT,CHILE,Vial
-108,Cóndor - Daniel Posesión,SANTA CRUZ,CHILE,Vial
-109,Cóndor II,SANTA CRUZ,CHILE,Vial
-102,De Buta Mallin,NEUQUEN,CHILE,Vial
-89,Panambí - Vera Cruz,MISIONES,BRASIL,Vial
-61,Puerto Yahape - Puerto Cerrito,CORRIENTES,PARAGUAY,Vial
-35,El Condado - La Mamora,SALTA,BOLIVIA,Vial
-87,El Soberbio - Porto Soberbo,MISIONES,BRASIL,Vial
-49,Puerto Leoni - Puerto Triunfo,MISIONES,PARAGUAY,Vial
-4,Puerto Pilcomayo - Puerto Ita Enramada,FORMOSA,PARAGUAY,Vial
-88,Puerto Alba Posse - Porto Maua,MISIONES,BRASIL,Vial
-39,Puerto Victoria - Capitan Urbina,MISIONES,PARAGUAY,Vial
-105,Hua Hum (Fluvial),NEUQUEN,CHILE,Vial
-56,Puerto Iguazu - Puerto Tres Fronteras,MISIONES,PARAGUAY,Vial
-38,Puerto Wanda - Puerto Ita Vera,MISIONES,PARAGUAY,Vial
-2,Monte Dinero,SANTA CRUZ,CHILE,Vial
-60,Puerto Ita Ibate - Panchito Lopez,CORRIENTES,PARAGUAY,Vial
-15,Puerto Eldorado - Puerto Mayor Julio Otaño,MISIONES,PARAGUAY,Vial
-68,Puerto Martin Garcia - Carmelo,BUENOS AIRES,URUGUAY,Vial
-6,Puerto Santa María - Colonia Florida,MISIONES,BRASIL,Vial
-19,Jama,JUJUY,CHILE,Vial
-100,Jama Norte,JUJUY,CHILE,Vial
-101,Jama Sur,JUJUY,CHILE,Vial
-58,Jeinimeni,SANTA CRUZ,CHILE,Vial
-18,La Quiaca - Villazón,JUJUY,BOLIVIA,Vial
-65,Puerto La Cruz - Itaqui,CORRIENTES,BRASIL,Vial
-99,Laguna Sico,SALTA,CHILE,Vial
-97,Las Damas,MENDOZA,CHILE,Vial
-98,Las Leñas,MENDOZA,CHILE,Vial
-79,Puerto Concepcion del Uruguay - Paysandu,ENTRE RIOS,URUGUAY,Vial
-80,Puerto Boca del Gualeguaychu - Fray Bentos,ENTRE RIOS,URUGUAY,Vial
-51,Puerto Oasis - Capitan Meza,MISIONES,PARAGUAY,Vial
-62,Puerto Garruchos - Garruchos,CORRIENTES,BRASIL,Vial
-83,Puerto Federacion - Villa Constitucion,ENTRE RIOS,URUGUAY,Vial
-40,Puerto Pinares - Carlos Antonio Lopez,MISIONES,PARAGUAY,Vial
-66,Puerto Monte Caseros - Bella Union,CORRIENTES,URUGUAY,Vial
-86,Puerto Paranacito - Nueva Palmira,ENTRE RIOS,URUGUAY,Vial
-72,Misión La Paz - Pozo Hondo,SALTA,PARAGUAY,Vial
-81,Mondaca,SAN JUAN,CHILE,Vial
-54,Pampa Alta,CHUBUT,CHILE,Vial
-31,Pasarela La Fraternidad,FORMOSA,PARAGUAY,Vial
-28,Pascua Lama,SAN JUAN,CHILE,Vial
-7,Paso El Remanso - La Verde,FORMOSA,PARAGUAY,Vial
-16,Paso Lamadrid - Misión San Leonardo,FORMOSA,PARAGUAY,Vial
-10,Paso de la Barca - Porto Xavier,MISIONES,BRASIL,Vial
-73,Puerto Itati - Puerto Ita Cora,CORRIENTES,PARAGUAY,Vial
-32,Pehuenche,MENDOZA,CHILE,Vial
-13,Pepiri Guazú - Sao Miguel,MISIONES,BRASIL,Vial
-34,Pichachén,NEUQUEN,CHILE,Vial
-37,Puerto Libertad - Puerto Domingo Martínez de Irala,MISIONES,PARAGUAY,Vial
-26,Pircas Negras,LA RIOJA,CHILE,Vial
-67,Puerto Guazu Guazucito - Carmelo,BUENOS AIRES,URUGUAY,Vial
-30,Portillo de Piuquenes,MENDOZA,CHILE,Vial
-1,Posadas - Encarnación,MISIONES,PARAGUAY,Vial
-82,Puerto Colon - Puerto Paysandu,ENTRE RIOS,URUGUAY,Vial
-77,Puerto Almanza - Puerto Williams,TIERRA DEL FUEGO,CHILE,Vial
-74,Santo Tomé - Sao Borja,CORRIENTES,BRASIL,Vial
-52,Triana,CHUBUT,CHILE,Vial
-24,Puerto Chalanas - Bermejo,SALTA,BOLIVIA,Vial
-11,Puerto Concordia - Salto,ENTRE RIOS,URUGUAY,Vial
-70,Río Bella Vista (Ex Radman),"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial
-46,Vuriloche,RIO NEGRO,CHILE,Vial
-90,Valle Hermoso,SAN JUAN,CHILE,Vial
-69,San Sebastián,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial
-75,Puerto Las Palmas - Puerto Humaita,CHACO,PARAGUAY,Vial
-84,Puerto Luis - Constitucion,ENTRE RIOS,URUGUAY,Vial
-50,Río Encuentro,CHUBUT,CHILE,Vial
-45,Pérez Rosales,RIO NEGRO,CHILE,Vial
-76,Puerto Paso de la Patria - Paso de la Patria,CORRIENTES,PARAGUAY,Vial
-57,Río Mayer - Ribera Norte,SANTA CRUZ,CHILE,Vial
-44,Puerto Rico - Puerto Triunfo,MISIONES,PARAGUAY,Vial
-59,Roballos,SANTA CRUZ,CHILE,Vial
-48,Río Puelo,CHUBUT,CHILE,Vial
-53,Río Frías,CHUBUT,CHILE,Vial
-47,Río Manso,RIO NEGRO,CHILE,Vial
-85,Puerto Santa Eloisa - Belen,ENTRE RIOS,URUGUAY,Vial
-64,Río Mosco,SANTA CRUZ,CHILE,Vial
-104,Reigolil,NEUQUEN,CHILE,Vial
-63,Río Don Guillermo,SANTA CRUZ,CHILE,Vial
-22,Salvador Mazza - Yacuiba,SALTA,BOLIVIA,Vial
-14,San Antonio - Santo Antonio,MISIONES,BRASIL,Vial
-25,San Francisco,CATAMARCA,CHILE,Vial
-20,Sico,SALTA,CHILE,Vial
-29,Sistema Cristo Redentor,MENDOZA,CHILE,Vial
-21,Socompa,SALTA,CHILE,Vial
-33,Vergara,MENDOZA,CHILE,Vial
-36,Yaciretá - Yaciretá,CORRIENTES,PARAGUAY,Vial
+﻿id_paso,nombre_paso,provincia,pais,medio,verificado
+27,Agua Negra,SAN JUAN,CHILE,Vial,SI
+23,Aguas Blancas - Bermejo,SALTA,BOLIVIA,Vial,SI
+106,Alfa Cullen,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,SI
+93,El Azufre,SAN JUAN,CHILE,Vial,SI
+8,Andresito - Capanema,MISIONES,BRASIL,Vial,SI
+91,Quebrada Fría,SAN JUAN,CHILE,Vial,SI
+12,Bernardo de Irigoyen - Dionisio Cerqueira,MISIONES,BRASIL,Vial,SI
+96,Cajón del Maipo,MENDOZA,CHILE,Vial,SI
+92,Puerto Colonia Aurora - Porto Pratos,MISIONES,BRASIL,Fluvial,SI
+42,Puerto Piray - Puerto 7 de Agosto,MISIONES,PARAGUAY,Fluvial,SI
+41,Puerto Mado - Puerto Lomas Valentinas,MISIONES,PARAGUAY,Fluvial,SI
+94,Casa de Piedra,SAN JUAN,CHILE,Vial,SI
+107,Cañadon Alfa,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,SI
+110,Cerro Redondo,SANTA CRUZ,CHILE,Vial,SI
+71,Puerto Colonia Cano - Puerto Pilar,FORMOSA,PARAGUAY,Fluvial,SI
+17,Puerto Alvear - Puerto Itaqui,CORRIENTES,BRASIL,Fluvial,SI
+3,Colón - Paysandú,ENTRE RIOS,URUGUAY,Vial,SI
+5,Concordia - Salto,ENTRE RIOS,URUGUAY,Vial,SI
+43,Puerto Montecarlo - Puerto Ape Aime,MISIONES,PARAGUAY,Fluvial,SI
+55,Coyhaique,CHUBUT,CHILE,Vial,SI
+108,Cóndor - Daniel Posesión,SANTA CRUZ,CHILE,Vial,SI
+109,Cóndor II,SANTA CRUZ,CHILE,Vial,SI
+102,De Buta Mallin,NEUQUEN,CHILE,Vial,SI
+89,Panambí - Vera Cruz,MISIONES,BRASIL,Vial,SI
+61,Puerto Yahape - Puerto Cerrito,CORRIENTES,PARAGUAY,Fluvial,SI
+35,El Condado - La Mamora,SALTA,BOLIVIA,Vial,SI
+87,El Soberbio - Porto Soberbo,MISIONES,BRASIL,Vial,SI
+49,Puerto Leoni - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial,SI
+4,Puerto Pilcomayo - Puerto Ita Enramada,FORMOSA,PARAGUAY,Fluvial,SI
+88,Puerto Alba Posse - Porto Maua,MISIONES,BRASIL,Fluvial,SI
+39,Puerto Victoria - Capitan Urbina,MISIONES,PARAGUAY,Fluvial,SI
+105,Hua Hum (Fluvial),NEUQUEN,CHILE,Fluvial,SI
+56,Puerto Iguazu - Puerto Tres Fronteras,MISIONES,PARAGUAY,Fluvial,SI
+38,Puerto Wanda - Puerto Ita Vera,MISIONES,PARAGUAY,Fluvial,SI
+2,Monte Dinero,SANTA CRUZ,CHILE,Vial,SI
+60,Puerto Ita Ibate - Panchito Lopez,CORRIENTES,PARAGUAY,Fluvial,SI
+15,Puerto Eldorado - Puerto Mayor Julio Otaño,MISIONES,PARAGUAY,Fluvial,SI
+68,Puerto Martin Garcia - Carmelo,BUENOS AIRES,URUGUAY,Fluvial,SI
+6,Puerto Santa María - Colonia Florida,MISIONES,BRASIL,Fluvial,SI
+19,Jama,JUJUY,CHILE,Vial,SI
+100,Jama Norte,JUJUY,CHILE,Vial,SI
+101,Jama Sur,JUJUY,CHILE,Vial,SI
+58,Jeinimeni,SANTA CRUZ,CHILE,Vial,SI
+18,La Quiaca - Villazón,JUJUY,BOLIVIA,Vial,SI
+65,Puerto La Cruz - Itaqui,CORRIENTES,BRASIL,Fluvial,SI
+99,Laguna Sico,SALTA,CHILE,Vial,SI
+97,Las Damas,MENDOZA,CHILE,Vial,SI
+98,Las Leñas,MENDOZA,CHILE,Vial,SI
+79,Puerto Concepcion del Uruguay - Paysandu,ENTRE RIOS,URUGUAY,Fluvial,SI
+80,Puerto Boca del Gualeguaychu - Fray Bentos,ENTRE RIOS,URUGUAY,Fluvial,SI
+51,Puerto Oasis - Capitan Meza,MISIONES,PARAGUAY,Fluvial,SI
+62,Puerto Garruchos - Garruchos,CORRIENTES,BRASIL,Fluvial,SI
+83,Puerto Federacion - Villa Constitucion,ENTRE RIOS,URUGUAY,Fluvial,SI
+40,Puerto Pinares - Carlos Antonio Lopez,MISIONES,PARAGUAY,Fluvial,SI
+66,Puerto Monte Caseros - Bella Union,CORRIENTES,URUGUAY,Fluvial,SI
+86,Puerto Paranacito - Nueva Palmira,ENTRE RIOS,URUGUAY,Fluvial,SI
+72,Misión La Paz - Pozo Hondo,SALTA,PARAGUAY,Vial,SI
+81,Mondaca,SAN JUAN,CHILE,Vial,SI
+54,Pampa Alta,CHUBUT,CHILE,Vial,SI
+31,Pasarela La Fraternidad,FORMOSA,PARAGUAY,Vial,SI
+28,Pascua Lama,SAN JUAN,CHILE,Vial,SI
+7,Paso El Remanso - La Verde,FORMOSA,PARAGUAY,Vial,SI
+16,Paso Lamadrid - Misión San Leonardo,FORMOSA,PARAGUAY,Vial,SI
+10,Paso de la Barca - Porto Xavier,MISIONES,BRASIL,Vial,SI
+73,Puerto Itati - Puerto Ita Cora,CORRIENTES,PARAGUAY,Fluvial,SI
+32,Pehuenche,MENDOZA,CHILE,Vial,SI
+13,Pepiri Guazú - Sao Miguel,MISIONES,BRASIL,Vial,SI
+34,Pichachén,NEUQUEN,CHILE,Vial,SI
+37,Puerto Libertad - Puerto Domingo Martínez de Irala,MISIONES,PARAGUAY,Fluvial,SI
+26,Pircas Negras,LA RIOJA,CHILE,Vial,SI
+67,Puerto Guazu Guazucito - Carmelo,BUENOS AIRES,URUGUAY,Fluvial,SI
+30,Portillo de Piuquenes,MENDOZA,CHILE,Vial,SI
+1,Posadas - Encarnación,MISIONES,PARAGUAY,Vial,SI
+82,Puerto Colon - Puerto Paysandu,ENTRE RIOS,URUGUAY,Fluvial,SI
+77,Puerto Almanza - Puerto Williams,TIERRA DEL FUEGO,CHILE,Fluvial,SI
+74,Santo Tomé - Sao Borja,CORRIENTES,BRASIL,Vial,SI
+52,Triana,CHUBUT,CHILE,Vial,SI
+24,Puerto Chalanas - Bermejo,SALTA,BOLIVIA,Fluvial,SI
+11,Puerto Concordia - Salto,ENTRE RIOS,URUGUAY,Fluvial,SI
+70,Río Bella Vista (Ex Radman),"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,SI
+46,Vuriloche,RIO NEGRO,CHILE,Vial,SI
+90,Valle Hermoso,SAN JUAN,CHILE,Vial,SI
+69,San Sebastián,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,SI
+75,Puerto Las Palmas - Puerto Humaita,CHACO,PARAGUAY,Fluvial,SI
+84,Puerto Luis - Constitucion,ENTRE RIOS,URUGUAY,Fluvial,SI
+50,Río Encuentro,CHUBUT,CHILE,Vial,SI
+45,Pérez Rosales,RIO NEGRO,CHILE,Vial,SI
+76,Puerto Paso de la Patria - Paso de la Patria,CORRIENTES,PARAGUAY,Fluvial,SI
+57,Río Mayer - Ribera Norte,SANTA CRUZ,CHILE,Vial,SI
+44,Puerto Rico - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial,SI
+59,Roballos,SANTA CRUZ,CHILE,Vial,SI
+48,Río Puelo,CHUBUT,CHILE,Vial,SI
+53,Río Frías,CHUBUT,CHILE,Vial,SI
+47,Río Manso,RIO NEGRO,CHILE,Vial,SI
+85,Puerto Santa Eloisa - Belen,ENTRE RIOS,URUGUAY,Fluvial,SI
+64,Río Mosco,SANTA CRUZ,CHILE,Vial,SI
+104,Reigolil,NEUQUEN,CHILE,Vial,SI
+63,Río Don Guillermo,SANTA CRUZ,CHILE,Vial,SI
+22,Salvador Mazza - Yacuiba,SALTA,BOLIVIA,Vial,SI
+14,San Antonio - Santo Antonio,MISIONES,BRASIL,Vial,SI
+25,San Francisco,CATAMARCA,CHILE,Vial,SI
+20,Sico,SALTA,CHILE,Vial,SI
+29,Sistema Cristo Redentor,MENDOZA,CHILE,Vial,SI
+21,Socompa,SALTA,CHILE,Vial,SI
+33,Vergara,MENDOZA,CHILE,Vial,SI
+36,Yaciretá - Yaciretá,CORRIENTES,PARAGUAY,Vial,SI

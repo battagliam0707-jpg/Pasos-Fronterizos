@@ -2,11 +2,11 @@
 La Quiaca - Villazón,JUJUY,BOLIVIA,Vial,1,0,0
 Aguas Blancas - Bermejo,SALTA,BOLIVIA,Vial,1,0,0
 El Condado - La Mamora,SALTA,BOLIVIA,Vial,1,0,0
-Puerto Chalanas - Bermejo,SALTA,BOLIVIA,Vial,1,0,0
+Puerto Chalanas - Bermejo,SALTA,BOLIVIA,Fluvial,1,0,0
 Salvador Mazza - Yacuiba,SALTA,BOLIVIA,Vial,1,0,0
-Puerto Alvear - Puerto Itaqui,CORRIENTES,BRASIL,Vial,1,0,0
-Puerto Garruchos - Garruchos,CORRIENTES,BRASIL,Vial,1,0,0
-Puerto La Cruz - Itaqui,CORRIENTES,BRASIL,Vial,0,1,0
+Puerto Alvear - Puerto Itaqui,CORRIENTES,BRASIL,Fluvial,1,0,0
+Puerto Garruchos - Garruchos,CORRIENTES,BRASIL,Fluvial,1,0,0
+Puerto La Cruz - Itaqui,CORRIENTES,BRASIL,Fluvial,0,1,0
 Santo Tomé - Sao Borja,CORRIENTES,BRASIL,Vial,1,0,0
 Andresito - Capanema,MISIONES,BRASIL,Vial,1,0,0
 Bernardo de Irigoyen - Dionisio Cerqueira,MISIONES,BRASIL,Vial,1,0,0
@@ -14,9 +14,9 @@ El Soberbio - Porto Soberbo,MISIONES,BRASIL,Vial,1,0,0
 Panambí - Vera Cruz,MISIONES,BRASIL,Vial,1,0,0
 Paso de la Barca - Porto Xavier,MISIONES,BRASIL,Vial,1,0,0
 Pepiri Guazú - Sao Miguel,MISIONES,BRASIL,Vial,1,0,0
-Puerto Alba Posse - Porto Maua,MISIONES,BRASIL,Vial,1,0,0
-Puerto Colonia Aurora - Porto Pratos,MISIONES,BRASIL,Vial,1,0,0
-Puerto Santa María - Colonia Florida,MISIONES,BRASIL,Vial,1,0,0
+Puerto Alba Posse - Porto Maua,MISIONES,BRASIL,Fluvial,1,0,0
+Puerto Colonia Aurora - Porto Pratos,MISIONES,BRASIL,Fluvial,1,0,0
+Puerto Santa María - Colonia Florida,MISIONES,BRASIL,Fluvial,1,0,0
 San Antonio - Santo Antonio,MISIONES,BRASIL,Vial,1,0,0
 San Francisco,CATAMARCA,CHILE,Vial,0,1,0
 Coyhaique,CHUBUT,CHILE,Vial,1,0,0
@@ -37,7 +37,7 @@ Portillo de Piuquenes,MENDOZA,CHILE,Vial,0,1,0
 Sistema Cristo Redentor,MENDOZA,CHILE,Vial,1,0,0
 Vergara,MENDOZA,CHILE,Vial,0,1,0
 De Buta Mallin,NEUQUEN,CHILE,Vial,0,1,0
-Hua Hum (Fluvial),NEUQUEN,CHILE,Vial,1,0,0
+Hua Hum (Fluvial),NEUQUEN,CHILE,Fluvial,1,0,0
 Pichachén,NEUQUEN,CHILE,Vial,0,1,0
 Reigolil,NEUQUEN,CHILE,Vial,0,1,0
 Pérez Rosales,RIO NEGRO,CHILE,Vial,1,0,0
@@ -62,46 +62,46 @@ Roballos,SANTA CRUZ,CHILE,Vial,1,0,0
 Río Don Guillermo,SANTA CRUZ,CHILE,Vial,1,0,0
 Río Mayer - Ribera Norte,SANTA CRUZ,CHILE,Vial,1,0,0
 Río Mosco,SANTA CRUZ,CHILE,Vial,1,0,0
-Puerto Almanza - Puerto Williams,TIERRA DEL FUEGO,CHILE,Vial,0,1,0
+Puerto Almanza - Puerto Williams,TIERRA DEL FUEGO,CHILE,Fluvial,0,1,0
 Alfa Cullen,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,0,1,0
 Cañadon Alfa,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,0,1,0
 Río Bella Vista (Ex Radman),"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,1,0,0
 San Sebastián,"TIERRA DEL FUEGO, ANTÁRTIDA E ISLAS DEL ATLÁNTICO SUR",CHILE,Vial,1,0,0
-Puerto Las Palmas - Puerto Humaita,CHACO,PARAGUAY,Vial,0,1,0
-Puerto Ita Ibate - Panchito Lopez,CORRIENTES,PARAGUAY,Vial,1,0,0
-Puerto Itati - Puerto Ita Cora,CORRIENTES,PARAGUAY,Vial,0,1,0
-Puerto Paso de la Patria - Paso de la Patria,CORRIENTES,PARAGUAY,Vial,0,1,0
-Puerto Yahape - Puerto Cerrito,CORRIENTES,PARAGUAY,Vial,1,0,0
+Puerto Las Palmas - Puerto Humaita,CHACO,PARAGUAY,Fluvial,0,1,0
+Puerto Ita Ibate - Panchito Lopez,CORRIENTES,PARAGUAY,Fluvial,1,0,0
+Puerto Itati - Puerto Ita Cora,CORRIENTES,PARAGUAY,Fluvial,0,1,0
+Puerto Paso de la Patria - Paso de la Patria,CORRIENTES,PARAGUAY,Fluvial,0,1,0
+Puerto Yahape - Puerto Cerrito,CORRIENTES,PARAGUAY,Fluvial,1,0,0
 Yaciretá - Yaciretá,CORRIENTES,PARAGUAY,Vial,1,0,0
 Pasarela La Fraternidad,FORMOSA,PARAGUAY,Vial,1,0,0
 Paso El Remanso - La Verde,FORMOSA,PARAGUAY,Vial,1,0,0
 Paso Lamadrid - Misión San Leonardo,FORMOSA,PARAGUAY,Vial,1,0,0
-Puerto Colonia Cano - Puerto Pilar,FORMOSA,PARAGUAY,Vial,1,0,0
-Puerto Pilcomayo - Puerto Ita Enramada,FORMOSA,PARAGUAY,Vial,1,0,0
+Puerto Colonia Cano - Puerto Pilar,FORMOSA,PARAGUAY,Fluvial,1,0,0
+Puerto Pilcomayo - Puerto Ita Enramada,FORMOSA,PARAGUAY,Fluvial,1,0,0
 Posadas - Encarnación,MISIONES,PARAGUAY,Vial,1,0,0
-Puerto Eldorado - Puerto Mayor Julio Otaño,MISIONES,PARAGUAY,Vial,0,1,0
-Puerto Iguazu - Puerto Tres Fronteras,MISIONES,PARAGUAY,Vial,0,1,0
-Puerto Leoni - Puerto Triunfo,MISIONES,PARAGUAY,Vial,0,1,0
-Puerto Libertad - Puerto Domingo Martínez de Irala,MISIONES,PARAGUAY,Vial,1,0,0
-Puerto Mado - Puerto Lomas Valentinas,MISIONES,PARAGUAY,Vial,0,1,0
-Puerto Montecarlo - Puerto Ape Aime,MISIONES,PARAGUAY,Vial,0,1,0
-Puerto Oasis - Capitan Meza,MISIONES,PARAGUAY,Vial,0,1,0
-Puerto Pinares - Carlos Antonio Lopez,MISIONES,PARAGUAY,Vial,0,1,0
-Puerto Piray - Puerto 7 de Agosto,MISIONES,PARAGUAY,Vial,0,1,0
-Puerto Rico - Puerto Triunfo,MISIONES,PARAGUAY,Vial,0,1,0
-Puerto Victoria - Capitan Urbina,MISIONES,PARAGUAY,Vial,0,1,0
-Puerto Wanda - Puerto Ita Vera,MISIONES,PARAGUAY,Vial,1,0,0
+Puerto Eldorado - Puerto Mayor Julio Otaño,MISIONES,PARAGUAY,Fluvial,0,1,0
+Puerto Iguazu - Puerto Tres Fronteras,MISIONES,PARAGUAY,Fluvial,0,1,0
+Puerto Leoni - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial,0,1,0
+Puerto Libertad - Puerto Domingo Martínez de Irala,MISIONES,PARAGUAY,Fluvial,1,0,0
+Puerto Mado - Puerto Lomas Valentinas,MISIONES,PARAGUAY,Fluvial,0,1,0
+Puerto Montecarlo - Puerto Ape Aime,MISIONES,PARAGUAY,Fluvial,0,1,0
+Puerto Oasis - Capitan Meza,MISIONES,PARAGUAY,Fluvial,0,1,0
+Puerto Pinares - Carlos Antonio Lopez,MISIONES,PARAGUAY,Fluvial,0,1,0
+Puerto Piray - Puerto 7 de Agosto,MISIONES,PARAGUAY,Fluvial,0,1,0
+Puerto Rico - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial,0,1,0
+Puerto Victoria - Capitan Urbina,MISIONES,PARAGUAY,Fluvial,0,1,0
+Puerto Wanda - Puerto Ita Vera,MISIONES,PARAGUAY,Fluvial,1,0,0
 Misión La Paz - Pozo Hondo,SALTA,PARAGUAY,Vial,1,0,0
-Puerto Guazu Guazucito - Carmelo,BUENOS AIRES,URUGUAY,Vial,1,0,0
-Puerto Martin Garcia - Carmelo,BUENOS AIRES,URUGUAY,Vial,1,0,0
-Puerto Monte Caseros - Bella Union,CORRIENTES,URUGUAY,Vial,1,0,0
+Puerto Guazu Guazucito - Carmelo,BUENOS AIRES,URUGUAY,Fluvial,1,0,0
+Puerto Martin Garcia - Carmelo,BUENOS AIRES,URUGUAY,Fluvial,1,0,0
+Puerto Monte Caseros - Bella Union,CORRIENTES,URUGUAY,Fluvial,1,0,0
 Colón - Paysandú,ENTRE RIOS,URUGUAY,Vial,1,0,0
 Concordia - Salto,ENTRE RIOS,URUGUAY,Vial,1,0,0
-Puerto Boca del Gualeguaychu - Fray Bentos,ENTRE RIOS,URUGUAY,Vial,1,0,0
-Puerto Colon - Puerto Paysandu,ENTRE RIOS,URUGUAY,Vial,1,0,0
-Puerto Concepcion del Uruguay - Paysandu,ENTRE RIOS,URUGUAY,Vial,1,0,0
-Puerto Concordia - Salto,ENTRE RIOS,URUGUAY,Vial,1,0,0
-Puerto Federacion - Villa Constitucion,ENTRE RIOS,URUGUAY,Vial,1,0,0
-Puerto Luis - Constitucion,ENTRE RIOS,URUGUAY,Vial,1,0,0
-Puerto Paranacito - Nueva Palmira,ENTRE RIOS,URUGUAY,Vial,1,0,0
-Puerto Santa Eloisa - Belen,ENTRE RIOS,URUGUAY,Vial,1,0,0
+Puerto Boca del Gualeguaychu - Fray Bentos,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+Puerto Colon - Puerto Paysandu,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+Puerto Concepcion del Uruguay - Paysandu,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+Puerto Concordia - Salto,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+Puerto Federacion - Villa Constitucion,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+Puerto Luis - Constitucion,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+Puerto Paranacito - Nueva Palmira,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
+Puerto Santa Eloisa - Belen,ENTRE RIOS,URUGUAY,Fluvial,1,0,0
