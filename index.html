@@ -27,7 +27,17 @@
       align-items: center; justify-content: space-between;
     }
     header h1 { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
-    .meta { font-size: 0.82rem; color: var(--muted); }
+    .meta { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+    .legend-bar {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+      background: var(--bg); border: 1px solid var(--border);
+      padding: 6px 12px; border-radius: 6px; font-size: 0.8rem;
+    }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; border: 1.5px solid #fff; }
+    .dot-ok { background: var(--ok); box-shadow: 0 0 6px rgba(34, 197, 94, 0.7); }
+    .dot-bad { background: var(--bad); box-shadow: 0 0 6px rgba(239, 68, 68, 0.7); }
+    .dot-warn { background: var(--warn); box-shadow: 0 0 6px rgba(245, 158, 11, 0.7); }
     .controls {
       background: var(--panel); border-bottom: 1px solid var(--border);
       padding: 10px 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
@@ -36,17 +46,26 @@
       background: var(--bg); color: var(--text); border: 1px solid var(--border);
       border-radius: 6px; padding: 7px 10px; font-size: 0.85rem;
     }
-    .kpis { display: flex; gap: 12px; margin-left: auto; font-size: 0.85rem; }
+    .kpis { display: flex; gap: 10px; margin-left: auto; font-size: 0.84rem; }
     .kpi { background: var(--bg); border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px; }
     .kpi b { color: var(--accent); }
+    .kpi.ok b { color: var(--ok); }
+    .kpi.bad b { color: var(--bad); }
     main { display: grid; grid-template-columns: 1.35fr 1fr; flex: 1; min-height: 0; }
     #map { width: 100%; height: 100%; }
+    .leaflet-legend {
+      background: rgba(15, 23, 42, 0.92); color: #f8fafc;
+      border: 1px solid #334155; border-radius: 8px;
+      padding: 10px 12px; font-size: 0.8rem; line-height: 1.55;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    }
+    .leaflet-legend h4 { margin-bottom: 6px; font-size: 0.82rem; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.03em; }
     .table-wrap { overflow: auto; border-left: 1px solid var(--border); }
     table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
     th, td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; }
     th { background: var(--panel); position: sticky; top: 0; z-index: 2; color: var(--accent); }
     tr:hover { background: rgba(56, 189, 248, 0.08); cursor: pointer; }
-    .badge { padding: 2px 8px; border-radius: 999px; font-weight: 600; font-size: 0.74rem; }
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font-weight: 600; font-size: 0.74rem; }
     .b-ok { background: rgba(34, 197, 94, 0.18); color: #4ade80; }
     .b-bad { background: rgba(239, 68, 68, 0.18); color: #f87171; }
     .b-warn { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
@@ -62,10 +81,15 @@
       <h1>Observatorio de Pasos Fronterizos — República Argentina</h1>
       <div class="meta" id="lblCorte">Cargando base auditada...</div>
     </div>
+    <div class="legend-bar" aria-label="Simbología de estado">
+      <span class="legend-item"><span class="dot dot-ok"></span> Paso Activo / Habilitado</span>
+      <span class="legend-item"><span class="dot dot-warn"></span> Con Restricciones / Demoras</span>
+      <span class="legend-item"><span class="dot dot-bad"></span> Paso Cerrado</span>
+    </div>
     <div class="kpis">
-      <div class="kpi">Total visibles: <b id="kpiTotal">0</b></div>
-      <div class="kpi">Habilitados: <b id="kpiHab">0</b></div>
-      <div class="kpi">Cerrados: <b id="kpiCer">0</b></div>
+      <div class="kpi">Visibles: <b id="kpiTotal">0</b></div>
+      <div class="kpi ok">Activos: <b id="kpiHab">0</b></div>
+      <div class="kpi bad">Cerrados: <b id="kpiCer">0</b></div>
     </div>
   </header>
 
@@ -75,7 +99,8 @@
     <select id="selPais"><option value="">Todos los países</option></select>
     <select id="selEstado">
       <option value="">Todos los estados</option>
-      <option value="habilitado">Habilitado / Abierto</option>
+      <option value="habilitado">Activo / Habilitado</option>
+      <option value="restriccion">Con Restricciones</option>
       <option value="cerrado">Cerrado</option>
     </select>
     <input type="text" id="txtBuscar" placeholder="Buscar paso fronterizo..." />
@@ -102,6 +127,7 @@
   <script>
     const norm = (s) => (s || "")
       .toString()
+      .replace(/^\uFEFF/, "")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-zA-Z0-9\s]/g, " ")
@@ -109,7 +135,20 @@
       .replace(/\s+/g, " ")
       .trim();
 
-    // Pasos marcados como "NO" en auditoría (excluidos)
+    function getCol(row, aliases) {
+      if (!row || typeof row !== "object") return "";
+      const keys = Object.keys(row);
+      for (const alias of aliases) {
+        const target = norm(alias);
+        const found = keys.find((k) => norm(k) === target);
+        if (found && row[found] !== undefined && row[found] !== null && String(row[found]).trim() !== "") {
+          return String(row[found]).trim();
+        }
+      }
+      return "";
+    }
+
+    // 17 pasos marcados con "NO" en auditoría (excluidos)
     const PASOS_IGNORADOS = [
       "huaytiquina", "la chapetona", "calderas", "pachon", "santa elena",
       "lumabia", "nellocahui", "coloco", "edgardo castello", "viedma",
@@ -159,236 +198,210 @@
       "santiago del estero": "Santiago del Estero", "san luis": "San Luis", "la pampa": "La Pampa"
     };
 
+    // [clave, prov, lat, lon, pais, nombreOficial]
     const CATALOGO_AUDITADO = [
-      ["la quiaca", "jujuy", -22.0967, -65.5964, "Bolivia"],
-      ["jama norte", "jujuy", -23.227301, -67.063069, "Chile"],
-      ["jama sur", "jujuy", -23.233026, -67.064815, "Chile"],
-      ["jama", "jujuy", -23.2350, -67.0650, "Chile"],
-      ["horacio guzman", "jujuy", -24.3928, -65.0978, "Internacional"],
-      ["salvador mazza", "salta", -22.0533, -63.6836, "Bolivia"],
-      ["aguas blancas", "salta", -22.7264, -64.3700, "Bolivia"],
-      ["chalanas", "salta", -22.7297, -64.3553, "Bolivia"],
-      ["el condado", "salta", -22.4261, -64.5128, "Bolivia"],
-      ["mision la paz", "salta", -22.3789, -62.5214, "Paraguay"],
-      ["laguna sico", "salta", -23.874876, -67.271398, "Chile"],
-      ["sico", "salta", -23.8350, -67.2600, "Chile"],
-      ["socompa", "salta", -24.4444, -68.2950, "Chile"],
-      ["martin miguel de guemes", "salta", -24.8560, -65.4862, "Internacional"],
-      ["san francisco", "catamarca", -26.8764, -68.3031, "Chile"],
-      ["felipe varela", "catamarca", -28.592462, -65.754983, "Internacional"],
-      ["pircas negras", "la rioja", -27.8489, -69.2556, "Chile"],
-      ["almandos almonacid", "la rioja", -29.383746, -66.794336, "Internacional"],
-      ["agua negra", "san juan", -30.1939, -69.8253, "Chile"],
-      ["colanguil", "san juan", -30.032758, -69.293696, "Chile"],
-      ["valle hermoso", "san juan", -30.783140, -70.283190, "Chile"],
-      ["domingo faustino sarmiento", "san juan", -31.5715, -68.4182, "Internacional"],
-      ["cristo redentor", "mendoza", -32.8253, -70.0725, "Chile"],
-      ["horcones", "mendoza", -32.8253, -70.0725, "Chile"],
-      ["pehuenche", "mendoza", -35.9817, -70.3989, "Chile"],
-      ["vergara", "mendoza", -35.1619, -70.5117, "Chile"],
-      ["planchon", "mendoza", -35.1619, -70.5117, "Chile"],
-      ["piuquenes", "mendoza", -33.613675, -69.498853, "Chile"],
-      ["cajon del maipo", "mendoza", -34.190939, -69.704362, "Chile"],
-      ["las damas", "mendoza", -34.884690, -70.291109, "Chile"],
-      ["plumerillo", "mendoza", -32.8317, -68.7929, "Internacional"],
-      ["ricardo salomon", "mendoza", -35.4936, -69.5743, "Internacional"],
-      ["pino hachado", "neuquen", -38.6531, -70.9036, "Chile"],
-      ["cardenal samore", "neuquen", -40.7131, -71.9469, "Chile"],
-      ["samore", "neuquen", -40.7131, -71.9469, "Chile"],
-      ["icalma", "neuquen", -38.8381, -71.2731, "Chile"],
-      ["mamuil malal", "neuquen", -39.5831, -71.4831, "Chile"],
-      ["tromen", "neuquen", -39.5831, -71.4831, "Chile"],
-      ["hua hum", "neuquen", -40.1189, -71.6689, "Chile"],
-      ["carirrine", "neuquen", -39.7931, -71.6531, "Chile"],
-      ["pichachen", "neuquen", -37.4531, -71.1231, "Chile"],
-      ["copahue", "neuquen", -37.814817, -71.093368, "Chile"],
-      ["presidente peron", "neuquen", -38.9490, -68.1557, "Internacional"],
-      ["chapelco", "neuquen", -40.0754, -71.1373, "Internacional"],
-      ["perez rosales", "rio negro", -41.0589, -71.8169, "Chile"],
-      ["rio manso", "rio negro", -41.5031, -71.8431, "Chile"],
-      ["vuriloche", "rio negro", -41.232810, -71.770120, "Chile"],
-      ["punta colorada", "rio negro", -41.6983, -65.0078, "Internacional"],
-      ["san antonio este", "rio negro", -40.8031, -64.8831, "Internacional"],
-      ["luis candelaria", "rio negro", -41.1512, -71.1575, "Internacional"],
-      ["bariloche", "rio negro", -41.1512, -71.1575, "Internacional"],
-      ["futaleufu", "chubut", -43.1786, -71.7519, "Chile"],
-      ["huemules", "chubut", -45.9031, -71.6531, "Chile"],
-      ["rio encuentro", "chubut", -43.5889, -71.7489, "Chile"],
-      ["rio puelo", "chubut", -42.1031, -71.7231, "Chile"],
-      ["cohiue", "chubut", -45.5531, -71.7331, "Chile"],
-      ["triana", "chubut", -45.572530, -71.698310, "Chile"],
-      ["pallavicini", "chubut", -46.0131, -71.6631, "Chile"],
-      ["pampa alta", "chubut", -45.230420, -71.327320, "Chile"],
-      ["rio frias", "chubut", -44.579590, -71.056280, "Chile"],
-      ["las pampas", "chubut", -44.238770, -71.719420, "Chile"],
-      ["puerto madryn", "chubut", -42.7611, -65.0331, "Internacional"],
-      ["comodoro rivadavia", "chubut", -45.8622, -67.4631, "Internacional"],
-      ["enrique mosconi", "chubut", -45.7853, -67.4656, "Internacional"],
-      ["marco andres zar", "chubut", -43.2105, -65.2703, "Internacional"],
-      ["tehuelche", "chubut", -42.7592, -65.1027, "Internacional"],
-      ["antonio parodi", "chubut", -42.9080, -71.1395, "Internacional"],
-      ["integracion austral", "santa cruz", -52.1389, -69.5181, "Chile"],
-      ["monte aymond", "santa cruz", -52.1389, -69.5181, "Chile"],
-      ["don guillermo", "santa cruz", -51.2531, -72.2531, "Chile"],
-      ["laurita", "santa cruz", -51.6731, -72.3231, "Chile"],
-      ["dorotea", "santa cruz", -51.5831, -72.3431, "Chile"],
-      ["cancha carrera", "santa cruz", -51.2631, -72.2431, "Chile"],
-      ["jeinimeni", "santa cruz", -46.5431, -71.6531, "Chile"],
-      ["roballos", "santa cruz", -47.1531, -71.8531, "Chile"],
-      ["mayer", "santa cruz", -48.1831, -72.3331, "Chile"],
-      ["lago san martin", "santa cruz", -49.126120, -72.491900, "Chile"],
-      ["marconi", "santa cruz", -49.331370, -72.884760, "Chile"],
-      ["portezuelo de la divisoria", "santa cruz", -48.998980, -72.839410, "Chile"],
-      ["rio mosco", "santa cruz", -48.489390, -72.552780, "Chile"],
-      ["cabo virgenes", "santa cruz", -52.3289, -68.3531, "Chile"],
-      ["monte dinero", "santa cruz", -52.239468, -68.883148, "Chile"],
-      ["puerto rio gallegos", "santa cruz", -51.6219, -69.2131, "Internacional"],
-      ["punta quilla", "santa cruz", -50.1167, -68.4167, "Internacional"],
-      ["puerto santa cruz", "santa cruz", -50.0189, -68.5231, "Internacional"],
-      ["san julian", "santa cruz", -49.3089, -67.7231, "Internacional"],
-      ["puerto deseado", "santa cruz", -47.7531, -65.8931, "Internacional"],
-      ["caleta olivia", "santa cruz", -46.4431, -67.5131, "Internacional"],
-      ["armando tola", "santa cruz", -50.2803, -72.0531, "Internacional"],
-      ["norberto fernandez", "santa cruz", -51.6089, -69.3126, "Internacional"],
-      ["san sebastian", "tierra del fuego", -53.3189, -68.6042, "Chile"],
-      ["radman", "tierra del fuego", -53.9931, -68.6131, "Chile"],
-      ["bellavista", "tierra del fuego", -53.9931, -68.6131, "Chile"],
-      ["puerto williams", "tierra del fuego", -54.8722, -67.5719, "Chile"],
-      ["almanza", "tierra del fuego", -54.8722, -67.5719, "Chile"],
-      ["puerto ushuaia", "tierra del fuego", -54.8089, -68.3031, "Internacional"],
-      ["puerto rio grande", "tierra del fuego", -53.7889, -67.6931, "Internacional"],
-      ["malvinas argentinas", "tierra del fuego", -54.8433, -68.2958, "Internacional"],
-      ["hermes quijada", "tierra del fuego", -53.7777, -67.7494, "Internacional"],
-      ["san ignacio de loyola", "formosa", -25.2589, -57.7081, "Paraguay"],
-      ["clorinda", "formosa", -25.2589, -57.7081, "Paraguay"],
-      ["la fraternidad", "formosa", -25.2869, -57.7219, "Paraguay"],
-      ["pilcomayo", "formosa", -25.3711, -57.6519, "Paraguay"],
-      ["puerto formosa", "formosa", -26.1831, -58.1631, "Paraguay"],
-      ["colonia cano", "formosa", -26.853231, -58.324608, "Paraguay"],
-      ["el remanso", "formosa", -23.987892, -60.458126, "Paraguay"],
-      ["isleta", "formosa", -24.212000, -60.197070, "Paraguay"],
-      ["lamadrid", "formosa", -23.897911, -60.755810, "Paraguay"],
-      ["general belgrano", "formosa", -24.748760, -58.833130, "Paraguay"],
-      ["el pucu", "formosa", -26.2127, -58.2281, "Internacional"],
-      ["las palmas", "chaco", -27.0819, -58.6131, "Paraguay"],
-      ["puerto bermejo", "chaco", -26.9289, -58.5031, "Paraguay"],
-      ["barranqueras", "chaco", -27.4831, -58.9231, "Internacional"],
-      ["resistencia", "chaco", -27.4500, -59.0561, "Internacional"],
-      ["tancredo neves", "misiones", -25.5883, -54.5617, "Brasil"],
-      ["foz de iguazu", "misiones", -25.5883, -54.5617, "Brasil"],
-      ["puerto meira", "misiones", -25.5933, -54.5789, "Brasil"],
-      ["tres fronteras", "misiones", -25.5939, -54.5794, "Paraguay"],
-      ["posadas", "misiones", -27.3689, -55.8831, "Paraguay"],
-      ["pacu cua", "misiones", -27.3589, -55.8789, "Paraguay"],
-      ["bernardo de irigoyen", "misiones", -26.2547, -53.6439, "Brasil"],
-      ["andresito", "misiones", -25.6017, -53.9781, "Brasil"],
-      ["san antonio", "misiones", -26.0567, -53.7306, "Brasil"],
-      ["integracion", "misiones", -25.7689, -53.8511, "Brasil"],
-      ["pepiri guazu", "misiones", -26.6131, -53.7347, "Brasil"],
-      ["el soberbio", "misiones", -27.3000, -54.1917, "Brasil"],
-      ["alicia", "misiones", -27.4639, -54.3442, "Brasil"],
-      ["aurora", "misiones", -27.4994, -54.5206, "Brasil"],
-      ["alba posse", "misiones", -27.5714, -54.6792, "Brasil"],
-      ["barra bonita", "misiones", -27.6014, -54.8431, "Brasil"],
-      ["panambi", "misiones", -27.7300, -54.9142, "Brasil"],
-      ["paso de la barca", "misiones", -27.8919, -55.1356, "Brasil"],
-      ["santa maria", "misiones", -27.9678, -55.3508, "Brasil"],
-      ["san isidro", "misiones", -28.0503, -55.4158, "Brasil"],
-      ["puerto libertad", "misiones", -25.9647, -54.6039, "Paraguay"],
-      ["puerto wanda", "misiones", -25.9650, -54.6042, "Paraguay"],
-      ["puerto mado", "misiones", -26.2303, -54.6294, "Paraguay"],
-      ["puerto victoria", "misiones", -26.3350, -54.4667, "Paraguay"],
-      ["puerto pinares", "misiones", -26.4061, -54.6939, "Paraguay"],
-      ["eldorado", "misiones", -26.4064, -54.6939, "Paraguay"],
-      ["puerto piray", "misiones", -26.4728, -54.7261, "Paraguay"],
-      ["montecarlo", "misiones", -26.5594, -54.8039, "Paraguay"],
-      ["paranay", "misiones", -26.6744, -54.8150, "Paraguay"],
-      ["puerto rico", "misiones", -26.7919, -55.0244, "Paraguay"],
-      ["garuhape", "misiones", -26.7914, -55.0247, "Paraguay"],
-      ["puerto leoni", "misiones", -26.9831, -55.1631, "Paraguay"],
-      ["puerto oasis", "misiones", -27.0131, -55.2631, "Paraguay"],
-      ["puerto mani", "misiones", -27.1431, -55.4831, "Paraguay"],
-      ["san ignacio", "misiones", -27.2531, -55.5531, "Paraguay"],
-      ["santa ana", "misiones", -27.3531, -55.5931, "Paraguay"],
-      ["candelaria", "misiones", -27.4531, -55.7431, "Paraguay"],
-      ["cataratas del iguazu", "misiones", -25.7373, -54.4734, "Internacional"],
-      ["libertador general jose de san martin", "misiones", -27.3858, -55.9707, "Internacional"],
-      ["paso de los libres", "corrientes", -29.7336, -57.1019, "Brasil"],
-      ["santo tome", "corrientes", -28.6106, -56.0144, "Brasil"],
-      ["puerto alvear", "corrientes", -29.1133, -56.5553, "Brasil"],
-      ["puerto la cruz", "corrientes", -29.1783, -56.6336, "Brasil"],
-      ["yapeyu", "corrientes", -29.4700, -56.8111, "Brasil"],
-      ["garruchos", "corrientes", -28.1772, -55.6425, "Brasil"],
-      ["monte caseros", "corrientes", -30.2519, -57.6222, "Uruguay"],
-      ["ituzaingo", "corrientes", -27.5831, -56.6831, "Paraguay"],
-      ["yacyreta", "corrientes", -27.4831, -56.7331, "Paraguay"],
-      ["apipe", "corrientes", -27.5131, -56.7431, "Paraguay"],
-      ["ita ibate", "corrientes", -27.4331, -57.3331, "Paraguay"],
-      ["yahape", "corrientes", -27.3731, -57.6531, "Paraguay"],
-      ["itati", "corrientes", -27.2689, -58.2431, "Paraguay"],
-      ["paso de la patria", "corrientes", -27.3189, -58.5731, "Paraguay"],
-      ["puerto corrientes", "corrientes", -27.4631, -58.8331, "Internacional"],
-      ["goya", "corrientes", -29.1431, -59.2731, "Internacional"],
-      ["esquina", "corrientes", -30.0131, -59.5331, "Internacional"],
-      ["piragine niveyro", "corrientes", -27.4455, -58.7619, "Internacional"],
-      ["gualeguaychu", "entre rios", -33.0947, -58.2464, "Uruguay"],
-      ["colon", "entre rios", -32.2656, -58.0939, "Uruguay"],
-      ["concordia", "entre rios", -31.2608, -57.9617, "Uruguay"],
-      ["boca de gualeguaychu", "entre rios", -33.0739, -58.4206, "Uruguay"],
-      ["concepcion del uruguay", "entre rios", -32.4833, -58.2222, "Uruguay"],
-      ["puerto colon", "entre rios", -32.2156, -58.1367, "Uruguay"],
-      ["puerto concordia", "entre rios", -31.4022, -58.0036, "Uruguay"],
-      ["puerto luis", "entre rios", -31.209789, -57.930817, "Uruguay"],
-      ["federacion", "entre rios", -30.9931, -57.9153, "Uruguay"],
-      ["santa eloisa", "entre rios", -30.761606, -57.822300, "Uruguay"],
-      ["paranacito", "entre rios", -33.7161, -58.6594, "Uruguay"],
-      ["guazucito", "entre rios", -34.0147, -58.3956, "Uruguay"],
-      ["portuaria del guazu", "entre rios", -33.8931, -58.8831, "Internacional"],
-      ["ibicuy", "entre rios", -33.7531, -59.1731, "Internacional"],
-      ["diamante", "entre rios", -32.0631, -60.6431, "Internacional"],
-      ["puerto de parana", "entre rios", -31.7092, -60.5736, "Internacional"],
-      ["la paz", "entre rios", -30.6672, -59.6403, "Internacional"],
-      ["pierrestegui", "entre rios", -31.2969, -57.9967, "Internacional"],
-      ["justo jose de urquiza", "entre rios", -31.7948, -60.4804, "Internacional"],
-      ["puerto rosario", "santa fe", -32.9442, -60.6306, "Internacional"],
-      ["san lorenzo", "santa fe", -32.7431, -60.7331, "Internacional"],
-      ["general san martin", "santa fe", -32.7131, -60.7231, "Internacional"],
-      ["villa constitucion", "santa fe", -33.2231, -60.3231, "Internacional"],
-      ["puerto santa fe", "santa fe", -31.6489, -60.7031, "Internacional"],
-      ["islas malvinas", "santa fe", -32.9036, -60.7850, "Internacional"],
-      ["sauce viejo", "santa fe", -31.7117, -60.8117, "Internacional"],
-      ["martin garcia", "buenos aires", -34.1889, -58.2553, "Uruguay"],
-      ["buquebus", "caba", -34.6118, -58.3622, "Uruguay"],
-      ["colonia express", "caba", -34.6231, -58.3569, "Uruguay"],
-      ["quinquela martin", "caba", -34.5858, -58.3711, "Internacional"],
-      ["puerto de buenos aires", "caba", -34.5889, -58.3689, "Internacional"],
-      ["yacht club argentino", "caba", -34.5931, -58.3653, "Uruguay"],
-      ["tigre", "buenos aires", -34.4219, -58.5819, "Uruguay"],
-      ["san fernando", "buenos aires", -34.4369, -58.5531, "Uruguay"],
-      ["puerto san isidro", "buenos aires", -34.4631, -58.5031, "Uruguay"],
-      ["olivos", "buenos aires", -34.5031, -58.4789, "Uruguay"],
-      ["quilmes", "buenos aires", -34.7031, -58.2231, "Internacional"],
-      ["la plata", "buenos aires", -34.8531, -57.8831, "Internacional"],
-      ["campana", "buenos aires", -34.1531, -58.9531, "Internacional"],
-      ["zarate", "buenos aires", -34.0931, -59.0231, "Internacional"],
-      ["escobar", "buenos aires", -34.2531, -58.7331, "Internacional"],
-      ["san pedro", "buenos aires", -33.6731, -59.6531, "Internacional"],
-      ["ramallo", "buenos aires", -33.4831, -60.0031, "Internacional"],
-      ["san nicolas", "buenos aires", -33.3231, -60.2131, "Internacional"],
-      ["mar del plata", "buenos aires", -38.0331, -57.5331, "Internacional"],
-      ["quequen", "buenos aires", -38.5731, -58.7031, "Internacional"],
-      ["bahia blanca", "buenos aires", -38.7831, -62.2631, "Internacional"],
-      ["ezeiza", "buenos aires", -34.8222, -58.5358, "Internacional"],
-      ["jorge newbery", "caba", -34.5592, -58.4156, "Internacional"],
-      ["aeropuerto internacional san fernando", "buenos aires", -34.4532, -58.5896, "Internacional"],
-      ["palomar", "buenos aires", -34.6099, -58.6126, "Internacional"],
-      ["astor piazzolla", "buenos aires", -37.9342, -57.5733, "Internacional"],
-      ["comandante espora", "buenos aires", -38.7250, -62.1693, "Internacional"],
-      ["ambrosio taravella", "cordoba", -31.3236, -64.2081, "Internacional"],
-      ["benjamin matienzo", "tucuman", -26.8408, -65.1047, "Internacional"],
-      ["termas de rio hondo", "santiago del estero", -27.4956, -64.9358, "Internacional"],
-      ["cesar raul ojeda", "san luis", -33.2731, -66.3564, "Internacional"],
-      ["santa rosa", "la pampa", -36.6883, -64.2756, "Internacional"]
+      ["la quiaca", "jujuy", -22.0967, -65.5964, "Bolivia", "La Quiaca - Villazón"],
+      ["jama norte", "jujuy", -23.227301, -67.063069, "Chile", "Jama Norte"],
+      ["jama sur", "jujuy", -23.233026, -67.064815, "Chile", "Jama Sur"],
+      ["jama", "jujuy", -23.2350, -67.0650, "Chile", "Paso de Jama"],
+      ["horacio guzman", "jujuy", -24.3928, -65.0978, "Internacional", "Aeropuerto Internacional Gobernador Horacio Guzmán"],
+      ["salvador mazza", "salta", -22.0533, -63.6836, "Bolivia", "Salvador Mazza - Yacuiba"],
+      ["aguas blancas", "salta", -22.7264, -64.3700, "Bolivia", "Aguas Blancas - Bermejo"],
+      ["chalanas", "salta", -22.7297, -64.3553, "Bolivia", "Puerto Chalanas - Bermejo"],
+      ["el condado", "salta", -22.4261, -64.5128, "Bolivia", "El Condado - La Mamora"],
+      ["mision la paz", "salta", -22.3789, -62.5214, "Paraguay", "Misión La Paz - Pozo Hondo"],
+      ["laguna sico", "salta", -23.874876, -67.271398, "Chile", "Laguna Sico"],
+      ["sico", "salta", -23.8350, -67.2600, "Chile", "Paso de Sico"],
+      ["socompa", "salta", -24.4444, -68.2950, "Chile", "Paso Socompa"],
+      ["martin miguel de guemes", "salta", -24.8560, -65.4862, "Internacional", "Aeropuerto Internacional Martín Miguel de Güemes"],
+      ["san francisco", "catamarca", -26.8764, -68.3031, "Chile", "Paso de San Francisco"],
+      ["felipe varela", "catamarca", -28.592462, -65.754983, "Internacional", "Aeropuerto Coronel Felipe Varela"],
+      ["pircas negras", "la rioja", -27.8489, -69.2556, "Chile", "Paso Pircas Negras"],
+      ["almandos almonacid", "la rioja", -29.383746, -66.794336, "Internacional", "Aeropuerto Capitán Vicente Almandos Almonacid"],
+      ["agua negra", "san juan", -30.1939, -69.8253, "Chile", "Paso de Agua Negra"],
+      ["colanguil", "san juan", -30.032758, -69.293696, "Chile", "Paso Portillo de Colangüil"],
+      ["valle hermoso", "san juan", -30.783140, -70.283190, "Chile", "Paso Valle Hermoso"],
+      ["domingo faustino sarmiento", "san juan", -31.5715, -68.4182, "Internacional", "Aeropuerto Domingo Faustino Sarmiento"],
+      ["cristo redentor", "mendoza", -32.8253, -70.0725, "Chile", "Sistema Cristo Redentor"],
+      ["horcones", "mendoza", -32.8253, -70.0725, "Chile", "Horcones - Cristo Redentor"],
+      ["pehuenche", "mendoza", -35.9817, -70.3989, "Chile", "Paso Internacional Pehuenche"],
+      ["vergara", "mendoza", -35.1619, -70.5117, "Chile", "Paso Vergara"],
+      ["planchon", "mendoza", -35.1619, -70.5117, "Chile", "Paso Planchón - Vergara"],
+      ["piuquenes", "mendoza", -33.613675, -69.498853, "Chile", "Paso Portillo de Piuquenes"],
+      ["cajon del maipo", "mendoza", -34.190939, -69.704362, "Chile", "Paso Cajón del Maipo"],
+      ["las damas", "mendoza", -34.884690, -70.291109, "Chile", "Paso Las Damas"],
+      ["plumerillo", "mendoza", -32.8317, -68.7929, "Internacional", "Aeropuerto Internacional El Plumerillo"],
+      ["ricardo salomon", "mendoza", -35.4936, -69.5743, "Internacional", "Aeropuerto Comodoro Ricardo Salomón"],
+      ["pino hachado", "neuquen", -38.6531, -70.9036, "Chile", "Paso Pino Hachado"],
+      ["cardenal samore", "neuquen", -40.7131, -71.9469, "Chile", "Paso Cardenal Antonio Samoré"],
+      ["samore", "neuquen", -40.7131, -71.9469, "Chile", "Paso Cardenal Samoré"],
+      ["icalma", "neuquen", -38.8381, -71.2731, "Chile", "Paso Icalma"],
+      ["mamuil malal", "neuquen", -39.5831, -71.4831, "Chile", "Paso Mamuil Malal"],
+      ["tromen", "neuquen", -39.5831, -71.4831, "Chile", "Paso Mamuil Malal (Tromen)"],
+      ["hua hum", "neuquen", -40.1189, -71.6689, "Chile", "Paso Hua Hum"],
+      ["carirrine", "neuquen", -39.7931, -71.6531, "Chile", "Paso Carirriñe"],
+      ["pichachen", "neuquen", -37.4531, -71.1231, "Chile", "Paso Pichachén"],
+      ["copahue", "neuquen", -37.814817, -71.093368, "Chile", "Paso Copahue"],
+      ["presidente peron", "neuquen", -38.9490, -68.1557, "Internacional", "Aeropuerto Internacional Presidente Perón"],
+      ["chapelco", "neuquen", -40.0754, -71.1373, "Internacional", "Aeropuerto Aviador Carlos Campos"],
+      ["perez rosales", "rio negro", -41.0589, -71.8169, "Chile", "Paso Vicente Pérez Rosales"],
+      ["rio manso", "rio negro", -41.5031, -71.8431, "Chile", "Paso Río Manso"],
+      ["vuriloche", "rio negro", -41.232810, -71.770120, "Chile", "Paso Vuriloche (Tronador)"],
+      ["punta colorada", "rio negro", -41.6983, -65.0078, "Internacional", "Muelle Punta Colorada"],
+      ["san antonio este", "rio negro", -40.8031, -64.8831, "Internacional", "Puerto San Antonio Este"],
+      ["luis candelaria", "rio negro", -41.1512, -71.1575, "Internacional", "Aeropuerto Internacional Bariloche"],
+      ["futaleufu", "chubut", -43.1786, -71.7519, "Chile", "Paso Río Futaleufú"],
+      ["huemules", "chubut", -45.9031, -71.6531, "Chile", "Paso Huemules"],
+      ["rio encuentro", "chubut", -43.5889, -71.7489, "Chile", "Paso Río Encuentro"],
+      ["rio puelo", "chubut", -42.1031, -71.7231, "Chile", "Paso Río Puelo"],
+      ["cohiue", "chubut", -45.5531, -71.7331, "Chile", "Paso Cohiue - Coyhaique"],
+      ["triana", "chubut", -45.572530, -71.698310, "Chile", "Paso Triana"],
+      ["pallavicini", "chubut", -46.0131, -71.6631, "Chile", "Paso Ingeniero Pallavicini"],
+      ["pampa alta", "chubut", -45.230420, -71.327320, "Chile", "Paso Pampa Alta"],
+      ["rio frias", "chubut", -44.579590, -71.056280, "Chile", "Paso Río Frías - Cisnes"],
+      ["las pampas", "chubut", -44.238770, -71.719420, "Chile", "Paso Las Pampas - Lago Verde"],
+      ["puerto madryn", "chubut", -42.7611, -65.0331, "Internacional", "Puerto Madryn"],
+      ["comodoro rivadavia", "chubut", -45.8622, -67.4631, "Internacional", "Puerto Comodoro Rivadavia"],
+      ["enrique mosconi", "chubut", -45.7853, -67.4656, "Internacional", "Aeropuerto General Enrique Mosconi"],
+      ["marco andres zar", "chubut", -43.2105, -65.2703, "Internacional", "Aeropuerto Almirante Marco Andrés Zar"],
+      ["tehuelche", "chubut", -42.7592, -65.1027, "Internacional", "Aeropuerto El Tehuelche"],
+      ["antonio parodi", "chubut", -42.9080, -71.1395, "Internacional", "Aeropuerto Brigadier Antonio Parodi"],
+      ["integracion austral", "santa cruz", -52.1389, -69.5181, "Chile", "Paso Integración Austral"],
+      ["don guillermo", "santa cruz", -51.2531, -72.2531, "Chile", "Paso Río Don Guillermo"],
+      ["laurita", "santa cruz", -51.6731, -72.3231, "Chile", "Paso Laurita - Casas Viejas"],
+      ["dorotea", "santa cruz", -51.5831, -72.3431, "Chile", "Paso Dorotea"],
+      ["cancha carrera", "santa cruz", -51.2631, -72.2431, "Chile", "Paso Cancha Carrera"],
+      ["jeinimeni", "santa cruz", -46.5431, -71.6531, "Chile", "Paso Río Jeinimeni"],
+      ["roballos", "santa cruz", -47.1531, -71.8531, "Chile", "Paso Roballos"],
+      ["mayer", "santa cruz", -48.1831, -72.3331, "Chile", "Paso Mayer"],
+      ["lago san martin", "santa cruz", -49.126120, -72.491900, "Chile", "Paso Lago San Martín - O'Higgins"],
+      ["marconi", "santa cruz", -49.331370, -72.884760, "Chile", "Paso Marconi"],
+      ["portezuelo de la divisoria", "santa cruz", -48.998980, -72.839410, "Chile", "Paso Portezuelo de la Divisoria"],
+      ["rio mosco", "santa cruz", -48.489390, -72.552780, "Chile", "Paso Río Mosco"],
+      ["cabo virgenes", "santa cruz", -52.3289, -68.3531, "Chile", "Cabo Vírgenes"],
+      ["monte dinero", "santa cruz", -52.239468, -68.883148, "Chile", "Monte Dinero"],
+      ["puerto rio gallegos", "santa cruz", -51.6219, -69.2131, "Internacional", "Puerto Río Gallegos"],
+      ["punta quilla", "santa cruz", -50.1167, -68.4167, "Internacional", "Puerto Punta Quilla"],
+      ["puerto santa cruz", "santa cruz", -50.0189, -68.5231, "Internacional", "Puerto Santa Cruz"],
+      ["san julian", "santa cruz", -49.3089, -67.7231, "Internacional", "Puerto San Julián"],
+      ["puerto deseado", "santa cruz", -47.7531, -65.8931, "Internacional", "Puerto Deseado"],
+      ["caleta olivia", "santa cruz", -46.4431, -67.5131, "Internacional", "Puerto Caleta Olivia"],
+      ["armando tola", "santa cruz", -50.2803, -72.0531, "Internacional", "Aeropuerto Comandante Armando Tola"],
+      ["norberto fernandez", "santa cruz", -51.6089, -69.3126, "Internacional", "Aeropuerto Piloto Civil Norberto Fernández"],
+      ["san sebastian", "tierra del fuego", -53.3189, -68.6042, "Chile", "Paso San Sebastián"],
+      ["radman", "tierra del fuego", -53.9931, -68.6131, "Chile", "Paso Radman (Bellavista)"],
+      ["puerto williams", "tierra del fuego", -54.8722, -67.5719, "Chile", "Puerto Almanza - Puerto Williams"],
+      ["almanza", "tierra del fuego", -54.8722, -67.5719, "Chile", "Puerto Almanza - Puerto Williams"],
+      ["puerto ushuaia", "tierra del fuego", -54.8089, -68.3031, "Internacional", "Puerto Ushuaia"],
+      ["puerto rio grande", "tierra del fuego", -53.7889, -67.6931, "Internacional", "Puerto Río Grande"],
+      ["malvinas argentinas", "tierra del fuego", -54.8433, -68.2958, "Internacional", "Aeropuerto Internacional Malvinas Argentinas"],
+      ["hermes quijada", "tierra del fuego", -53.7777, -67.7494, "Internacional", "Aeropuerto Hermes Quijada"],
+      ["san ignacio de loyola", "formosa", -25.2589, -57.7081, "Paraguay", "Puente Internacional San Ignacio de Loyola"],
+      ["la fraternidad", "formosa", -25.2869, -57.7219, "Paraguay", "Pasarela La Fraternidad"],
+      ["pilcomayo", "formosa", -25.3711, -57.6519, "Paraguay", "Puerto Pilcomayo - Puerto Itá Enramada"],
+      ["puerto formosa", "formosa", -26.1831, -58.1631, "Paraguay", "Puerto Formosa - Puerto Alberdi"],
+      ["colonia cano", "formosa", -26.853231, -58.324608, "Paraguay", "Puerto Colonia Cano - Puerto Pilar"],
+      ["el remanso", "formosa", -23.987892, -60.458126, "Paraguay", "Paso El Remanso - La Verde"],
+      ["isleta", "formosa", -24.212000, -60.197070, "Paraguay", "Paso Isleta - Paraje Rojas Silva"],
+      ["lamadrid", "formosa", -23.897911, -60.755810, "Paraguay", "Paso Lamadrid - Misión San Leonardo"],
+      ["general belgrano", "formosa", -24.748760, -58.833130, "Paraguay", "Paso General Belgrano - General Bruguez"],
+      ["el pucu", "formosa", -26.2127, -58.2281, "Internacional", "Aeropuerto Internacional El Pucú"],
+      ["las palmas", "chaco", -27.0819, -58.6131, "Paraguay", "Puerto Las Palmas - Puerto Humaitá"],
+      ["puerto bermejo", "chaco", -26.9289, -58.5031, "Paraguay", "Puerto Bermejo - Puerto Pilar"],
+      ["barranqueras", "chaco", -27.4831, -58.9231, "Internacional", "Puerto Barranqueras"],
+      ["resistencia", "chaco", -27.4500, -59.0561, "Internacional", "Aeropuerto Internacional de Resistencia"],
+      ["tancredo neves", "misiones", -25.5883, -54.5617, "Brasil", "Centro de Frontera Iguazú - Foz de Iguazú"],
+      ["puerto meira", "misiones", -25.5933, -54.5789, "Brasil", "Puerto Iguazú - Puerto Meira"],
+      ["tres fronteras", "misiones", -25.5939, -54.5794, "Paraguay", "Puerto Iguazú - Puerto Tres Fronteras"],
+      ["posadas", "misiones", -27.3689, -55.8831, "Paraguay", "Centro de Frontera Posadas - Encarnación"],
+      ["bernardo de irigoyen", "misiones", -26.2547, -53.6439, "Brasil", "Bernardo de Irigoyen - Dionísio Cerqueira"],
+      ["andresito", "misiones", -25.6017, -53.9781, "Brasil", "Comandante Andresito - Capanema"],
+      ["san antonio", "misiones", -26.0567, -53.7306, "Brasil", "San Antonio - Santo Antônio"],
+      ["integracion", "misiones", -25.7689, -53.8511, "Brasil", "Integración - Planalto"],
+      ["pepiri guazu", "misiones", -26.6131, -53.7347, "Brasil", "Pepirí Guazú - São Miguel"],
+      ["el soberbio", "misiones", -27.3000, -54.1917, "Brasil", "Puerto El Soberbio - Porto Soberbo"],
+      ["alicia", "misiones", -27.4639, -54.3442, "Brasil", "Puerto Alicia - San Antonio"],
+      ["aurora", "misiones", -27.4994, -54.5206, "Brasil", "Puerto Aurora - Pratos"],
+      ["alba posse", "misiones", -27.5714, -54.6792, "Brasil", "Puerto Alba Posse - Porto Mauá"],
+      ["barra bonita", "misiones", -27.6014, -54.8431, "Brasil", "Puerto Barra Bonita - M'Biguá"],
+      ["panambi", "misiones", -27.7300, -54.9142, "Brasil", "Puerto Panambí - Porto Vera Cruz"],
+      ["paso de la barca", "misiones", -27.8919, -55.1356, "Brasil", "Paso de la Barca (San Javier - Porto Xavier)"],
+      ["santa maria", "misiones", -27.9678, -55.3508, "Brasil", "Puerto Santa María - Colonia Florida"],
+      ["san isidro", "misiones", -28.0503, -55.4158, "Brasil", "Puerto San Isidro - San Isidro"],
+      ["puerto libertad", "misiones", -25.9647, -54.6039, "Paraguay", "Puerto Libertad - Domingo Martínez de Irala"],
+      ["puerto wanda", "misiones", -25.9650, -54.6042, "Paraguay", "Puerto Wanda - Puerto Itá Verá"],
+      ["puerto mado", "misiones", -26.2303, -54.6294, "Paraguay", "Puerto Mado - Lomas Valentinas"],
+      ["puerto victoria", "misiones", -26.3350, -54.4667, "Paraguay", "Puerto Victoria - Capitán Urbina"],
+      ["puerto pinares", "misiones", -26.4061, -54.6939, "Paraguay", "Puerto Pinares - Carlos Antonio López"],
+      ["eldorado", "misiones", -26.4064, -54.6939, "Paraguay", "Puerto Eldorado - Mayor Julio Otaño"],
+      ["puerto piray", "misiones", -26.4728, -54.7261, "Paraguay", "Puerto Piray - Puerto 7 de Agosto"],
+      ["montecarlo", "misiones", -26.5594, -54.8039, "Paraguay", "Puerto Montecarlo - Ape Aimé"],
+      ["paranay", "misiones", -26.6744, -54.8150, "Paraguay", "Puerto Paranay - Colonia Alborada"],
+      ["puerto rico", "misiones", -26.7919, -55.0244, "Paraguay", "Puerto Rico - Puerto Triunfo"],
+      ["garuhape", "misiones", -26.7914, -55.0247, "Paraguay", "Puerto Garuhapé - Puerto 3 de Mayo"],
+      ["puerto leoni", "misiones", -26.9831, -55.1631, "Paraguay", "Puerto Leoni - Puerto Triunfo"],
+      ["puerto oasis", "misiones", -27.0131, -55.2631, "Paraguay", "Puerto Oasis - Capitán Meza"],
+      ["puerto mani", "misiones", -27.1431, -55.4831, "Paraguay", "Puerto Maní - Bella Vista Sur"],
+      ["san ignacio", "misiones", -27.2531, -55.5531, "Paraguay", "Puerto San Ignacio - Puerto Paraíso"],
+      ["santa ana", "misiones", -27.3531, -55.5931, "Paraguay", "Puerto Santa Ana"],
+      ["candelaria", "misiones", -27.4531, -55.7431, "Paraguay", "Puerto Candelaria"],
+      ["cataratas del iguazu", "misiones", -25.7373, -54.4734, "Internacional", "Aeropuerto Internacional Cataratas del Iguazú"],
+      ["paso de los libres", "corrientes", -29.7336, -57.1019, "Brasil", "Centro de Frontera Paso de los Libres - Uruguayana"],
+      ["santo tome", "corrientes", -28.6106, -56.0144, "Brasil", "Paso Internacional Santo Tomé - São Borja"],
+      ["puerto alvear", "corrientes", -29.1133, -56.5553, "Brasil", "Puerto Alvear - Puerto Itaquí"],
+      ["puerto la cruz", "corrientes", -29.1783, -56.6336, "Brasil", "Puerto La Cruz - Puerto Itaquí"],
+      ["yapeyu", "corrientes", -29.4700, -56.8111, "Brasil", "Puerto Yapeyú - Puerto San Marcos"],
+      ["garruchos", "corrientes", -28.1772, -55.6425, "Brasil", "Puerto Garruchos - Garruchos"],
+      ["monte caseros", "corrientes", -30.2519, -57.6222, "Uruguay", "Puerto Monte Caseros - Bella Unión"],
+      ["ituzaingo", "corrientes", -27.5831, -56.6831, "Paraguay", "Puerto Ituzaingó - Ayolas"],
+      ["yacyreta", "corrientes", -27.4831, -56.7331, "Paraguay", "Coronamiento Represa Yacyretá"],
+      ["apipe", "corrientes", -27.5131, -56.7431, "Paraguay", "Puerto San Antonio de Apipé"],
+      ["ita ibate", "corrientes", -27.4331, -57.3331, "Paraguay", "Puerto Itá Ibaté - Panchito López"],
+      ["yahape", "corrientes", -27.3731, -57.6531, "Paraguay", "Puerto Yahapé - Puerto Cerrito"],
+      ["itati", "corrientes", -27.2689, -58.2431, "Paraguay", "Puerto Itatí - Puerto Itá Corá"],
+      ["paso de la patria", "corrientes", -27.3189, -58.5731, "Paraguay", "Puerto Paso de la Patria"],
+      ["puerto corrientes", "corrientes", -27.4631, -58.8331, "Internacional", "Puerto Corrientes"],
+      ["goya", "corrientes", -29.1431, -59.2731, "Internacional", "Puerto Goya"],
+      ["esquina", "corrientes", -30.0131, -59.5331, "Internacional", "Puerto Esquina"],
+      ["piragine niveyro", "corrientes", -27.4455, -58.7619, "Internacional", "Aeropuerto Internacional de Corrientes"],
+      ["gualeguaychu", "entre rios", -33.0947, -58.2464, "Uruguay", "Puente Internacional Gualeguaychú - Fray Bentos"],
+      ["colon", "entre rios", -32.2656, -58.0939, "Uruguay", "Puente Internacional Colón - Paysandú"],
+      ["concordia", "entre rios", -31.2608, -57.9617, "Uruguay", "Centro de Frontera Concordia - Salto"],
+      ["boca de gualeguaychu", "entre rios", -33.0739, -58.4206, "Uruguay", "Puerto Boca de Gualeguaychú"],
+      ["concepcion del uruguay", "entre rios", -32.4833, -58.2222, "Uruguay", "Puerto Concepción del Uruguay"],
+      ["puerto colon", "entre rios", -32.2156, -58.1367, "Uruguay", "Puerto Colón - Puerto Paysandú"],
+      ["puerto concordia", "entre rios", -31.4022, -58.0036, "Uruguay", "Puerto Concordia - Salto"],
+      ["puerto luis", "entre rios", -31.209789, -57.930817, "Uruguay", "Puerto Luis - Constitución"],
+      ["federacion", "entre rios", -30.9931, -57.9153, "Uruguay", "Puerto Federación - Villa Constitución"],
+      ["santa eloisa", "entre rios", -30.761606, -57.822300, "Uruguay", "Puerto Santa Eloísa - Belén"],
+      ["paranacito", "entre rios", -33.7161, -58.6594, "Uruguay", "Puerto Paranacito - Nueva Palmira"],
+      ["guazucito", "entre rios", -34.0147, -58.3956, "Uruguay", "Puerto Guazú Guazucito - Carmelo"],
+      ["portuaria del guazu", "entre rios", -33.8931, -58.8831, "Internacional", "Terminal Portuaria del Guazú"],
+      ["ibicuy", "entre rios", -33.7531, -59.1731, "Internacional", "Puerto Ibicuy"],
+      ["diamante", "entre rios", -32.0631, -60.6431, "Internacional", "Puerto Diamante"],
+      ["puerto de parana", "entre rios", -31.7092, -60.5736, "Internacional", "Puerto de Paraná"],
+      ["la paz", "entre rios", -30.6672, -59.6403, "Internacional", "Puerto de La Paz"],
+      ["puerto rosario", "santa fe", -32.9442, -60.6306, "Internacional", "Puerto Rosario"],
+      ["san lorenzo", "santa fe", -32.7431, -60.7331, "Internacional", "Puerto San Lorenzo"],
+      ["general san martin", "santa fe", -32.7131, -60.7231, "Internacional", "Puerto General San Martín"],
+      ["villa constitucion", "santa fe", -33.2231, -60.3231, "Internacional", "Puerto Villa Constitución"],
+      ["puerto santa fe", "santa fe", -31.6489, -60.7031, "Internacional", "Puerto Santa Fe"],
+      ["islas malvinas", "santa fe", -32.9036, -60.7850, "Internacional", "Aeropuerto Internacional de Rosario"],
+      ["martin garcia", "buenos aires", -34.1889, -58.2553, "Uruguay", "Puerto Martín García - Carmelo"],
+      ["buquebus", "caba", -34.6118, -58.3622, "Uruguay", "Terminal Portuaria Buquebus"],
+      ["colonia express", "caba", -34.6231, -58.3569, "Uruguay", "Terminal Portuaria Colonia Express"],
+      ["quinquela martin", "caba", -34.5858, -58.3711, "Internacional", "Terminal de Cruceros Quinquela Martín"],
+      ["puerto de buenos aires", "caba", -34.5889, -58.3689, "Internacional", "Puerto de Buenos Aires"],
+      ["tigre", "buenos aires", -34.4219, -58.5819, "Uruguay", "Terminal Fluvial Binacional de Tigre"],
+      ["campana", "buenos aires", -34.1531, -58.9531, "Internacional", "Puerto Campana"],
+      ["zarate", "buenos aires", -34.0931, -59.0231, "Internacional", "Puerto Zárate"],
+      ["san nicolas", "buenos aires", -33.3231, -60.2131, "Internacional", "Puerto San Nicolás"],
+      ["mar del plata", "buenos aires", -38.0331, -57.5331, "Internacional", "Puerto Mar del Plata"],
+      ["quequen", "buenos aires", -38.5731, -58.7031, "Internacional", "Puerto Quequén"],
+      ["bahia blanca", "buenos aires", -38.7831, -62.2631, "Internacional", "Puerto Bahía Blanca"],
+      ["ezeiza", "buenos aires", -34.8222, -58.5358, "Internacional", "Aeropuerto Internacional de Ezeiza"],
+      ["jorge newbery", "caba", -34.5592, -58.4156, "Internacional", "Aeroparque Internacional Jorge Newbery"],
+      ["ambrosio taravella", "cordoba", -31.3236, -64.2081, "Internacional", "Aeropuerto Internacional de Córdoba"]
     ].sort((a, b) => b[0].length - a[0].length);
 
     function resolverProvincia(provRaw, nombreRaw) {
@@ -407,53 +420,6 @@
       return nProv;
     }
 
-    function georreferenciarFila(row, usados) {
-      const nombre = (row["Nombre del Paso"] || row["Paso"] || "").trim();
-      const nNom = norm(nombre);
-      const provCanon = resolverProvincia(row["Provincia"] || "", nombre);
-
-      for (const [clave, provCat, latCat, lonCat, paisCat] of CATALOGO_AUDITADO) {
-        if (nNom.includes(clave)) {
-          if (!provCanon || provCanon === provCat || (["caba", "buenos aires"].includes(provCanon) && ["caba", "buenos aires"].includes(provCat))) {
-            const [lat, lon] = desagregar(nombre, latCat, lonCat, usados);
-            return {
-              ...row,
-              "Nombre del Paso": nombre,
-              "Provincia": TITULOS_PROVINCIA[provCat] || row["Provincia"] || "Sin especificar",
-              "País Limítrofe": row["País Limítrofe"] || paisCat,
-              "Latitud": lat,
-              "Longitud": lon
-            };
-          }
-        }
-      }
-
-      const la = parseFloat(row["Latitud"]);
-      const lo = parseFloat(row["Longitud"]);
-      const perfil = PERFILES_PROVINCIALES[provCanon];
-      if (!isNaN(la) && !isNaN(lo) && perfil && la >= perfil[0] && la <= perfil[1] && lo >= perfil[2] && lo <= perfil[3]) {
-        const [lat, lon] = desagregar(nombre, la, lo, usados);
-        return {
-          ...row,
-          "Nombre del Paso": nombre,
-          "Provincia": TITULOS_PROVINCIA[provCanon] || row["Provincia"],
-          "Latitud": lat,
-          "Longitud": lon
-        };
-      }
-
-      const latDef = perfil ? perfil[4] : -34.6037;
-      const lonDef = perfil ? perfil[5] : -58.3816;
-      const [lat, lon] = desagregar(nombre, latDef, lonDef, usados);
-      return {
-        ...row,
-        "Nombre del Paso": nombre,
-        "Provincia": TITULOS_PROVINCIA[provCanon] || row["Provincia"] || "Sin especificar",
-        "Latitud": lat,
-        "Longitud": lon
-      };
-    }
-
     function desagregar(nombre, lat, lon, usados) {
       const k = `${lat.toFixed(5)},${lon.toFixed(5)}`;
       if (!usados.has(k)) {
@@ -469,13 +435,135 @@
       return [nLat, nLon];
     }
 
+    function clasificarEstado(estadoRaw) {
+      const e = norm(estadoRaw);
+      if (e.includes("cerrado") || e.includes("inhabilitado") || e.includes("clausurado") || e.includes("suspendido")) {
+        return "cerrado";
+      }
+      if (e.includes("restric") || e.includes("demora") || e.includes("condicional") || e.includes("parcial")) {
+        return "restriccion";
+      }
+      return "habilitado";
+    }
+
+    function georreferenciarFila(row, usados) {
+      const nombre = getCol(row, ["nombre del paso", "paso", "paso fronterizo", "nombre", "title"]);
+      const provRaw = getCol(row, ["provincia", "jurisdiccion", "distrito"]);
+      const paisRaw = getCol(row, ["pais limitrofe", "pais", "frontera", "country"]);
+      const estadoRaw = getCol(row, ["estado", "situacion", "condicion", "status"]) || "Habilitado";
+      const fechaRaw = getCol(row, ["fecha", "fecha reporte", "fecha corte", "date"]) || new Date().toISOString().slice(0, 10);
+      const horaRaw = getCol(row, ["hora corte", "hora", "actualizacion", "updated"]);
+      const latRaw = parseFloat(getCol(row, ["latitud", "lat", "latitude"]).replace(",", "."));
+      const lonRaw = parseFloat(getCol(row, ["longitud", "lon", "lng", "longitude"]).replace(",", "."));
+
+      const nNom = norm(nombre);
+      const provCanon = resolverProvincia(provRaw, nombre);
+
+      for (const [clave, provCat, latCat, lonCat, paisCat] of CATALOGO_AUDITADO) {
+        if (nNom.includes(clave)) {
+          if (!provCanon || provCanon === provCat || (["caba", "buenos aires"].includes(provCanon) && ["caba", "buenos aires"].includes(provCat))) {
+            const [lat, lon] = desagregar(nombre, latCat, lonCat, usados);
+            return {
+              Fecha: fechaRaw,
+              HoraCorte: horaRaw,
+              Nombre: nombre,
+              Provincia: TITULOS_PROVINCIA[provCat] || provRaw || "Sin especificar",
+              Pais: paisRaw || paisCat,
+              Estado: estadoRaw,
+              EstadoTipo: clasificarEstado(estadoRaw),
+              Latitud: lat,
+              Longitud: lon
+            };
+          }
+        }
+      }
+
+      const perfil = PERFILES_PROVINCIALES[provCanon];
+      if (!isNaN(latRaw) && !isNaN(lonRaw) && perfil && latRaw >= perfil[0] && latRaw <= perfil[1] && lonRaw >= perfil[2] && lonRaw <= perfil[3]) {
+        const [lat, lon] = desagregar(nombre, latRaw, lonRaw, usados);
+        return {
+          Fecha: fechaRaw,
+          HoraCorte: horaRaw,
+          Nombre: nombre,
+          Provincia: TITULOS_PROVINCIA[provCanon] || provRaw,
+          Pais: paisRaw || "Limítrofe",
+          Estado: estadoRaw,
+          EstadoTipo: clasificarEstado(estadoRaw),
+          Latitud: lat,
+          Longitud: lon
+        };
+      }
+
+      const latDef = perfil ? perfil[4] : -34.6037;
+      const lonDef = perfil ? perfil[5] : -58.3816;
+      const [lat, lon] = desagregar(nombre, latDef, lonDef, usados);
+      return {
+        Fecha: fechaRaw,
+        HoraCorte: horaRaw,
+        Nombre: nombre,
+        Provincia: TITULOS_PROVINCIA[provCanon] || provRaw || "Sin especificar",
+        Pais: paisRaw || "Limítrofe",
+        Estado: estadoRaw,
+        EstadoTipo: clasificarEstado(estadoRaw),
+        Latitud: lat,
+        Longitud: lon
+      };
+    }
+
     const map = L.map("map").setView([-38.5, -64.5], 4);
     L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
       attribution: "&copy; OpenStreetMap &copy; CARTO"
     }).addTo(map);
     const markersLayer = L.layerGroup().addTo(map);
 
+    // Leyenda flotante fija en el mapa (Simbología)
+    const legendControl = L.control({ position: "bottomleft" });
+    legendControl.onAdd = function () {
+      const div = L.DomUtil.create("div", "leaflet-legend");
+      div.innerHTML = `
+        <h4>Simbología de Pasos</h4>
+        <div><span class="dot dot-ok"></span> Activo / Habilitado</div>
+        <div><span class="dot dot-warn"></span> Con Restricciones / Demoras</div>
+        <div><span class="dot dot-bad"></span> Cerrado / Inhabilitado</div>
+      `;
+      return div;
+    };
+    legendControl.addTo(map);
+
     let datasetGlobal = [];
+
+    function poblarFiltros(fuenteEtiqueta) {
+      const fechas = [...new Set(datasetGlobal.map((r) => r.Fecha).filter(Boolean))].sort().reverse();
+      const selFecha = document.getElementById("selFecha");
+      selFecha.innerHTML = "";
+      fechas.forEach((f) => {
+        const opt = document.createElement("option");
+        opt.value = f; opt.textContent = "Fecha: " + f;
+        selFecha.appendChild(opt);
+      });
+
+      const provincias = [...new Set(datasetGlobal.map((r) => r.Provincia).filter(Boolean))].sort();
+      const selProv = document.getElementById("selProvincia");
+      selProv.innerHTML = '<option value="">Todas las provincias</option>';
+      provincias.forEach((p) => {
+        const opt = document.createElement("option");
+        opt.value = p; opt.textContent = p;
+        selProv.appendChild(opt);
+      });
+
+      const paises = [...new Set(datasetGlobal.map((r) => r.Pais).filter(Boolean))].sort();
+      const selPais = document.getElementById("selPais");
+      selPais.innerHTML = '<option value="">Todos los países</option>';
+      paises.forEach((p) => {
+        const opt = document.createElement("option");
+        opt.value = p; opt.textContent = p;
+        selPais.appendChild(opt);
+      });
+
+      const ultimo = datasetGlobal.find((r) => r.Fecha === fechas[0]);
+      document.getElementById("lblCorte").textContent =
+        `Fuente: ${fuenteEtiqueta} · Último corte: ${(ultimo && (ultimo.HoraCorte || ultimo.Fecha)) || "Actualizado"}`;
+    }
 
     function renderizar() {
       const fechaSel = document.getElementById("selFecha").value;
@@ -485,13 +573,11 @@
       const q = norm(document.getElementById("txtBuscar").value);
 
       const filtrados = datasetGlobal.filter((r) => {
-        if (fechaSel && r["Fecha"] !== fechaSel) return false;
-        if (provSel && r["Provincia"] !== provSel) return false;
-        if (paisSel && r["País Limítrofe"] !== paisSel) return false;
-        const estNorm = norm(r["Estado"]);
-        if (estSel === "habilitado" && (estNorm.includes("cerrado") || estNorm.includes("inhabilitado"))) return false;
-        if (estSel === "cerrado" && !estNorm.includes("cerrado") && !estNorm.includes("inhabilitado")) return false;
-        if (q && !norm(r["Nombre del Paso"]).includes(q) && !norm(r["Provincia"]).includes(q)) return false;
+        if (fechaSel && r.Fecha !== fechaSel) return false;
+        if (provSel && r.Provincia !== provSel) return false;
+        if (paisSel && r.Pais !== paisSel) return false;
+        if (estSel && r.EstadoTipo !== estSel) return false;
+        if (q && !norm(r.Nombre).includes(q) && !norm(r.Provincia).includes(q)) return false;
         return true;
       });
 
@@ -503,33 +589,34 @@
       const bounds = [];
 
       filtrados.forEach((r) => {
-        const estNorm = norm(r["Estado"]);
-        const esCerrado = estNorm.includes("cerrado") || estNorm.includes("inhabilitado");
-        if (esCerrado) cer++; else hab++;
+        if (r.EstadoTipo === "cerrado") cer++; else hab++;
 
-        const color = esCerrado ? "#ef4444" : "#22c55e";
-        const marker = L.circleMarker([r["Latitud"], r["Longitud"]], {
-          radius: 6, fillColor: color, color: "#0f172a", weight: 1.5, fillOpacity: 0.9
+        const color = r.EstadoTipo === "cerrado" ? "#ef4444" : (r.EstadoTipo === "restriccion" ? "#f59e0b" : "#22c55e");
+        const badgeCls = r.EstadoTipo === "cerrado" ? "b-bad" : (r.EstadoTipo === "restriccion" ? "b-warn" : "b-ok");
+        const dotCls = r.EstadoTipo === "cerrado" ? "dot-bad" : (r.EstadoTipo === "restriccion" ? "dot-warn" : "dot-ok");
+
+        const marker = L.circleMarker([r.Latitud, r.Longitud], {
+          radius: 7, fillColor: color, color: "#ffffff", weight: 1.5, fillOpacity: 0.92
         }).bindPopup(`
-          <b>${r["Nombre del Paso"]}</b><br/>
-          Provincia: ${r["Provincia"]}<br/>
-          País: ${r["País Limítrofe"] || "-"}<br/>
-          Estado: ${r["Estado"] || "Habilitado"}<br/>
-          Coord: ${r["Latitud"]}, ${r["Longitud"]}
+          <b>${r.Nombre}</b><br/>
+          Provincia: ${r.Provincia}<br/>
+          País: ${r.Pais}<br/>
+          Estado: <b>${r.Estado}</b><br/>
+          Coord: ${r.Latitud}, ${r.Longitud}
         `);
         marker.addTo(markersLayer);
-        bounds.push([r["Latitud"], r["Longitud"]]);
+        bounds.push([r.Latitud, r.Longitud]);
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td><b>${r["Nombre del Paso"]}</b></td>
-          <td>${r["Provincia"]}</td>
-          <td>${r["País Limítrofe"] || "-"}</td>
-          <td><span class="badge ${esCerrado ? "b-bad" : "b-ok"}">${r["Estado"] || "Habilitado"}</span></td>
-          <td>${r["Latitud"]}, ${r["Longitud"]}</td>
+          <td><b>${r.Nombre}</b></td>
+          <td>${r.Provincia}</td>
+          <td>${r.Pais}</td>
+          <td><span class="badge ${badgeCls}"><span class="dot ${dotCls}" style="width:8px;height:8px;border:none;"></span>${r.Estado}</span></td>
+          <td>${r.Latitud}, ${r.Longitud}</td>
         `;
         tr.onclick = () => {
-          map.setView([r["Latitud"], r["Longitud"]], 11);
+          map.setView([r.Latitud, r.Longitud], 11);
           marker.openPopup();
         };
         tbody.appendChild(tr);
@@ -544,56 +631,76 @@
       }
     }
 
-    Papa.parse("consolidado_pasos_2026.csv?v=" + Date.now(), {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      complete: (res) => {
-        const usadosPorFecha = {};
-        datasetGlobal = res.data
-          .filter((r) => (r["Nombre del Paso"] || r["Paso"]) && !esPasoIgnorado(r["Nombre del Paso"] || r["Paso"]))
-          .map((r) => {
-            const f = r["Fecha"] || "2026";
-            if (!usadosPorFecha[f]) usadosPorFecha[f] = new Set();
-            return georreferenciarFila(r, usadosPorFecha[f]);
-          });
-
-        const fechas = [...new Set(datasetGlobal.map((r) => r["Fecha"]).filter(Boolean))].sort().reverse();
-        const selFecha = document.getElementById("selFecha");
-        fechas.forEach((f) => {
-          const opt = document.createElement("option");
-          opt.value = f; opt.textContent = "Fecha: " + f;
-          selFecha.appendChild(opt);
+    function cargarDesdeFilas(rawRows, fuenteEtiqueta) {
+      const usadosPorFecha = {};
+      const validos = rawRows
+        .filter((r) => {
+          const nom = getCol(r, ["nombre del paso", "paso", "paso fronterizo", "nombre", "title"]);
+          return nom && !esPasoIgnorado(nom);
+        })
+        .map((r) => {
+          const f = getCol(r, ["fecha", "fecha reporte", "fecha corte", "date"]) || new Date().toISOString().slice(0, 10);
+          if (!usadosPorFecha[f]) usadosPorFecha[f] = new Set();
+          return georreferenciarFila(r, usadosPorFecha[f]);
         });
 
-        const provincias = [...new Set(datasetGlobal.map((r) => r["Provincia"]).filter(Boolean))].sort();
-        const selProv = document.getElementById("selProvincia");
-        provincias.forEach((p) => {
-          const opt = document.createElement("option");
-          opt.value = p; opt.textContent = p;
-          selProv.appendChild(opt);
-        });
+      if (validos.length === 0) return false;
+      datasetGlobal = validos;
+      poblarFiltros(fuenteEtiqueta);
+      renderizar();
+      return true;
+    }
 
-        const paises = [...new Set(datasetGlobal.map((r) => r["País Limítrofe"]).filter(Boolean))].sort();
-        const selPais = document.getElementById("selPais");
-        paises.forEach((p) => {
-          const opt = document.createElement("option");
-          opt.value = p; opt.textContent = p;
-          selPais.appendChild(opt);
-        });
+    function cargarCatalogoRespaldo() {
+      const hoy = new Date().toISOString().slice(0, 10);
+      const cerradosConocidos = ["puerto williams", "san francisco", "pircas negras", "agua negra", "sico", "socompa"];
+      const filas = CATALOGO_AUDITADO.map(([, prov, lat, lon, pais, nombre]) => {
+        const esCer = cerradosConocidos.some((c) => norm(nombre).includes(c));
+        return {
+          "Fecha": hoy,
+          "Hora Corte": hoy + " (Catálogo Auditado)",
+          "Nombre del Paso": nombre,
+          "Provincia": TITULOS_PROVINCIA[prov] || prov,
+          "País Limítrofe": pais,
+          "Estado": esCer ? "Cerrado" : "Habilitado",
+          "Latitud": lat,
+          "Longitud": lon
+        };
+      });
+      cargarDesdeFilas(filas, "Catálogo Maestro Auditado");
+    }
 
-        const ultimoCorte = datasetGlobal.find((r) => r["Fecha"] === fechas[0]);
-        document.getElementById("lblCorte").textContent = ultimoCorte
-          ? `Último corte registrado: ${ultimoCorte["Hora Corte"] || fechas[0]}`
-          : "Base auditada cargada";
+    const FUENTES_CSV = [
+      { url: "consolidado_pasos_2026.csv", label: "Consolidado Diario 2026" },
+      { url: "historico_diario_2026.csv", label: "Histórico Diario 2026" },
+      { url: "maestro_pasos.csv", label: "Maestro de Pasos" }
+    ];
 
-        ["selFecha", "selProvincia", "selPais", "selEstado"].forEach((id) =>
-          document.getElementById(id).addEventListener("change", renderizar)
-        );
-        document.getElementById("txtBuscar").addEventListener("input", renderizar);
-        renderizar();
+    function intentarSiguienteCSV(idx) {
+      if (idx >= FUENTES_CSV.length) {
+        cargarCatalogoRespaldo();
+        return;
       }
-    });
+      const fuente = FUENTES_CSV[idx];
+      Papa.parse(`${fuente.url}?v=${Date.now()}`, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: (res) => {
+          if (!res || !res.data || !cargarDesdeFilas(res.data, fuente.label)) {
+            intentarSiguienteCSV(idx + 1);
+          }
+        },
+        error: () => intentarSiguienteCSV(idx + 1)
+      });
+    }
+
+    ["selFecha", "selProvincia", "selPais", "selEstado"].forEach((id) =>
+      document.getElementById(id).addEventListener("change", renderizar)
+    );
+    document.getElementById("txtBuscar").addEventListener("input", renderizar);
+
+    intentarSiguienteCSV(0);
   </script>
 </body>
 </html>
