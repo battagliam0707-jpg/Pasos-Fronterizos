@@ -1,107 +1,107 @@
-﻿id_paso,nombre_paso,provincia,pais,medio,verificado,Latitud,Longitud
-27,Agua Negra,SAN JUAN,CHILE,Vial,SI,-30.193100,-69.826400
-23,Aguas Blancas - Bermejo,SALTA,BOLIVIA,Vial,SI,-22.726400,-64.370000
-106,Alfa Cullen,TIERRA DEL FUEGO,CHILE,Vial,SI,-52.683300,-68.600000
-93,El Azufre,SAN JUAN,CHILE,Vial,SI,-31.300000,-70.550000
-8,Andresito - Capanema,MISIONES,BRASIL,Vial,SI,-25.601700,-53.978100
-91,Quebrada Fría,SAN JUAN,CHILE,Vial,SI,-32.083300,-70.350000
-12,Bernardo de Irigoyen - Dionisio Cerqueira,MISIONES,BRASIL,Vial,SI,-26.254700,-53.643900
-96,Cajón del Maipo,MENDOZA,CHILE,Vial,SI,-34.190939,-69.704362
-92,Puerto Colonia Aurora - Porto Pratos,MISIONES,BRASIL,Fluvial,SI,-27.499400,-54.520600
-42,Puerto Piray - Puerto 7 de Agosto,MISIONES,PARAGUAY,Fluvial,SI,-26.472800,-54.726100
-41,Puerto Mado - Puerto Lomas Valentinas,MISIONES,PARAGUAY,Fluvial,SI,-26.230300,-54.629400
-94,Casa de Piedra,SAN JUAN,CHILE,Vial,SI,-31.550000,-70.566700
-107,Cañadon Alfa,TIERRA DEL FUEGO,CHILE,Vial,SI,-52.716700,-68.600000
-110,Cerro Redondo,SANTA CRUZ,CHILE,Vial,SI,-52.223420,-68.946270
-71,Puerto Colonia Cano - Puerto Pilar,FORMOSA,PARAGUAY,Fluvial,SI,-26.853231,-58.324608
-17,Puerto Alvear - Puerto Itaqui,CORRIENTES,BRASIL,Fluvial,SI,-29.112800,-56.555600
-3,Colón - Paysandú,ENTRE RIOS,URUGUAY,Vial,SI,-32.265600,-58.093900
-5,Concordia - Salto,ENTRE RIOS,URUGUAY,Vial,SI,-31.260800,-57.961700
-43,Puerto Montecarlo - Puerto Ape Aime,MISIONES,PARAGUAY,Fluvial,SI,-26.559400,-54.803900
-55,Coyhaique,CHUBUT,CHILE,Vial,SI,-45.483300,-71.600000
-108,Cóndor - Daniel Posesión,SANTA CRUZ,CHILE,Vial,SI,-52.162630,-69.150710
-109,Cóndor II,SANTA CRUZ,CHILE,Vial,SI,-52.283480,-68.739340
-102,De Buta Mallin,NEUQUEN,CHILE,Vial,SI,-37.216700,-71.133300
-89,Panambí - Vera Cruz,MISIONES,BRASIL,Vial,SI,-27.730000,-54.914200
-61,Puerto Yahape - Puerto Cerrito,CORRIENTES,PARAGUAY,Fluvial,SI,-27.373600,-57.651900
-35,El Condado - La Mamora,SALTA,BOLIVIA,Vial,SI,-22.190000,-64.653100
-87,El Soberbio - Porto Soberbo,MISIONES,BRASIL,Vial,SI,-27.298100,-54.193600
-49,Puerto Leoni - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial,SI,-26.976400,-55.174200
-4,Puerto Pilcomayo - Puerto Ita Enramada,FORMOSA,PARAGUAY,Fluvial,SI,-25.373600,-57.651900
-88,Puerto Alba Posse - Porto Maua,MISIONES,BRASIL,Fluvial,SI,-27.571400,-54.679200
-39,Puerto Victoria - Capitan Urbina,MISIONES,PARAGUAY,Fluvial,SI,-26.335000,-54.663600
-105,Hua Hum (Fluvial),NEUQUEN,CHILE,Fluvial,SI,-40.119000,-71.662000
-56,Puerto Iguazu - Puerto Tres Fronteras,MISIONES,PARAGUAY,Fluvial,SI,-25.595000,-54.581000
-38,Puerto Wanda - Puerto Ita Vera,MISIONES,PARAGUAY,Fluvial,SI,-25.973000,-54.604500
-2,Monte Dinero,SANTA CRUZ,CHILE,Vial,SI,-52.239468,-68.883148
-60,Puerto Ita Ibate - Panchito Lopez,CORRIENTES,PARAGUAY,Fluvial,SI,-27.428100,-57.338900
-15,Puerto Eldorado - Puerto Mayor Julio Otaño,MISIONES,PARAGUAY,Fluvial,SI,-26.406400,-54.693900
-68,Puerto Martin Garcia - Carmelo,BUENOS AIRES,URUGUAY,Fluvial,SI,-34.188900,-58.255300
-6,Puerto Santa María - Colonia Florida,MISIONES,BRASIL,Fluvial,SI,-27.967800,-55.350800
-19,Jama,JUJUY,CHILE,Vial,SI,-23.237200,-67.072500
-100,Jama Norte,JUJUY,CHILE,Vial,SI,-23.227301,-67.063069
-101,Jama Sur,JUJUY,CHILE,Vial,SI,-23.233026,-67.064815
-58,Jeinimeni,SANTA CRUZ,CHILE,Vial,SI,-46.544200,-71.636100
-18,La Quiaca - Villazón,JUJUY,BOLIVIA,Vial,SI,-22.096700,-65.596400
-65,Puerto La Cruz - Itaqui,CORRIENTES,BRASIL,Fluvial,SI,-29.178300,-56.633600
-99,Laguna Sico,SALTA,CHILE,Vial,SI,-23.874876,-67.271398
-97,Las Damas,MENDOZA,CHILE,Vial,SI,-34.884690,-70.291109
-98,Las Leñas,MENDOZA,CHILE,Vial,SI,-34.451771,-70.064398
-79,Puerto Concepcion del Uruguay - Paysandu,ENTRE RIOS,URUGUAY,Fluvial,SI,-32.483300,-58.222200
-80,Puerto Boca del Gualeguaychu - Fray Bentos,ENTRE RIOS,URUGUAY,Fluvial,SI,-33.111400,-58.246400
-51,Puerto Oasis - Capitan Meza,MISIONES,PARAGUAY,Fluvial,SI,-27.065000,-55.288000
-62,Puerto Garruchos - Garruchos,CORRIENTES,BRASIL,Fluvial,SI,-28.177200,-55.642500
-83,Puerto Federacion - Villa Constitucion,ENTRE RIOS,URUGUAY,Fluvial,SI,-30.993100,-57.915300
-40,Puerto Pinares - Carlos Antonio Lopez,MISIONES,PARAGUAY,Fluvial,SI,-26.395000,-54.691000
-66,Puerto Monte Caseros - Bella Union,CORRIENTES,URUGUAY,Fluvial,SI,-30.251900,-57.622200
-86,Puerto Paranacito - Nueva Palmira,ENTRE RIOS,URUGUAY,Fluvial,SI,-33.716100,-58.659400
-72,Misión La Paz - Pozo Hondo,SALTA,PARAGUAY,Vial,SI,-22.378900,-62.518600
-81,Mondaca,SAN JUAN,CHILE,Vial,SI,-31.850000,-70.416700
-54,Pampa Alta,CHUBUT,CHILE,Vial,SI,-45.230420,-71.327320
-31,Pasarela La Fraternidad,FORMOSA,PARAGUAY,Vial,SI,-25.286100,-57.705600
-28,Pascua Lama,SAN JUAN,CHILE,Vial,SI,-29.318900,-70.015600
-7,Paso El Remanso - La Verde,FORMOSA,PARAGUAY,Vial,SI,-23.987892,-60.458126
-16,Paso Lamadrid - Misión San Leonardo,FORMOSA,PARAGUAY,Vial,SI,-23.897911,-60.755810
-10,Paso de la Barca - Porto Xavier,MISIONES,BRASIL,Vial,SI,-27.891900,-55.135600
-73,Puerto Itati - Puerto Ita Cora,CORRIENTES,PARAGUAY,Fluvial,SI,-27.269400,-58.245000
-32,Pehuenche,MENDOZA,CHILE,Vial,SI,-35.973600,-70.398300
-13,Pepiri Guazú - Sao Miguel,MISIONES,BRASIL,Vial,SI,-26.612200,-53.736900
-34,Pichachén,NEUQUEN,CHILE,Vial,SI,-37.452500,-71.126900
-37,Puerto Libertad - Puerto Domingo Martínez de Irala,MISIONES,PARAGUAY,Fluvial,SI,-25.964700,-54.603900
-26,Pircas Negras,LA RIOJA,CHILE,Vial,SI,-28.046700,-69.313300
-67,Puerto Guazu Guazucito - Carmelo,BUENOS AIRES,URUGUAY,Fluvial,SI,-34.014950,-58.395321
-30,Portillo de Piuquenes,MENDOZA,CHILE,Vial,SI,-33.613675,-69.498853
-1,Posadas - Encarnación,MISIONES,PARAGUAY,Vial,SI,-27.370300,-55.881400
-82,Puerto Colon - Puerto Paysandu,ENTRE RIOS,URUGUAY,Fluvial,SI,-32.215600,-58.136700
-77,Puerto Almanza - Puerto Williams,TIERRA DEL FUEGO,CHILE,Fluvial,SI,-54.869400,-67.575000
-74,Santo Tomé - Sao Borja,CORRIENTES,BRASIL,Vial,SI,-28.590600,-56.031700
-52,Triana,CHUBUT,CHILE,Vial,SI,-45.572530,-71.698310
-24,Puerto Chalanas - Bermejo,SALTA,BOLIVIA,Fluvial,SI,-22.731900,-64.351400
-11,Puerto Concordia - Salto,ENTRE RIOS,URUGUAY,Fluvial,SI,-31.402200,-58.003600
-70,Río Bella Vista (Ex Radman),TIERRA DEL FUEGO,CHILE,Vial,SI,-53.983300,-68.600000
-46,Vuriloche,RIO NEGRO,CHILE,Vial,SI,-41.232810,-71.770120
-90,Valle Hermoso,SAN JUAN,CHILE,Vial,SI,-30.783140,-70.283190
-69,San Sebastián,TIERRA DEL FUEGO,CHILE,Vial,SI,-53.321900,-68.604200
-75,Puerto Las Palmas - Puerto Humaita,CHACO,PARAGUAY,Fluvial,SI,-27.094200,-58.686100
-84,Puerto Luis - Constitucion,ENTRE RIOS,URUGUAY,Fluvial,SI,-31.209789,-57.930817
-50,Río Encuentro,CHUBUT,CHILE,Vial,SI,-43.583300,-71.733300
-45,Pérez Rosales,RIO NEGRO,CHILE,Vial,SI,-41.063100,-71.816400
-76,Puerto Paso de la Patria - Paso de la Patria,CORRIENTES,PARAGUAY,Fluvial,SI,-27.314400,-58.574200
-57,Río Mayer - Ribera Norte,SANTA CRUZ,CHILE,Vial,SI,-48.183300,-72.333300
-44,Puerto Rico - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial,SI,-26.791900,-55.024400
-59,Roballos,SANTA CRUZ,CHILE,Vial,SI,-47.150000,-71.850000
-48,Río Puelo,CHUBUT,CHILE,Vial,SI,-42.100000,-71.716700
-53,Río Frías,CHUBUT,CHILE,Vial,SI,-44.579590,-71.056280
-47,Río Manso,RIO NEGRO,CHILE,Vial,SI,-41.500000,-71.850000
-85,Puerto Santa Eloisa - Belen,ENTRE RIOS,URUGUAY,Fluvial,SI,-30.761606,-57.822300
-64,Río Mosco,SANTA CRUZ,CHILE,Vial,SI,-48.489390,-72.552780
-104,Reigolil,NEUQUEN,CHILE,Vial,SI,-39.116700,-71.416700
-63,Río Don Guillermo,SANTA CRUZ,CHILE,Vial,SI,-51.250000,-72.250000
-22,Salvador Mazza - Yacuiba,SALTA,BOLIVIA,Vial,SI,-22.053300,-63.683600
-14,San Antonio - Santo Antonio,MISIONES,BRASIL,Vial,SI,-26.056900,-53.730600
-25,San Francisco,CATAMARCA,CHILE,Vial,SI,-26.878100,-68.301700
-20,Sico,SALTA,CHILE,Vial,SI,-23.835000,-67.253300
-29,Sistema Cristo Redentor,MENDOZA,CHILE,Vial,SI,-32.825300,-70.070800
-21,Socompa,SALTA,CHILE,Vial,SI,-24.448300,-68.288900
-33,Vergara,MENDOZA,CHILE,Vial,SI,-35.183300,-70.516700
-36,Yaciretá - Yaciretá,CORRIENTES,PARAGUAY,Vial,SI,-27.487670,-56.686010
+﻿id_paso,nombre_paso,provincia,pais,medio,Latitud,Longitud,verificado
+67,Puerto Guazu Guazucito - Carmelo,BUENOS AIRES,URUGUAY,Fluvial / Marítimo,-34.014950,-58.395321,SI
+68,Puerto Martin Garcia - Carmelo,BUENOS AIRES,URUGUAY,Fluvial / Marítimo,-34.183300,-58.250000,SI
+25,San Francisco,CATAMARCA,CHILE,Vial / Terrestre,-26.878100,-68.301700,SI
+75,Puerto Las Palmas - Puerto Humaita,CHACO,PARAGUAY,Fluvial / Marítimo,-27.066700,-58.550000,SI
+55,Coyhaique,CHUBUT,CHILE,Vial / Terrestre,-45.556900,-71.733100,SI
+54,Pampa Alta,CHUBUT,CHILE,Vial / Terrestre,-45.222500,-71.675000,SI
+50,Río Encuentro,CHUBUT,CHILE,Vial / Terrestre,-43.588900,-71.755600,SI
+53,Río Frías,CHUBUT,CHILE,Vial / Terrestre,-44.558300,-71.733300,SI
+48,Río Puelo,CHUBUT,CHILE,Vial / Terrestre,-42.100000,-71.733300,SI
+52,Triana,CHUBUT,CHILE,Vial / Terrestre,-45.676100,-71.705600,SI
+17,Puerto Alvear - Puerto Itaqui,CORRIENTES,BRASIL,Fluvial / Marítimo,-29.106100,-56.551100,SI
+62,Puerto Garruchos - Garruchos,CORRIENTES,BRASIL,Fluvial / Marítimo,-28.183300,-55.633300,SI
+60,Puerto Ita Ibate - Panchito Lopez,CORRIENTES,PARAGUAY,Fluvial / Marítimo,-27.425000,-57.333300,SI
+73,Puerto Itati - Puerto Ita Cora,CORRIENTES,PARAGUAY,Fluvial / Marítimo,-27.266700,-58.233300,SI
+65,Puerto La Cruz - Itaqui,CORRIENTES,BRASIL,Fluvial / Marítimo,-29.179234,-56.632488,SI
+66,Puerto Monte Caseros - Bella Union,CORRIENTES,URUGUAY,Fluvial / Marítimo,-30.254700,-57.624200,SI
+76,Puerto Paso de la Patria - Paso de la Patria,CORRIENTES,PARAGUAY,Fluvial / Marítimo,-27.316700,-58.566700,SI
+61,Puerto Yahape - Puerto Cerrito,CORRIENTES,PARAGUAY,Fluvial / Marítimo,-27.366700,-57.666700,SI
+74,Santo Tomé - Sao Borja,CORRIENTES,BRASIL,Vial / Terrestre,-28.609400,-56.013600,SI
+36,Yaciretá - Yaciretá,CORRIENTES,PARAGUAY,Vial / Terrestre,-27.487670,-56.686010,SI
+3,Colón - Paysandú,ENTRE RIOS,URUGUAY,Vial / Terrestre,-32.264700,-58.099200,SI
+5,Concordia - Salto,ENTRE RIOS,URUGUAY,Vial / Terrestre,-31.273100,-57.934700,SI
+80,Puerto Boca del Gualeguaychu - Fray Bentos,ENTRE RIOS,URUGUAY,Fluvial / Marítimo,-33.042500,-58.246100,SI
+82,Puerto Colon - Puerto Paysandu,ENTRE RIOS,URUGUAY,Fluvial / Marítimo,-32.264700,-58.099200,SI
+79,Puerto Concepcion del Uruguay - Paysandu,ENTRE RIOS,URUGUAY,Fluvial / Marítimo,-32.486100,-58.223100,SI
+11,Puerto Concordia - Salto,ENTRE RIOS,URUGUAY,Fluvial / Marítimo,-31.273100,-57.934700,SI
+83,Puerto Federacion - Villa Constitucion,ENTRE RIOS,URUGUAY,Fluvial / Marítimo,-30.983300,-57.916700,SI
+84,Puerto Luis - Constitucion,ENTRE RIOS,URUGUAY,Fluvial / Marítimo,-31.209789,-57.930817,SI
+86,Puerto Paranacito - Nueva Palmira,ENTRE RIOS,URUGUAY,Fluvial / Marítimo,-33.716700,-58.650000,SI
+85,Puerto Santa Eloisa - Belen,ENTRE RIOS,URUGUAY,Fluvial / Marítimo,-30.761606,-57.822300,SI
+31,Pasarela La Fraternidad,FORMOSA,PARAGUAY,Peatonal,-25.289700,-57.717200,SI
+7,Paso El Remanso - La Verde,FORMOSA,PARAGUAY,Vial / Terrestre,-23.633300,-60.966700,SI
+16,Paso Lamadrid - Misión San Leonardo,FORMOSA,PARAGUAY,Vial / Terrestre,-23.916700,-60.533300,SI
+71,Puerto Colonia Cano - Puerto Pilar,FORMOSA,PARAGUAY,Fluvial / Marítimo,-26.852900,-58.325000,SI
+4,Puerto Pilcomayo - Puerto Ita Enramada,FORMOSA,PARAGUAY,Fluvial / Marítimo,-25.371100,-57.651400,SI
+19,Jama,JUJUY,CHILE,Vial / Terrestre,-23.237500,-67.071400,SI
+100,Jama Norte,JUJUY,CHILE,Vial / Terrestre,-23.223400,-67.055700,SI
+101,Jama Sur,JUJUY,CHILE,Vial / Terrestre,-23.231000,-67.062900,SI
+18,La Quiaca - Villazón,JUJUY,BOLIVIA,Vial / Terrestre,-22.096700,-65.596400,SI
+26,Pircas Negras,LA RIOJA,CHILE,Vial / Terrestre,-28.046700,-69.313300,SI
+96,Cajón del Maipo,MENDOZA,CHILE,Vial / Terrestre,-34.166700,-69.833300,SI
+97,Las Damas,MENDOZA,CHILE,Vial / Terrestre,-34.966700,-70.350000,SI
+98,Las Leñas,MENDOZA,CHILE,Vial / Terrestre,-34.451771,-70.064398,SI
+32,Pehuenche,MENDOZA,CHILE,Vial / Terrestre,-35.983900,-70.402500,SI
+30,Portillo de Piuquenes,MENDOZA,CHILE,Vial / Terrestre,-33.633300,-69.866700,SI
+29,Sistema Cristo Redentor,MENDOZA,CHILE,Vial / Terrestre,-32.825300,-70.070800,SI
+33,Vergara,MENDOZA,CHILE,Vial / Terrestre,-35.163600,-70.491900,SI
+8,Andresito - Capanema,MISIONES,BRASIL,Vial / Terrestre,-25.601700,-53.977900,SI
+12,Bernardo de Irigoyen - Dionisio Cerqueira,MISIONES,BRASIL,Vial / Terrestre,-26.254700,-53.644100,SI
+87,El Soberbio - Porto Soberbo,MISIONES,BRASIL,Vial / Terrestre,-27.298200,-54.193700,SI
+89,Panambí - Vera Cruz,MISIONES,BRASIL,Vial / Terrestre,-27.730000,-54.914200,SI
+10,Paso de la Barca - Porto Xavier,MISIONES,BRASIL,Vial / Terrestre,-27.892000,-55.135700,SI
+13,Pepiri Guazú - Sao Miguel,MISIONES,BRASIL,Vial / Terrestre,-26.612000,-53.736900,SI
+1,Posadas - Encarnación,MISIONES,PARAGUAY,Vial / Terrestre,-27.362200,-55.896100,SI
+88,Puerto Alba Posse - Porto Maua,MISIONES,BRASIL,Fluvial / Marítimo,-27.571300,-54.679200,SI
+92,Puerto Colonia Aurora - Porto Pratos,MISIONES,BRASIL,Fluvial / Marítimo,-27.499500,-54.520500,SI
+15,Puerto Eldorado - Puerto Mayor Julio Otaño,MISIONES,PARAGUAY,Fluvial / Marítimo,-26.406300,-54.693900,SI
+56,Puerto Iguazu - Puerto Tres Fronteras,MISIONES,PARAGUAY,Fluvial / Marítimo,-25.593300,-54.578800,SI
+49,Puerto Leoni - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial / Marítimo,-26.950000,-55.133300,SI
+37,Puerto Libertad - Puerto Domingo Martínez de Irala,MISIONES,PARAGUAY,Fluvial / Marítimo,-25.964800,-54.603900,SI
+41,Puerto Mado - Puerto Lomas Valentinas,MISIONES,PARAGUAY,Fluvial / Marítimo,-26.230300,-54.629400,SI
+43,Puerto Montecarlo - Puerto Ape Aime,MISIONES,PARAGUAY,Fluvial / Marítimo,-26.559400,-54.803900,SI
+51,Puerto Oasis - Capitan Meza,MISIONES,PARAGUAY,Fluvial / Marítimo,-26.970800,-55.248600,SI
+40,Puerto Pinares - Carlos Antonio Lopez,MISIONES,PARAGUAY,Fluvial / Marítimo,-26.406100,-54.693900,SI
+42,Puerto Piray - Puerto 7 de Agosto,MISIONES,PARAGUAY,Fluvial / Marítimo,-26.469700,-54.716900,SI
+44,Puerto Rico - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial / Marítimo,-26.798900,-55.025600,SI
+6,Puerto Santa María - Colonia Florida,MISIONES,BRASIL,Fluvial / Marítimo,-27.967800,-55.350800,SI
+39,Puerto Victoria - Capitan Urbina,MISIONES,PARAGUAY,Fluvial / Marítimo,-26.335000,-54.663600,SI
+38,Puerto Wanda - Puerto Ita Vera,MISIONES,PARAGUAY,Fluvial / Marítimo,-25.973900,-54.606400,SI
+14,San Antonio - Santo Antonio,MISIONES,BRASIL,Vial / Terrestre,-26.056900,-53.730500,SI
+102,De Buta Mallin,NEUQUEN,CHILE,Vial / Terrestre,-37.223860,-71.093860,SI
+105,Hua Hum (Fluvial),NEUQUEN,CHILE,Fluvial / Marítimo,-40.118900,-71.663100,SI
+34,Pichachén,NEUQUEN,CHILE,Vial / Terrestre,-37.456900,-71.116700,SI
+104,Reigolil,NEUQUEN,CHILE,Vial / Terrestre,-39.125060,-71.394140,SI
+45,Pérez Rosales,RIO NEGRO,CHILE,Vial / Terrestre,-41.063100,-71.816400,SI
+47,Río Manso,RIO NEGRO,CHILE,Vial / Terrestre,-41.503600,-71.849200,SI
+46,Vuriloche,RIO NEGRO,CHILE,Vial / Terrestre,-41.225000,-71.833300,SI
+23,Aguas Blancas - Bermejo,SALTA,BOLIVIA,Vial / Terrestre,-22.726400,-64.370000,SI
+35,El Condado - La Mamora,SALTA,BOLIVIA,Vial / Terrestre,-22.383300,-64.566700,SI
+99,Laguna Sico,SALTA,CHILE,Vial / Terrestre,-23.841900,-67.260800,SI
+72,Misión La Paz - Pozo Hondo,SALTA,PARAGUAY,Vial / Terrestre,-22.378900,-62.520600,SI
+24,Puerto Chalanas - Bermejo,SALTA,BOLIVIA,Fluvial / Marítimo,-22.731100,-64.362200,SI
+22,Salvador Mazza - Yacuiba,SALTA,BOLIVIA,Vial / Terrestre,-22.054200,-63.686900,SI
+20,Sico,SALTA,CHILE,Vial / Terrestre,-23.841900,-67.260800,SI
+21,Socompa,SALTA,CHILE,Vial / Terrestre,-24.455600,-68.291700,SI
+27,Agua Negra,SAN JUAN,CHILE,Vial / Terrestre,-30.193100,-69.826400,SI
+94,Casa de Piedra,SAN JUAN,CHILE,Vial / Terrestre,-31.550900,-70.559140,SI
+93,El Azufre,SAN JUAN,CHILE,Vial / Terrestre,-31.304760,-70.543700,SI
+81,Mondaca,SAN JUAN,CHILE,Vial / Terrestre,-31.854350,-70.426710,SI
+28,Pascua Lama,SAN JUAN,CHILE,Vial / Terrestre,-29.328219,-69.998675,SI
+91,Quebrada Fría,SAN JUAN,CHILE,Vial / Terrestre,-32.083200,-70.339970,SI
+90,Valle Hermoso,SAN JUAN,CHILE,Vial / Terrestre,-30.783140,-70.283190,SI
+110,Cerro Redondo,SANTA CRUZ,CHILE,Vial / Terrestre,-52.223400,-68.946300,SI
+108,Cóndor - Daniel Posesión,SANTA CRUZ,CHILE,Vial / Terrestre,-52.162600,-69.150700,SI
+109,Cóndor II,SANTA CRUZ,CHILE,Vial / Terrestre,-52.283500,-68.739300,SI
+58,Jeinimeni,SANTA CRUZ,CHILE,Vial / Terrestre,-46.544200,-71.716700,SI
+2,Monte Dinero,SANTA CRUZ,CHILE,Vial / Terrestre,-52.239500,-68.883100,SI
+59,Roballos,SANTA CRUZ,CHILE,Vial / Terrestre,-47.152800,-71.855600,SI
+63,Río Don Guillermo,SANTA CRUZ,CHILE,Vial / Terrestre,-51.258900,-72.345600,SI
+57,Río Mayer - Ribera Norte,SANTA CRUZ,CHILE,Vial / Terrestre,-48.208900,-72.345000,SI
+64,Río Mosco,SANTA CRUZ,CHILE,Vial / Terrestre,-48.489400,-72.552800,SI
+106,Alfa Cullen,TIERRA DEL FUEGO,CHILE,Vial / Terrestre,-52.785000,-68.606000,SI
+107,Cañadon Alfa,TIERRA DEL FUEGO,CHILE,Vial / Terrestre,-52.712000,-68.606000,SI
+77,Puerto Almanza - Puerto Williams,TIERRA DEL FUEGO,CHILE,Fluvial / Marítimo,-54.872200,-67.575000,SI
+70,Río Bella Vista (Ex Radman),TIERRA DEL FUEGO,CHILE,Vial / Terrestre,-53.896400,-68.605800,SI
+69,San Sebastián,TIERRA DEL FUEGO,CHILE,Vial / Terrestre,-53.321900,-68.604200,SI
