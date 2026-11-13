@@ -170,7 +170,7 @@ def coordenada_valida_en_provincia(lat: float, lon: float, prov_norm: str) -> bo
     return (lat_min <= lat <= lat_max) and (lon_min <= lon <= lon_max)
 
 
-# Catálogo auditado con las 28 coordenadas actualizadas (27 Excel + Puerto Colonia Cano)
+# Catálogo auditado de coordenadas WGS84
 CATALOGO_AUDITADO = [
     # --- JUJUY ---
     ("JUJUY", "LA QUIACA", -22.0967, -65.5964),
@@ -302,11 +302,13 @@ CATALOGO_AUDITADO = [
     ("SANTA CRUZ", "DOROTEA", -51.5736, -72.3458),
     ("SANTA CRUZ", "LAURITA", -51.6333, -72.3167),
     ("SANTA CRUZ", "CASAS VIEJAS", -51.6333, -72.3167),
-    ("SANTA CRUZ", "INTEGRACION AUSTRAL", -52.1431, -69.5186),
-    ("SANTA CRUZ", "MONTE AYMOND", -52.1431, -69.5186),
-    ("SANTA CRUZ", "CONDOR II", -52.1720, -69.2400),
-    ("SANTA CRUZ", "CONDOR", -52.1667, -69.2500),
-    ("SANTA CRUZ", "CERRO REDONDO", -52.1833, -69.0833),
+    ("SANTA CRUZ", "INTEGRACION AUSTRAL", -52.139030, -69.519470),
+    ("SANTA CRUZ", "MONTE AYMOND", -52.139030, -69.519470),
+    ("SANTA CRUZ", "CONDOR II", -52.283480, -68.739340),
+    ("SANTA CRUZ", "CONDOR DANIEL POSESION", -52.162630, -69.150710),
+    ("SANTA CRUZ", "DANIEL POSESION", -52.162630, -69.150710),
+    ("SANTA CRUZ", "CONDOR", -52.162630, -69.150710),
+    ("SANTA CRUZ", "CERRO REDONDO", -52.223420, -68.946270),
     ("SANTA CRUZ", "MONTE DINERO", -52.239468, -68.883148),
     ("SANTA CRUZ", "PUERTO DESEADO", -47.7528, -65.8936),
     ("SANTA CRUZ", "SAN JULIAN", -49.3083, -67.7250),
@@ -502,7 +504,7 @@ def supervisar_coordenada(
 
     if prov_norm:
         for cat_prov, cat_clave, cat_lat, cat_lon in CATALOGO_ORDENADO:
-            if cat_prov == prov_norm and cat_clave in nom_norm:
+            if cat_prov == prov_norm and re.search(rf"\b{re.escape(cat_clave)}\b", nom_norm):
                 lat_res, lon_res = cat_lat, cat_lon
                 break
 
@@ -519,7 +521,7 @@ def supervisar_coordenada(
 
     if lat_res is None and not prov_norm:
         for _, cat_clave, cat_lat, cat_lon in CATALOGO_ORDENADO:
-            if cat_clave in nom_norm:
+            if re.search(rf"\b{re.escape(cat_clave)}\b", nom_norm):
                 lat_res, lon_res = cat_lat, cat_lon
                 break
 
@@ -670,11 +672,29 @@ def guardar_csv(ruta, filas, columnas):
 
 
 def normalizar_estado(estado_raw):
-    estado = limpiar_html(estado_raw).upper()
-    if "CERRADO" in estado or "INHABILITADO" in estado:
+    texto_limpio = limpiar_html(estado_raw)
+    if not texto_limpio and "<" in str(estado_raw):
+        soup = BeautifulSoup(str(estado_raw), "html.parser")
+        attrs = []
+        for tag in soup.find_all(True):
+            for attr in ("title", "alt", "aria-label"):
+                if tag.get(attr):
+                    attrs.append(str(tag.get(attr)))
+        texto_limpio = " ".join(attrs)
+
+    estado = normalizar_texto(texto_limpio)
+    if not estado or estado in ("SIN DATO", "SIN DATOS", "N A", "NONE", "NAN"):
+        return "SIN_DATO"
+
+    if re.search(
+        r"\b(CERRADO|CERRADA|INHABILITADO|INHABILITADA|NO HABILITADO|NO HABILITADA|NO ABIERTO|NO ABIERTA|SUSPENDIDO|SUSPENDIDA|CLAUSURADO|CLAUSURADA)\b",
+        estado,
+    ):
         return "CERRADO"
-    if "ABIERTO" in estado or "HABILITADO" in estado:
+
+    if re.search(r"\b(ABIERTO|ABIERTA|HABILITADO|HABILITADA)\b", estado):
         return "ABIERTO"
+
     return "SIN_DATO"
 
 
