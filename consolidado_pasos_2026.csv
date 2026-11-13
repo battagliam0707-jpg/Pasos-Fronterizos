@@ -4,14 +4,14 @@
 2026,11 - Noviembre,El Condado - La Mamora,SALTA,BOLIVIA,Vial,2,0,0,-22.190000,-64.653100
 2026,11 - Noviembre,Puerto Chalanas - Bermejo,SALTA,BOLIVIA,Fluvial,2,0,0,-22.731900,-64.351400
 2026,11 - Noviembre,Salvador Mazza - Yacuiba,SALTA,BOLIVIA,Vial,2,0,0,-22.053300,-63.683600
-2026,11 - Noviembre,Puerto Alvear - Puerto Itaqui,CORRIENTES,BRASIL,Fluvial,2,0,0,-29.112800,-56.555600
+2026,11 - Noviembre,Puerto Alvear - Puerto Itaqui,CORRIENTES,BRASIL,Fluvial,1,1,0,-29.112800,-56.555600
 2026,11 - Noviembre,Puerto Garruchos - Garruchos,CORRIENTES,BRASIL,Fluvial,2,0,0,-28.177200,-55.642500
-2026,11 - Noviembre,Puerto La Cruz - Itaqui,CORRIENTES,BRASIL,Fluvial,1,1,0,-29.178300,-56.633600
+2026,11 - Noviembre,Puerto La Cruz - Itaqui,CORRIENTES,BRASIL,Fluvial,0,2,0,-29.178300,-56.633600
 2026,11 - Noviembre,Santo Tomé - Sao Borja,CORRIENTES,BRASIL,Vial,2,0,0,-28.590600,-56.031700
 2026,11 - Noviembre,Andresito - Capanema,MISIONES,BRASIL,Vial,2,0,0,-25.601700,-53.978100
 2026,11 - Noviembre,Bernardo de Irigoyen - Dionisio Cerqueira,MISIONES,BRASIL,Vial,2,0,0,-26.254700,-53.643900
 2026,11 - Noviembre,El Soberbio - Porto Soberbo,MISIONES,BRASIL,Vial,1,1,0,-27.298100,-54.193600
-2026,11 - Noviembre,Panambí - Vera Cruz,MISIONES,BRASIL,Vial,2,0,0,-27.730000,-54.914200
+2026,11 - Noviembre,Panambí - Vera Cruz,MISIONES,BRASIL,Vial,1,1,0,-27.730000,-54.914200
 2026,11 - Noviembre,Paso de la Barca - Porto Xavier,MISIONES,BRASIL,Vial,2,0,0,-27.891900,-55.135600
 2026,11 - Noviembre,Pepiri Guazú - Sao Miguel,MISIONES,BRASIL,Vial,1,1,0,-26.612200,-53.736900
 2026,11 - Noviembre,Puerto Alba Posse - Porto Maua,MISIONES,BRASIL,Fluvial,2,0,0,-27.571400,-54.679200
@@ -53,9 +53,9 @@
 2026,11 - Noviembre,Pascua Lama,SAN JUAN,CHILE,Vial,0,2,0,-29.318900,-70.015600
 2026,11 - Noviembre,Quebrada Fría,SAN JUAN,CHILE,Vial,0,2,0,-32.083300,-70.350000
 2026,11 - Noviembre,Valle Hermoso,SAN JUAN,CHILE,Vial,0,2,0,-30.783140,-70.283190
-2026,11 - Noviembre,Cerro Redondo,SANTA CRUZ,CHILE,Vial,0,2,0,-52.183300,-69.083300
-2026,11 - Noviembre,Cóndor - Daniel Posesión,SANTA CRUZ,CHILE,Vial,0,2,0,-52.166700,-69.250000
-2026,11 - Noviembre,Cóndor II,SANTA CRUZ,CHILE,Vial,0,2,0,-52.172000,-69.240000
+2026,11 - Noviembre,Cerro Redondo,SANTA CRUZ,CHILE,Vial,0,2,0,-52.223420,-68.946270
+2026,11 - Noviembre,Cóndor - Daniel Posesión,SANTA CRUZ,CHILE,Vial,0,2,0,-52.162630,-69.150710
+2026,11 - Noviembre,Cóndor II,SANTA CRUZ,CHILE,Vial,0,2,0,-52.283480,-68.739340
 2026,11 - Noviembre,Jeinimeni,SANTA CRUZ,CHILE,Vial,2,0,0,-46.544200,-71.636100
 2026,11 - Noviembre,Monte Dinero,SANTA CRUZ,CHILE,Vial,2,0,0,-52.239468,-68.883148
 2026,11 - Noviembre,Roballos,SANTA CRUZ,CHILE,Vial,2,0,0,-47.150000,-71.850000
@@ -103,5 +103,5 @@
 2026,11 - Noviembre,Puerto Concordia - Salto,ENTRE RIOS,URUGUAY,Fluvial,2,0,0,-31.402200,-58.003600
 2026,11 - Noviembre,Puerto Federacion - Villa Constitucion,ENTRE RIOS,URUGUAY,Fluvial,2,0,0,-30.993100,-57.915300
 2026,11 - Noviembre,Puerto Luis - Constitucion,ENTRE RIOS,URUGUAY,Fluvial,2,0,0,-31.209789,-57.930817
-2026,11 - Noviembre,Puerto Paranacito - Nueva Palmira,ENTRE RIOS,URUGUAY,Fluvial,2,0,0,-31.709200,-60.573600
+2026,11 - Noviembre,Puerto Paranacito - Nueva Palmira,ENTRE RIOS,URUGUAY,Fluvial,2,0,0,-33.716100,-58.659400
 2026,11 - Noviembre,Puerto Santa Eloisa - Belen,ENTRE RIOS,URUGUAY,Fluvial,2,0,0,-30.761606,-57.822300
