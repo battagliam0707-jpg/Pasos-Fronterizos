@@ -6,7 +6,7 @@
 2026,11 - Noviembre,Coyhaique,CHUBUT,CHILE,Vial / Terrestre,-45.556900,-71.733100,2,0,0
 2026,11 - Noviembre,Pampa Alta,CHUBUT,CHILE,Vial / Terrestre,-45.222500,-71.675000,2,0,0
 2026,11 - Noviembre,Río Encuentro,CHUBUT,CHILE,Vial / Terrestre,-43.588900,-71.755600,2,0,0
-2026,11 - Noviembre,Río Frías,CHUBUT,CHILE,Vial / Terrestre,-44.558300,-71.733300,2,0,0
+2026,11 - Noviembre,Río Frías,CHUBUT,CHILE,Fluvial / Marítimo,-44.558300,-71.733300,2,0,0
 2026,11 - Noviembre,Río Puelo,CHUBUT,CHILE,Vial / Terrestre,-42.100000,-71.733300,2,0,0
 2026,11 - Noviembre,Triana,CHUBUT,CHILE,Vial / Terrestre,-45.676100,-71.705600,2,0,0
 2026,11 - Noviembre,Puerto Alvear - Puerto Itaqui,CORRIENTES,BRASIL,Fluvial / Marítimo,-29.106100,-56.551100,2,0,0
@@ -30,8 +30,8 @@
 2026,11 - Noviembre,Puerto Paranacito - Nueva Palmira,ENTRE RIOS,URUGUAY,Fluvial / Marítimo,-33.716700,-58.650000,2,0,0
 2026,11 - Noviembre,Puerto Santa Eloisa - Belen,ENTRE RIOS,URUGUAY,Fluvial / Marítimo,-30.761606,-57.822300,2,0,0
 2026,11 - Noviembre,Pasarela La Fraternidad,FORMOSA,PARAGUAY,Peatonal,-25.289700,-57.717200,2,0,0
-2026,11 - Noviembre,Paso El Remanso - La Verde,FORMOSA,PARAGUAY,Vial / Terrestre,-23.633300,-60.966700,2,0,0
-2026,11 - Noviembre,Paso Lamadrid - Misión San Leonardo,FORMOSA,PARAGUAY,Vial / Terrestre,-23.916700,-60.533300,2,0,0
+2026,11 - Noviembre,Presidencia de la Nación,FORMOSA,PARAGUAY,Vial / Terrestre,-23.897911,-60.755810,2,0,0
+2026,11 - Noviembre,Presidencia de la Nación,FORMOSA,PARAGUAY,Vial / Terrestre,-23.987892,-60.458126,2,0,0
 2026,11 - Noviembre,Puerto Colonia Cano - Puerto Pilar,FORMOSA,PARAGUAY,Fluvial / Marítimo,-26.852900,-58.325000,1,1,0
 2026,11 - Noviembre,Puerto Pilcomayo - Puerto Ita Enramada,FORMOSA,PARAGUAY,Fluvial / Marítimo,-25.371100,-57.651400,2,0,0
 2026,11 - Noviembre,Jama,JUJUY,CHILE,Vial / Terrestre,-23.237500,-67.071400,2,0,0
@@ -48,13 +48,13 @@
 2026,11 - Noviembre,Vergara,MENDOZA,CHILE,Vial / Terrestre,-35.163600,-70.491900,0,2,0
 2026,11 - Noviembre,Andresito - Capanema,MISIONES,BRASIL,Vial / Terrestre,-25.601700,-53.977900,2,0,0
 2026,11 - Noviembre,Bernardo de Irigoyen - Dionisio Cerqueira,MISIONES,BRASIL,Vial / Terrestre,-26.254700,-53.644100,2,0,0
-2026,11 - Noviembre,El Soberbio - Porto Soberbo,MISIONES,BRASIL,Vial / Terrestre,-27.298200,-54.193700,1,1,0
-2026,11 - Noviembre,Panambí - Vera Cruz,MISIONES,BRASIL,Vial / Terrestre,-27.730000,-54.914200,1,1,0
+2026,11 - Noviembre,El Soberbio - Porto Soberbo,MISIONES,BRASIL,Vial / Terrestre,-27.298200,-54.193700,2,0,0
+2026,11 - Noviembre,Panambí - Vera Cruz,MISIONES,BRASIL,Vial / Terrestre,-27.730000,-54.914200,2,0,0
 2026,11 - Noviembre,Paso de la Barca - Porto Xavier,MISIONES,BRASIL,Vial / Terrestre,-27.892000,-55.135700,2,0,0
 2026,11 - Noviembre,Pepiri Guazú - Sao Miguel,MISIONES,BRASIL,Vial / Terrestre,-26.612000,-53.736900,2,0,0
 2026,11 - Noviembre,Posadas - Encarnación,MISIONES,PARAGUAY,Vial / Terrestre,-27.362200,-55.896100,2,0,0
-2026,11 - Noviembre,Puerto Alba Posse - Porto Maua,MISIONES,BRASIL,Fluvial / Marítimo,-27.571300,-54.679200,1,1,0
-2026,11 - Noviembre,Puerto Colonia Aurora - Porto Pratos,MISIONES,BRASIL,Fluvial / Marítimo,-27.499500,-54.520500,1,1,0
+2026,11 - Noviembre,Puerto Alba Posse - Porto Maua,MISIONES,BRASIL,Fluvial / Marítimo,-27.571300,-54.679200,2,0,0
+2026,11 - Noviembre,Puerto Colonia Aurora - Porto Pratos,MISIONES,BRASIL,Fluvial / Marítimo,-27.499500,-54.520500,2,0,0
 2026,11 - Noviembre,Puerto Eldorado - Puerto Mayor Julio Otaño,MISIONES,PARAGUAY,Fluvial / Marítimo,-26.406300,-54.693900,0,2,0
 2026,11 - Noviembre,Puerto Iguazu - Puerto Tres Fronteras,MISIONES,PARAGUAY,Fluvial / Marítimo,-25.593300,-54.578800,0,2,0
 2026,11 - Noviembre,Puerto Leoni - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial / Marítimo,-26.950000,-55.133300,0,2,0

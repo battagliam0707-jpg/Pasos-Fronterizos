@@ -6,7 +6,7 @@
 55,Coyhaique,CHUBUT,CHILE,Vial / Terrestre,-45.556900,-71.733100,SI
 54,Pampa Alta,CHUBUT,CHILE,Vial / Terrestre,-45.222500,-71.675000,SI
 50,Río Encuentro,CHUBUT,CHILE,Vial / Terrestre,-43.588900,-71.755600,SI
-53,Río Frías,CHUBUT,CHILE,Vial / Terrestre,-44.558300,-71.733300,SI
+53,Río Frías,CHUBUT,CHILE,Fluvial / Marítimo,-44.558300,-71.733300,SI
 48,Río Puelo,CHUBUT,CHILE,Vial / Terrestre,-42.100000,-71.733300,SI
 52,Triana,CHUBUT,CHILE,Vial / Terrestre,-45.676100,-71.705600,SI
 17,Puerto Alvear - Puerto Itaqui,CORRIENTES,BRASIL,Fluvial / Marítimo,-29.106100,-56.551100,SI
@@ -30,8 +30,8 @@
 86,Puerto Paranacito - Nueva Palmira,ENTRE RIOS,URUGUAY,Fluvial / Marítimo,-33.716700,-58.650000,SI
 85,Puerto Santa Eloisa - Belen,ENTRE RIOS,URUGUAY,Fluvial / Marítimo,-30.761606,-57.822300,SI
 31,Pasarela La Fraternidad,FORMOSA,PARAGUAY,Peatonal,-25.289700,-57.717200,SI
-7,Paso El Remanso - La Verde,FORMOSA,PARAGUAY,Vial / Terrestre,-23.633300,-60.966700,SI
-16,Paso Lamadrid - Misión San Leonardo,FORMOSA,PARAGUAY,Vial / Terrestre,-23.916700,-60.533300,SI
+7,Presidencia de la Nación,FORMOSA,PARAGUAY,Vial / Terrestre,-23.987892,-60.458126,SI
+16,Presidencia de la Nación,FORMOSA,PARAGUAY,Vial / Terrestre,-23.897911,-60.755810,SI
 71,Puerto Colonia Cano - Puerto Pilar,FORMOSA,PARAGUAY,Fluvial / Marítimo,-26.852900,-58.325000,SI
 4,Puerto Pilcomayo - Puerto Ita Enramada,FORMOSA,PARAGUAY,Fluvial / Marítimo,-25.371100,-57.651400,SI
 19,Jama,JUJUY,CHILE,Vial / Terrestre,-23.237500,-67.071400,SI
