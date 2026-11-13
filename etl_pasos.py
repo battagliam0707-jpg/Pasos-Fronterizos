@@ -1,58 +1,56 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-ETL Diario de Pasos Fronterizos Internacionales — República Argentina
----------------------------------------------------------------------
-1. Consulta el listado oficial del Ministerio de Seguridad de la Nación
-   (argentina.gob.ar/seguridad/pasosinternacionales y /listado) y contrasta
-   con la capa geoespacial oficial del IGN cuando está disponible.
-2. Supervisa y corrige la georreferenciación (Latitud / Longitud WGS84)
-   aplicando envolventes provinciales estrictas (evitando cruces entre
-   provincias como Formosa/Entre Ríos), excluyendo los 17 pasos marcados
-   como "NO" y aplicando las 28 coordenadas auditadas.
-3. Actualiza, acumula diariamente y re-georreferencia los archivos:
-   - maestro_pasos.csv
-   - historico_diario_2026.csv
-   - consolidado_pasos_2026.csv
-"""
-
 import csv
-import html as html_lib
-import io
-import json
 import math
 import os
 import re
-import ssl
 import unicodedata
-import urllib.error
-import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
+from urllib.parse import unquote
 
-# ==============================================================================
-# CONFIGURACIÓN GENERAL Y FUENTES OFICIALES
-# ==============================================================================
-URL_MINSEG_MAPA = "https://www.argentina.gob.ar/seguridad/pasosinternacionales"
-URL_MINSEG_LISTADO = "https://www.argentina.gob.ar/seguridad/pasosinternacionales/listado"
-URL_IGN_WFS = (
-    "https://wms.ign.gob.ar/geoserver/ign/ows"
-    "?service=WFS&version=1.0.0&request=GetFeature"
-    "&typeName=ign:pasos_de_fronteras_internacionales"
-    "&outputFormat=application/json"
-)
+import requests
+from bs4 import BeautifulSoup
+
+AR_TZ = timezone(timedelta(hours=-3))
+AHORA = datetime.now(AR_TZ)
+HOY = AHORA.strftime("%Y-%m-%d")
+ANIO_ACTUAL = AHORA.strftime("%Y")
+MES_ACTUAL = AHORA.strftime("%m")
+
+BASE_URL = "https://www.argentina.gob.ar"
+LISTADO_URL = f"{BASE_URL}/seguridad/pasosinternacionales/listado"
 
 ARCHIVO_MAESTRO = "maestro_pasos.csv"
-ARCHIVO_HISTORICO = "historico_diario_2026.csv"
-ARCHIVO_CONSOLIDADO = "consolidado_pasos_2026.csv"
+ARCHIVO_HISTORICO = f"historico_diario_{ANIO_ACTUAL}.csv"
+ARCHIVO_CONSOLIDADO = f"consolidado_pasos_{ANIO_ACTUAL}.csv"
 
-TZ_ARGENTINA = timezone(timedelta(hours=-3))
+MESES_ES = {
+    "01": "01 - Enero",
+    "02": "02 - Febrero",
+    "03": "03 - Marzo",
+    "04": "04 - Abril",
+    "05": "05 - Mayo",
+    "06": "06 - Junio",
+    "07": "07 - Julio",
+    "08": "08 - Agosto",
+    "09": "09 - Septiembre",
+    "10": "10 - Octubre",
+    "11": "11 - Noviembre",
+    "12": "12 - Diciembre",
+}
+
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; MonitorPasosFronterizos/1.0)",
+    "Accept": "application/json, text/html;q=0.9",
+    "X-Requested-With": "XMLHttpRequest",
+}
 
 
 # ==============================================================================
-# UTILIDADES DE NORMALIZACIÓN Y VALIDACIÓN ESPACIAL
+# NORMALIZACIÓN, EXCLUSIONES (17 PASOS "NO") Y REGLAS PROVINCIALES
 # ==============================================================================
 def normalizar_texto(texto: str) -> str:
-    """Convierte texto a mayúsculas sin tildes, signos ni espacios duplicados."""
     if not texto:
         return ""
     s = unicodedata.normalize("NFD", str(texto))
@@ -61,7 +59,7 @@ def normalizar_texto(texto: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
 
-# 17 pasos marcados como "NO" en el Excel de auditoría (no reportados por MinSeg)
+# 17 pasos marcados como "NO" en la auditoría
 PASOS_EXCLUIDOS = (
     "HUAYTIQUINA",
     "LA CHAPETONA",
@@ -86,7 +84,6 @@ PASOS_EXCLUIDOS = (
 
 
 def es_paso_excluido(nombre: str) -> bool:
-    """Devuelve True si el paso fue marcado como NO en la auditoría."""
     n = normalizar_texto(nombre)
     if not n:
         return True
@@ -94,7 +91,6 @@ def es_paso_excluido(nombre: str) -> bool:
 
 
 def normalizar_provincia(prov: str, nombre_paso: str = "") -> str:
-    """Estandariza nombres de provincias argentinas y aplica asignaciones forzadas."""
     nom_norm = normalizar_texto(nombre_paso)
     if "PUERTO WILLIAMS" in nom_norm or "PUERTO ALMANZA" in nom_norm:
         return "TIERRA DEL FUEGO"
@@ -131,8 +127,6 @@ def normalizar_provincia(prov: str, nombre_paso: str = "") -> str:
     return p
 
 
-# Envolventes geográficas estrictas [lat_min, lat_max, lon_min, lon_max]
-# Impiden que un paso de Formosa termine en Entre Ríos o viceversa.
 PERFILES_PROVINCIALES = {
     "JUJUY": {"bbox": (-24.65, -21.75, -67.35, -64.10), "fallback": (-22.0967, -65.5964)},
     "SALTA": {"bbox": (-26.45, -21.95, -68.60, -62.30), "fallback": (-22.7264, -64.3700)},
@@ -165,7 +159,6 @@ PERFILES_PROVINCIALES = {
 
 
 def coordenada_valida_en_provincia(lat: float, lon: float, prov_norm: str) -> bool:
-    """Verifica que la coordenada sea numérica, esté en Argentina y dentro de la provincia."""
     if lat is None or lon is None or math.isnan(lat) or math.isnan(lon):
         return False
     if not (-56.0 <= lat <= -21.5 and -74.0 <= lon <= -53.0):
@@ -177,11 +170,7 @@ def coordenada_valida_en_provincia(lat: float, lon: float, prov_norm: str) -> bo
     return (lat_min <= lat <= lat_max) and (lon_min <= lon <= lon_max)
 
 
-# ==============================================================================
-# CATÁLOGO AUDITADO DE PASOS INTERNACIONALES (RES. 761/2013, DNM 2083/2011, IGN)
-# Estructura: (PROVINCIA_NORM, CLAVE_NORMALIZADA, LATITUD, LONGITUD)
-# Incluye las 28 correcciones del Excel de auditoría + Puerto Colonia Cano
-# ==============================================================================
+# Catálogo auditado con las 28 coordenadas actualizadas (27 Excel + Puerto Colonia Cano)
 CATALOGO_AUDITADO = [
     # --- JUJUY ---
     ("JUJUY", "LA QUIACA", -22.0967, -65.5964),
@@ -504,23 +493,19 @@ def supervisar_coordenada(
     provincia: str,
     lat_actual=None,
     lon_actual=None,
-    mapa_ign=None,
     registro_ocupados=None,
 ):
-    """Supervisa y devuelve (lat, lon) verificados para un paso fronterizo."""
     nom_norm = normalizar_texto(nombre)
     prov_norm = normalizar_provincia(provincia, nombre)
 
     lat_res, lon_res = None, None
 
-    # 1. Búsqueda estricta dentro de la provincia declarada
     if prov_norm:
         for cat_prov, cat_clave, cat_lat, cat_lon in CATALOGO_ORDENADO:
             if cat_prov == prov_norm and cat_clave in nom_norm:
                 lat_res, lon_res = cat_lat, cat_lon
                 break
 
-    # 2. Si no hubo match provincial, intentar con coordenada oficial/IGN validando bbox
     if lat_res is None:
         try:
             lat_f = float(lat_actual) if lat_actual not in (None, "", "None") else None
@@ -532,22 +517,12 @@ def supervisar_coordenada(
             if coordenada_valida_en_provincia(lat_f, lon_f, prov_norm):
                 lat_res, lon_res = lat_f, lon_f
 
-    if lat_res is None and mapa_ign:
-        for ign_nom, (ign_lat, ign_lon) in mapa_ign.items():
-            if (nom_norm in ign_nom or ign_nom in nom_norm) and coordenada_valida_en_provincia(
-                ign_lat, ign_lon, prov_norm
-            ):
-                lat_res, lon_res = ign_lat, ign_lon
-                break
-
-    # 3. Si la provincia venía vacía en algún registro histórico, buscar coincidencia única
     if lat_res is None and not prov_norm:
         for _, cat_clave, cat_lat, cat_lon in CATALOGO_ORDENADO:
             if cat_clave in nom_norm:
                 lat_res, lon_res = cat_lat, cat_lon
                 break
 
-    # 4. Respaldo provincial garantizado dentro de los límites reales de la provincia
     if lat_res is None:
         perfil = PERFILES_PROVINCIALES.get(prov_norm)
         if perfil:
@@ -555,7 +530,6 @@ def supervisar_coordenada(
         else:
             lat_res, lon_res = -34.6037, -58.3816
 
-    # 5. Separación determinística mínima si otro paso ocupa el mismo punto exacto
     if registro_ocupados is not None:
         clave_pos = (round(lat_res, 4), round(lon_res, 4))
         count = registro_ocupados.get(clave_pos, 0)
@@ -570,505 +544,378 @@ def supervisar_coordenada(
 
 
 # ==============================================================================
-# DESCARGA DE DATOS OFICIALES (MINSEG E IGN)
+# EXTRACCIÓN ORIGINAL DESDE MINSEG (CON HEADERS AJAX X-Requested-With)
 # ==============================================================================
-def fetch_text(url: str, timeout: int = 30, accept: str = "*/*") -> str:
-    """Realiza petición HTTP GET tolerante a certificados y devuelve texto."""
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
-    req = urllib.request.Request(
-        url,
-        headers={
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ObservatorioPasos/2.0",
-            "Accept": accept,
-        },
-    )
-    with urllib.request.urlopen(req, timeout=timeout, context=ctx) as resp:
-        return resp.read().decode("utf-8", errors="replace")
+def extraer_campo(diccionario, claves_posibles):
+    for clave in claves_posibles:
+        val = diccionario.get(clave)
+        if isinstance(val, dict):
+            val = val.get("nombre") or val.get("name") or val.get("title") or val.get("value")
+        if val is not None and str(val).strip():
+            return str(val).strip()
+    return ""
 
 
-def fetch_json(url: str, timeout: int = 25):
-    """Realiza petición HTTP GET y decodifica JSON."""
-    raw = fetch_text(url, timeout=timeout, accept="application/json, text/plain, */*")
-    return json.loads(raw)
+def limpiar_html(texto):
+    if "<" in texto and ">" in texto:
+        return BeautifulSoup(texto, "html.parser").get_text(" ", strip=True)
+    return texto.strip()
 
 
-def cargar_capa_ign() -> dict:
-    """Obtiene puntos oficiales WGS84 del Instituto Geográfico Nacional (WFS)."""
-    mapa = {}
-    try:
-        data = fetch_json(URL_IGN_WFS, timeout=20)
-        for feat in data.get("features", []):
-            geom = feat.get("geometry") or {}
-            coords = geom.get("coordinates") or []
-            props = feat.get("properties") or {}
-            nombre = props.get("nombre") or props.get("fna") or props.get("nam") or ""
-            if len(coords) >= 2 and nombre:
-                lon, lat = float(coords[0]), float(coords[1])
-                mapa[normalizar_texto(nombre)] = (lat, lon)
-    except Exception as exc:
-        print(f"[INFO] Capa WFS IGN no disponible en esta corrida ({exc}). Se usa catálogo auditado.")
-    return mapa
+def extraer_url_detalle(p, id_paso, tipo_raw):
+    url = extraer_campo(p, ["url", "alias", "link", "ruta", "path", "url_detalle", "detalle", "view_node"])
+    if "<a " in url:
+        match = re.search(r'href=["\']([^"\']+)["\']', url)
+        if match:
+            return match.group(1)
+    if url:
+        return url
+
+    for val in p.values():
+        if isinstance(val, str) and "/seguridad/pasosinternacionales/detalle/" in val:
+            match = re.search(r'href=["\']([^"\']+)["\']', val)
+            return match.group(1) if match else val.strip()
+
+    tipo_norm = tipo_raw.lower()
+    if "rio" in tipo_norm or "fluvial" in tipo_norm:
+        return f"/seguridad/pasosinternacionales/detalle/rio/{id_paso}"
+    if id_paso.isdigit():
+        return f"/seguridad/pasosinternacionales/detalle/ruta/{id_paso}"
+    return ""
 
 
-def normalizar_estado(raw_estado: str) -> str:
-    """Unifica el estado operativo del paso (ABIERTO / CERRADO)."""
-    est = normalizar_texto(raw_estado)
-    if not est:
-        return "SIN DATO"
-    if "CERRADO" in est or "INHABILITADO" in est or "SUSPENDIDO" in est or "CLAUSURADO" in est:
-        return "CERRADO"
-    if "ABIERTO" in est or "HABILITADO" in est or "ACTIVO" in est or "OPERATIVO" in est:
-        return "ABIERTO"
-    return est
-
-
-def limpiar_html(texto: str) -> str:
-    if not texto:
+def nombre_desde_url(url):
+    if not url:
         return ""
-    sin_tags = re.sub(r"<[^>]+>", " ", str(texto))
-    return re.sub(r"\s+", " ", html_lib.unescape(sin_tags)).strip()
+    partes = [seg for seg in url.rstrip("/").split("/") if seg]
+    if partes and not partes[-1].isdigit():
+        return unquote(partes[-1]).replace("-", " ").strip()
+    return ""
 
 
-def _extraer_items_desde_objeto(obj, acumulador: list):
-    """Recorre estructuras JSON/GeoJSON/Poncho de Drupal buscando pasos."""
-    if isinstance(obj, list):
-        for el in obj:
-            _extraer_items_desde_objeto(el, acumulador)
-    elif isinstance(obj, dict):
-        props = obj.get("properties") if isinstance(obj.get("properties"), dict) else obj
-        geom = obj.get("geometry") if isinstance(obj.get("geometry"), dict) else {}
-        coords = geom.get("coordinates") if isinstance(geom.get("coordinates"), list) else []
+def clasificar_medio(texto_completo, url_detalle="", tipo_raw=""):
+    txt = f"{texto_completo} {url_detalle} {tipo_raw}".lower()
 
-        nombre = (
-            props.get("nombre")
-            or props.get("paso")
-            or props.get("title")
-            or props.get("name")
-            or props.get("denominacion")
-            or ""
+    if (
+        "/rio/" in txt
+        or any(
+            k in txt
+            for k in [
+                "fluvial",
+                "balsa",
+                "lancha",
+                "barcaza",
+                "ferry",
+                "catamarán",
+                "catamaran",
+                "embarcación",
+                "embarcacion",
+                "puerto ",
+            ]
         )
-        if isinstance(nombre, str) and nombre.strip():
-            desc = limpiar_html(props.get("description") or props.get("observaciones") or "")
-            prov = str(props.get("provincia") or props.get("provincia_nombre") or props.get("jurisdiccion") or "").strip()
-            pais = str(props.get("pais_limitrofe") or props.get("pais") or props.get("pais_vecino") or "").strip()
-            medio = str(props.get("medio") or props.get("tipo") or props.get("via") or "").strip()
-            est = str(props.get("estado_prioridad") or props.get("estado") or props.get("situacion") or "").strip()
-            hor = str(props.get("horario_seguridad") or props.get("horario") or "").strip()
+    ):
+        return "Fluvial"
 
-            # Detectar patrón Poncho: "Puerto Almanza - Puerto Williams, TIERRA DEL FUEGO — Cerrado"
-            m_titulo = re.match(
-                r"^(.+?),\s*([A-ZÁÉÍÓÚÑ\s]+?)\s*[—\-–]\s*(Abierto|Cerrado|Habilitado|Inhabilitado.*)$",
-                limpiar_html(nombre),
-                re.I,
+    if any(k in txt for k in ["ferroviario", "ferrocarril", "tren"]):
+        return "Ferroviario"
+
+    if re.search(r"cruce de veh[íi]culos[:\s]+no\b", txt) and re.search(
+        r"cruce de personas[:\s]+s[íi]\b", txt
+    ):
+        return "Peatonal / Sendero"
+
+    return "Vial"
+
+
+def consultar_ficha_detalle(tarea):
+    id_paso, url_relativa, nombre_actual, tipo_raw = tarea
+    if not url_relativa:
+        return id_paso, nombre_actual, clasificar_medio(nombre_actual, "", tipo_raw)
+
+    url_completa = url_relativa if url_relativa.startswith("http") else f"{BASE_URL}{url_relativa}"
+    try:
+        resp = requests.get(url_completa, headers=HEADERS, timeout=15)
+        if resp.status_code == 200:
+            soup = BeautifulSoup(resp.text, "html.parser")
+            h1 = soup.find("h1")
+            nombre_ficha = h1.get_text(" ", strip=True) if h1 else ""
+            nombre_ficha = re.sub(r"^Paso\s+", "", nombre_ficha, flags=re.IGNORECASE).strip()
+
+            texto_pagina = soup.get_text(" ", strip=True)
+            medio = clasificar_medio(f"{nombre_ficha} {texto_pagina}", resp.url, tipo_raw)
+            nombre_final = (
+                nombre_actual
+                if nombre_actual and not nombre_actual.startswith("Paso ")
+                else (nombre_ficha or nombre_actual)
             )
-            if m_titulo:
-                nombre = m_titulo.group(1).strip()
-                if not prov:
-                    prov = m_titulo.group(2).strip()
-                if not est:
-                    est = m_titulo.group(3).strip()
+            return id_paso, nombre_final, medio
+    except requests.RequestException:
+        pass
 
-            if not est and desc:
-                m_est = re.search(r"Estado\s*:?\s*(Abierto|Cerrado|Habilitado|Inhabilitado)", desc, re.I)
-                if m_est:
-                    est = m_est.group(1)
-            if not prov and desc:
-                m_prov = re.search(r"Provincia\s*:?\s*([A-Za-zÁÉÍÓÚÑáéíóúñ\s]+)", desc, re.I)
-                if m_prov:
-                    prov = m_prov.group(1).strip()
-            if not pais and desc:
-                m_pais = re.search(r"Pa[íi]s(?:\s+lim[íi]trofe)?\s*:?\s*(Bolivia|Brasil|Chile|Paraguay|Uruguay)", desc, re.I)
-                if m_pais:
-                    pais = m_pais.group(1).strip()
-
-            lat = props.get("latitud") or props.get("lat")
-            lon = props.get("longitud") or props.get("lon") or props.get("lng")
-            if (lat is None or lon is None) and len(coords) >= 2:
-                lon, lat = coords[0], coords[1]
-
-            if est or lat is not None or prov:
-                acumulador.append({
-                    "nombre": limpiar_html(nombre),
-                    "provincia": prov,
-                    "pais": pais,
-                    "medio": medio or "Vial",
-                    "estado": est,
-                    "lat": lat,
-                    "lon": lon,
-                    "horario": hor,
-                    "observaciones": desc,
-                })
-
-        for v in obj.values():
-            if isinstance(v, (dict, list)):
-                _extraer_items_desde_objeto(v, acumulador)
+    return id_paso, nombre_actual, clasificar_medio(nombre_actual, url_relativa, tipo_raw)
 
 
-def obtener_pasos_minseg(mapa_ign: dict) -> list:
-    """Descarga y normaliza el listado oficial de pasos internacionales (JSON, Drupal Settings o HTML)."""
-    crudos = []
-
-    # Intento 1: Endpoints JSON directos
-    for url_json in (URL_MINSEG_LISTADO, f"{URL_MINSEG_LISTADO}?_format=json"):
-        try:
-            payload = fetch_json(url_json, timeout=25)
-            _extraer_items_desde_objeto(payload, crudos)
-            if crudos:
-                break
-        except Exception:
-            pass
-
-    # Intento 2: HTML de /listado (tabla HTML o drupal-settings-json)
-    if not crudos:
-        try:
-            html_listado = fetch_text(URL_MINSEG_LISTADO, timeout=30, accept="text/html,*/*")
-            for m_js in re.finditer(
-                r'<script[^>]*data-drupal-selector="drupal-settings-json"[^>]*>(.*?)</script>',
-                html_listado,
-                re.S,
-            ):
-                try:
-                    _extraer_items_desde_objeto(json.loads(m_js.group(1)), crudos)
-                except Exception:
-                    pass
-            if not crudos:
-                for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", html_listado, re.S):
-                    celdas = [limpiar_html(td) for td in re.findall(r"<td[^>]*>(.*?)</td>", tr, re.S)]
-                    if len(celdas) >= 3 and celdas[0]:
-                        crudos.append({
-                            "nombre": celdas[0],
-                            "provincia": celdas[1] if len(celdas) > 1 else "",
-                            "pais": celdas[2] if len(celdas) > 2 else "",
-                            "estado": celdas[3] if len(celdas) > 3 else "",
-                            "medio": celdas[4] if len(celdas) > 4 else "Vial",
-                            "horario": celdas[5] if len(celdas) > 5 else "",
-                            "observaciones": celdas[6] if len(celdas) > 6 else "",
-                        })
-        except Exception as exc:
-            print(f"[INFO] Lectura HTML /listado: {exc}")
-
-    # Intento 3: Página principal del mapa Poncho (/pasosinternacionales) + Google Sheets embebido
-    if not crudos:
-        try:
-            html_mapa = fetch_text(URL_MINSEG_MAPA, timeout=30, accept="text/html,*/*")
-            for m_js in re.finditer(
-                r'<script[^>]*data-drupal-selector="drupal-settings-json"[^>]*>(.*?)</script>',
-                html_mapa,
-                re.S,
-            ):
-                try:
-                    _extraer_items_desde_objeto(json.loads(m_js.group(1)), crudos)
-                except Exception:
-                    pass
-            if not crudos:
-                for sid in dict.fromkeys(re.findall(r"spreadsheets/d/([a-zA-Z0-9-_]{20,})", html_mapa)):
-                    try:
-                        csv_txt = fetch_text(f"https://docs.google.com/spreadsheets/d/{sid}/gviz/tq?tqx=out:csv", timeout=25)
-                        for r in csv.DictReader(io.StringIO(csv_txt)):
-                            nom = r.get("nombre") or r.get("title") or r.get("Nombre") or ""
-                            if nom:
-                                crudos.append({
-                                    "nombre": nom,
-                                    "provincia": r.get("provincia") or r.get("Provincia") or "",
-                                    "pais": r.get("pais") or r.get("País") or "",
-                                    "estado": r.get("estado") or r.get("Estado") or "",
-                                    "medio": r.get("medio") or r.get("tipo") or "Vial",
-                                    "lat": r.get("lat") or r.get("latitud"),
-                                    "lon": r.get("lon") or r.get("lng") or r.get("longitud"),
-                                    "horario": r.get("horario") or "",
-                                    "observaciones": r.get("observaciones") or "",
-                                })
-                    except Exception:
-                        pass
-        except Exception as exc:
-            print(f"[WARN] No se pudo descargar listado en vivo de MinSeg: {exc}")
-
-    registros = []
-    ocupados = {}
-    vistos = set()
-
-    for item in crudos:
-        nombre = str(item.get("nombre") or "").strip()
-        if not nombre or es_paso_excluido(nombre):
-            continue
-
-        prov_raw = str(item.get("provincia") or "").strip()
-        prov_norm = normalizar_provincia(prov_raw, nombre)
-        provincia_final = prov_norm if prov_norm else prov_raw
-
-        clave_unica = (normalizar_texto(nombre), provincia_final)
-        if clave_unica in vistos:
-            continue
-        vistos.add(clave_unica)
-
-        estado = normalizar_estado(str(item.get("estado") or ""))
-        lat, lon = supervisar_coordenada(
-            nombre=nombre,
-            provincia=provincia_final,
-            lat_actual=item.get("lat"),
-            lon_actual=item.get("lon"),
-            mapa_ign=mapa_ign,
-            registro_ocupados=ocupados,
-        )
-
-        registros.append(
-            {
-                "Nombre del Paso": nombre,
-                "Provincia": provincia_final,
-                "País Limítrofe": str(item.get("pais") or "").strip(),
-                "Medio": str(item.get("medio") or "Vial").strip(),
-                "Estado": estado,
-                "Latitud": f"{lat:.6f}",
-                "Longitud": f"{lon:.6f}",
-                "Horario": str(item.get("horario") or "").strip(),
-                "Observaciones": str(item.get("observaciones") or "").strip(),
-            }
-        )
-
-    return registros
-
-
-# ==============================================================================
-# LECTURA, RE-GEORREFERENCIACIÓN Y ESCRITURA DE CSVs
-# ==============================================================================
-def leer_csv_existente(ruta: str):
-    """Lee un CSV existente devolviendo (headers, filas_dict)."""
+def cargar_csv(ruta, clave):
     if not os.path.exists(ruta):
-        return [], []
-    with open(ruta, "r", encoding="utf-8-sig", newline="") as f:
-        reader = csv.DictReader(f)
-        headers = list(reader.fieldnames or [])
-        rows = list(reader)
-    return headers, rows
+        return {}
+    with open(ruta, mode="r", encoding="utf-8-sig", newline="") as f:
+        return {row[clave]: row for row in csv.DictReader(f) if clave in row and row[clave]}
 
 
-def detectar_columnas_clave(headers: list) -> dict:
-    """Identifica los nombres reales de columnas en archivos existentes del repo."""
-    mapping = {}
-    for h in headers:
-        hn = normalizar_texto(h)
-        if hn in ("NOMBRE DEL PASO", "PASO", "NOMBRE", "DENOMINACION"):
-            mapping["nombre"] = h
-        elif hn in ("PROVINCIA", "JURISDICCION"):
-            mapping["provincia"] = h
-        elif hn in ("PAIS LIMITROFE", "PAIS", "PAIS VECINO"):
-            mapping["pais"] = h
-        elif hn in ("MEDIO", "TIPO", "VIA", "MODALIDAD"):
-            mapping["medio"] = h
-        elif hn in ("ESTADO", "SITUACION"):
-            mapping["estado"] = h
-        elif hn in ("LATITUD", "LAT"):
-            mapping["lat"] = h
-        elif hn in ("LONGITUD", "LON", "LNG"):
-            mapping["lon"] = h
-        elif hn in ("FECHA", "DATE", "DIA"):
-            mapping["fecha"] = h
-        elif hn in ("HORARIO", "HORARIOS"):
-            mapping["horario"] = h
-        elif hn in ("OBSERVACIONES", "OBS", "DETALLE"):
-            mapping["obs"] = h
-    return mapping
+def guardar_csv(ruta, filas, columnas):
+    with open(ruta, mode="w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=columnas, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(filas)
 
 
-def regeorreferenciar_filas(rows: list, headers: list, mapa_ign: dict):
-    """Filtra pasos excluidos ("NO"), corrige provincias forzadas y audita Latitud/Longitud."""
-    if not rows:
-        return headers, rows
-    cols = detectar_columnas_clave(headers)
-    col_nom = cols.get("nombre")
-    col_prov = cols.get("provincia")
-    col_lat = cols.get("lat")
-    col_lon = cols.get("lon")
-    col_fecha = cols.get("fecha")
+def normalizar_estado(estado_raw):
+    estado = limpiar_html(estado_raw).upper()
+    if "CERRADO" in estado or "INHABILITADO" in estado:
+        return "CERRADO"
+    if "ABIERTO" in estado or "HABILITADO" in estado:
+        return "ABIERTO"
+    return "SIN_DATO"
 
-    if not col_lat:
-        col_lat = "Latitud"
-        headers.append(col_lat)
-    if not col_lon:
-        col_lon = "Longitud"
-        headers.append(col_lon)
 
-    if not col_nom:
-        return headers, rows
+def ejecutar_extraccion():
+    resp = requests.get(LISTADO_URL, headers=HEADERS, timeout=20)
+    resp.raise_for_status()
+    data = resp.json()
 
-    ocupados_por_fecha = {}
-    filas_filtradas = []
-    for row in rows:
-        nom = row.get(col_nom, "")
-        if es_paso_excluido(nom):
+    pasos = data if isinstance(data, list) else data.get("data") or data.get("pasos") or []
+    print(f"[{HOY}] Registros recibidos desde MinSeg: {len(pasos)}")
+
+    maestro_raw = cargar_csv(ARCHIVO_MAESTRO, "id_paso")
+    maestro = {
+        k: v
+        for k, v in maestro_raw.items()
+        if not es_paso_excluido(v.get("nombre_paso") or v.get("Nombre del Paso") or "")
+    }
+
+    historico = {}
+    if os.path.exists(ARCHIVO_HISTORICO):
+        with open(ARCHIVO_HISTORICO, mode="r", encoding="utf-8-sig", newline="") as f:
+            for row in csv.DictReader(f):
+                fecha_reg = row.get("fecha") or row.get("Fecha") or ""
+                id_reg = row.get("id_paso") or ""
+                nom_reg = row.get("nombre_paso") or row.get("Nombre del Paso") or ""
+                if not fecha_reg or not id_reg or es_paso_excluido(nom_reg):
+                    continue
+                anio_reg = fecha_reg[:4] if len(fecha_reg) >= 7 else ANIO_ACTUAL
+                mes_num = fecha_reg[5:7] if len(fecha_reg) >= 7 else MES_ACTUAL
+                historico[(fecha_reg, id_reg)] = {
+                    "fecha": fecha_reg,
+                    "anio": anio_reg,
+                    "mes": MESES_ES.get(mes_num, mes_num),
+                    "id_paso": id_reg,
+                    "nombre_paso": nom_reg,
+                    "provincia": normalizar_provincia(row.get("provincia") or row.get("Provincia") or "", nom_reg),
+                    "pais": row.get("pais") or row.get("País Limítrofe") or "",
+                    "medio": row.get("medio") or row.get("Medio") or "Vial",
+                    "estado": row.get("estado") or row.get("Estado") or "SIN_DATO",
+                    "Latitud": row.get("Latitud") or row.get("latitud") or "",
+                    "Longitud": row.get("Longitud") or row.get("longitud") or "",
+                }
+
+    tareas_detalle = []
+    datos_base = {}
+
+    for p in pasos:
+        id_paso = extraer_campo(p, ["id", "nid", "id_paso", "codigo"]) or extraer_campo(
+            p, ["nombre", "titulo", "title"]
+        )
+        tipo_raw = extraer_campo(p, ["tipo", "categoria", "modalidad", "medio", "entorno"])
+        url_detalle = extraer_url_detalle(p, id_paso, tipo_raw)
+
+        nombre = limpiar_html(
+            extraer_campo(p, ["nombre", "titulo", "nombre_paso", "paso", "title", "name", "label"])
+        )
+        if not nombre:
+            nombre = nombre_desde_url(url_detalle) or f"Paso {id_paso}"
+
+        if es_paso_excluido(nombre):
             continue
 
-        fecha_key = row.get(col_fecha, "UNICO") if col_fecha else "UNICO"
-        ocupados = ocupados_por_fecha.setdefault(fecha_key, {})
-        prov_raw = row.get(col_prov, "") if col_prov else ""
-        prov_canon = normalizar_provincia(prov_raw, nom)
-        if col_prov and prov_canon:
-            row[col_prov] = prov_canon
-
-        lat, lon = supervisar_coordenada(
-            nombre=nom,
-            provincia=prov_canon or prov_raw,
-            lat_actual=row.get(col_lat),
-            lon_actual=row.get(col_lon),
-            mapa_ign=mapa_ign,
-            registro_ocupados=ocupados,
+        provincia_raw = limpiar_html(
+            extraer_campo(p, ["provincia", "provincia_nombre", "nombre_provincia", "state"])
         )
-        row[col_lat] = f"{lat:.6f}"
-        row[col_lon] = f"{lon:.6f}"
-        filas_filtradas.append(row)
+        pais = limpiar_html(
+            extraer_campo(p, ["pais", "pais_limitrofe", "pais_nombre", "nombre_pais", "country"])
+        )
+        estado_raw = extraer_campo(
+            p, ["estado_prioridad", "estado", "estado_paso", "status", "situacion"]
+        )
+        lat_raw = extraer_campo(p, ["latitud", "lat"])
+        lon_raw = extraer_campo(p, ["longitud", "lon", "lng"])
 
-    return headers, filas_filtradas
+        previo = maestro.get(id_paso, {})
+        nom_final = nombre or previo.get("nombre_paso", "")
+        prov_final = normalizar_provincia(provincia_raw or previo.get("provincia", ""), nom_final)
 
-
-def escribir_csv(ruta: str, headers: list, rows: list):
-    """Guarda el CSV en UTF-8 con BOM para compatibilidad web y Excel."""
-    if not rows:
-        print(f"[INFO] Sin filas para escribir en {ruta}; se conserva estado previo.")
-        return
-    with open(ruta, "w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=headers, extrasaction="ignore")
-        writer.writeheader()
-        writer.writerows(rows)
-
-
-def ejecutar_etl():
-    hoy_str = datetime.now(TZ_ARGENTINA).strftime("%Y-%m-%d")
-    print(f"=== Ejecutando ETL y Supervisión Geográfica ({hoy_str}) ===")
-
-    mapa_ign = cargar_capa_ign()
-    nuevos_pasos = obtener_pasos_minseg(mapa_ign)
-    print(f"[INFO] Pasos obtenidos desde fuente oficial: {len(nuevos_pasos)}")
-
-    # 1. Actualizar y auditar maestro_pasos.csv
-    h_maestro, r_maestro = leer_csv_existente(ARCHIVO_MAESTRO)
-    if not h_maestro:
-        h_maestro = ["Nombre del Paso", "Provincia", "País Limítrofe", "Medio", "Latitud", "Longitud"]
-
-    if nuevos_pasos:
-        cols_m = detectar_columnas_clave(h_maestro)
-        c_nom = cols_m.get("nombre", "Nombre del Paso")
-        c_prov = cols_m.get("provincia", "Provincia")
-        c_pais = cols_m.get("pais", "País Limítrofe")
-        c_medio = cols_m.get("medio", "Medio")
-        c_lat = cols_m.get("lat", "Latitud")
-        c_lon = cols_m.get("lon", "Longitud")
-        for col_req in (c_nom, c_prov, c_pais, c_medio, c_lat, c_lon):
-            if col_req not in h_maestro:
-                h_maestro.append(col_req)
-
-        existentes = {
-            (normalizar_texto(r.get(c_nom, "")), normalizar_provincia(r.get(c_prov, ""), r.get(c_nom, ""))): r
-            for r in r_maestro
-            if not es_paso_excluido(r.get(c_nom, ""))
+        datos_base[id_paso] = {
+            "nombre": nom_final,
+            "provincia": prov_final,
+            "pais": pais or previo.get("pais", ""),
+            "estado": normalizar_estado(estado_raw),
+            "lat_raw": lat_raw or previo.get("Latitud", ""),
+            "lon_raw": lon_raw or previo.get("Longitud", ""),
         }
-        for p in nuevos_pasos:
-            prov_p = normalizar_provincia(p["Provincia"], p["Nombre del Paso"])
-            clave = (normalizar_texto(p["Nombre del Paso"]), prov_p)
-            if clave in existentes:
-                existentes[clave][c_prov] = prov_p
-                existentes[clave][c_lat] = p["Latitud"]
-                existentes[clave][c_lon] = p["Longitud"]
-                if p["País Limítrofe"]:
-                    existentes[clave][c_pais] = p["País Limítrofe"]
-                if p["Medio"]:
-                    existentes[clave][c_medio] = p["Medio"]
-            else:
-                r_maestro.append(
-                    {
-                        c_nom: p["Nombre del Paso"],
-                        c_prov: prov_p,
-                        c_pais: p["País Limítrofe"],
-                        c_medio: p["Medio"],
-                        c_lat: p["Latitud"],
-                        c_lon: p["Longitud"],
-                    }
-                )
 
-    h_maestro, r_maestro = regeorreferenciar_filas(r_maestro, h_maestro, mapa_ign)
-    escribir_csv(ARCHIVO_MAESTRO, h_maestro, r_maestro)
+        if (
+            previo.get("verificado") != "SI"
+            or not previo.get("medio")
+            or previo.get("nombre_paso", "").startswith("Paso ")
+        ):
+            tareas_detalle.append((id_paso, url_detalle, datos_base[id_paso]["nombre"], tipo_raw))
+        else:
+            datos_base[id_paso]["medio"] = previo["medio"]
 
-    # 2. Actualizar y acumular en historico_diario_2026.csv y consolidado_pasos_2026.csv
-    headers_base = [
-        "Fecha",
-        "Nombre del Paso",
-        "Provincia",
-        "País Limítrofe",
-        "Medio",
-        "Estado",
-        "Latitud",
-        "Longitud",
-        "Horario",
-        "Observaciones",
-    ]
+    if tareas_detalle:
+        print(f"Verificando ficha individual de {len(tareas_detalle)} pasos...")
+        with ThreadPoolExecutor(max_workers=6) as executor:
+            for id_p, nombre_ficha, medio_ficha in executor.map(
+                consultar_ficha_detalle, tareas_detalle
+            ):
+                if nombre_ficha:
+                    datos_base[id_p]["nombre"] = nombre_ficha
+                    datos_base[id_p]["provincia"] = normalizar_provincia(
+                        datos_base[id_p]["provincia"], nombre_ficha
+                    )
+                datos_base[id_p]["medio"] = medio_ficha
 
-    h_hist, r_hist = leer_csv_existente(ARCHIVO_HISTORICO)
-    h_cons, r_cons = leer_csv_existente(ARCHIVO_CONSOLIDADO)
+    datos_base = {
+        id_p: info
+        for id_p, info in datos_base.items()
+        if not es_paso_excluido(info["nombre"])
+    }
 
-    h_target = h_cons or h_hist or list(headers_base)
-    cols_t = detectar_columnas_clave(h_target)
-    c_fecha = cols_t.get("fecha", "Fecha")
-    c_nom = cols_t.get("nombre", "Nombre del Paso")
-    c_prov = cols_t.get("provincia", "Provincia")
-    c_pais = cols_t.get("pais", "País Limítrofe")
-    c_medio = cols_t.get("medio", "Medio")
-    c_est = cols_t.get("estado", "Estado")
-    c_lat = cols_t.get("lat", "Latitud")
-    c_lon = cols_t.get("lon", "Longitud")
-    c_hor = cols_t.get("horario", "Horario")
-    c_obs = cols_t.get("obs", "Observaciones")
+    ocupados_hoy = {}
+    for id_p, info in datos_base.items():
+        lat, lon = supervisar_coordenada(
+            nombre=info["nombre"],
+            provincia=info["provincia"],
+            lat_actual=info.get("lat_raw"),
+            lon_actual=info.get("lon_raw"),
+            registro_ocupados=ocupados_hoy,
+        )
+        lat_s, lon_s = f"{lat:.6f}", f"{lon:.6f}"
 
-    for col_req in (c_fecha, c_nom, c_prov, c_pais, c_medio, c_est, c_lat, c_lon):
-        if col_req not in h_target:
-            h_target.append(col_req)
+        maestro[id_p] = {
+            "id_paso": id_p,
+            "nombre_paso": info["nombre"],
+            "provincia": info["provincia"],
+            "pais": info["pais"],
+            "medio": info.get("medio", "Vial"),
+            "verificado": "SI",
+            "Latitud": lat_s,
+            "Longitud": lon_s,
+        }
+        historico[(HOY, id_p)] = {
+            "fecha": HOY,
+            "anio": ANIO_ACTUAL,
+            "mes": MESES_ES.get(MES_ACTUAL, MES_ACTUAL),
+            "id_paso": id_p,
+            "nombre_paso": info["nombre"],
+            "provincia": info["provincia"],
+            "pais": info["pais"],
+            "medio": info.get("medio", "Vial"),
+            "estado": info["estado"],
+            "Latitud": lat_s,
+            "Longitud": lon_s,
+        }
 
-    # Fusionar registros acumulados previos de consolidado + histórico sin duplicar
-    acumulado = []
-    claves_vistas = set()
-    for fuente_rows in (r_cons, r_hist):
-        for r in fuente_rows:
-            nom_r = r.get(c_nom, "")
-            if not nom_r or es_paso_excluido(nom_r):
-                continue
-            f_r = str(r.get(c_fecha, "")).strip()
-            if nuevos_pasos and f_r == hoy_str:
-                continue
-            key = (f_r, normalizar_texto(nom_r))
-            if key not in claves_vistas:
-                claves_vistas.add(key)
-                acumulado.append(dict(r))
+    ocupados_m = {}
+    for id_p, info in maestro.items():
+        info["provincia"] = normalizar_provincia(info.get("provincia", ""), info.get("nombre_paso", ""))
+        lat, lon = supervisar_coordenada(
+            nombre=info.get("nombre_paso", ""),
+            provincia=info["provincia"],
+            lat_actual=info.get("Latitud"),
+            lon_actual=info.get("Longitud"),
+            registro_ocupados=ocupados_m,
+        )
+        info["Latitud"] = f"{lat:.6f}"
+        info["Longitud"] = f"{lon:.6f}"
 
-    if nuevos_pasos:
-        for p in nuevos_pasos:
-            prov_p = normalizar_provincia(p["Provincia"], p["Nombre del Paso"])
-            fila = {
-                c_fecha: hoy_str,
-                c_nom: p["Nombre del Paso"],
-                c_prov: prov_p,
-                c_pais: p["País Limítrofe"],
-                c_medio: p["Medio"],
-                c_est: p["Estado"],
-                c_lat: p["Latitud"],
-                c_lon: p["Longitud"],
-            }
-            if c_hor in h_target:
-                fila[c_hor] = p["Horario"]
-            if c_obs in h_target:
-                fila[c_obs] = p["Observaciones"]
-            acumulado.append(fila)
+    for reg in historico.values():
+        id_p = reg["id_paso"]
+        if id_p in maestro:
+            reg["nombre_paso"] = maestro[id_p]["nombre_paso"]
+            reg["provincia"] = maestro[id_p]["provincia"]
+            reg["pais"] = maestro[id_p]["pais"]
+            reg["medio"] = maestro[id_p]["medio"]
+            reg["Latitud"] = maestro[id_p]["Latitud"]
+            reg["Longitud"] = maestro[id_p]["Longitud"]
 
-    h_target, acumulado = regeorreferenciar_filas(acumulado, h_target, mapa_ign)
-    escribir_csv(ARCHIVO_HISTORICO, list(h_target), [dict(r) for r in acumulado])
-    escribir_csv(ARCHIVO_CONSOLIDADO, list(h_target), [dict(r) for r in acumulado])
-
-    print(
-        f"[OK] Archivos actualizados y auditados: "
-        f"{ARCHIVO_MAESTRO} ({len(r_maestro)} filas), "
-        f"{ARCHIVO_HISTORICO} ({len(acumulado)} filas), "
-        f"{ARCHIVO_CONSOLIDADO} ({len(acumulado)} filas)."
+    guardar_csv(
+        ARCHIVO_MAESTRO,
+        list(maestro.values()),
+        ["id_paso", "nombre_paso", "provincia", "pais", "medio", "verificado", "Latitud", "Longitud"],
     )
+
+    filas_hist = sorted(historico.values(), key=lambda x: (x["fecha"], x.get("nombre_paso", "")))
+    guardar_csv(
+        ARCHIVO_HISTORICO,
+        filas_hist,
+        ["fecha", "anio", "mes", "id_paso", "nombre_paso", "provincia", "pais", "medio", "estado", "Latitud", "Longitud"],
+    )
+
+    periodos = sorted({(reg["anio"], reg["mes"]) for reg in historico.values()})
+    if not periodos:
+        periodos = [(ANIO_ACTUAL, MESES_ES.get(MES_ACTUAL, MES_ACTUAL))]
+
+    conteos = {
+        (anio, mes, id_p): {"ABIERTO": 0, "CERRADO": 0, "SIN_DATO": 0}
+        for anio, mes in periodos
+        for id_p in maestro
+    }
+
+    for reg in historico.values():
+        clave = (reg["anio"], reg["mes"], reg["id_paso"])
+        if clave in conteos and reg["estado"] in conteos[clave]:
+            conteos[clave][reg["estado"]] += 1
+
+    filas_consolidado = []
+    for anio, mes in periodos:
+        for id_p, info in maestro.items():
+            c = conteos[(anio, mes, id_p)]
+            filas_consolidado.append({
+                "Año": anio,
+                "Mes": mes,
+                "Nombre del Paso": info["nombre_paso"],
+                "Provincia": info["provincia"],
+                "País Limítrofe": info["pais"],
+                "Medio": info["medio"],
+                "Días Abierto": c["ABIERTO"],
+                "Días Cerrado": c["CERRADO"],
+                "Días Sin Dato": c["SIN_DATO"],
+                "Latitud": info["Latitud"],
+                "Longitud": info["Longitud"],
+            })
+
+    filas_consolidado.sort(
+        key=lambda x: (x["Año"], x["Mes"], x["País Limítrofe"], x["Provincia"], x["Nombre del Paso"])
+    )
+    guardar_csv(
+        ARCHIVO_CONSOLIDADO,
+        filas_consolidado,
+        [
+            "Año",
+            "Mes",
+            "Nombre del Paso",
+            "Provincia",
+            "País Limítrofe",
+            "Medio",
+            "Días Abierto",
+            "Días Cerrado",
+            "Días Sin Dato",
+            "Latitud",
+            "Longitud",
+        ],
+    )
+    print(f"[{HOY}] Consolidado actualizado con Año y Mes ({len(filas_consolidado)} filas).")
 
 
 if __name__ == "__main__":
-    ejecutar_etl()
+    ejecutar_extraccion()
