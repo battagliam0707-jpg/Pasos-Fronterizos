@@ -1076,12 +1076,11 @@
         return { lat: exacto.lat, lng: exacto.lng };
       }
 
-      // 2. Búsqueda parcial ordenada por longitud de clave dentro de la misma provincia
+    // 2. Búsqueda por palabra completa ordenada por longitud de clave dentro de la misma provincia
       const entradas = Object.entries(COORDENADAS_PASOS).sort((a, b) => b[0].length - a[0].length);
       for (const [clave, entry] of entradas) {
-        const coincideClave = clave.length >= 5
-          ? (normNombre.includes(clave) || normSinPrefijo.includes(clave))
-          : new RegExp(`\\b${clave}\\b`).test(normSinPrefijo);
+        const regexClave = new RegExp(`\\b${clave}\\b`);
+        const coincideClave = regexClave.test(normNombre) || regexClave.test(normSinPrefijo);
         if (coincideClave && coincideProvincia(entry)) {
           return { lat: entry.lat, lng: entry.lng };
         }
@@ -1097,8 +1096,9 @@
       if (exacto) {
         return { lat: exacto.lat, lng: exacto.lng };
       }
-      for (const [clave, entry] of entradas) {
-        if (clave.length >= 6 && (normNombre.includes(clave) || normSinPrefijo.includes(clave))) {
+   for (const [clave, entry] of entradas) {
+        const regexClave = new RegExp(`\\b${clave}\\b`);
+        if (clave.length >= 6 && (regexClave.test(normNombre) || regexClave.test(normSinPrefijo))) {
           return { lat: entry.lat, lng: entry.lng };
         }
       }
