@@ -7,7 +7,7 @@ import re
 import unicodedata
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
-from urllib.parse import unquote
+from urllib.parse import quote, unquote
 
 import requests
 from bs4 import BeautifulSoup
@@ -552,19 +552,17 @@ def extraer_nombre_y_url(valor_nombre):
     return texto, url_detalle
 
 
-def buscar_url_detalle(item: dict, url_inicial: str) -> str:
-    if url_inicial:
-        return url_inicial
-    for v in item.values():
-        if not v:
-            continue
-        s = str(v)
-        m = re.search(r'href=["\']([^"\']+)["\']', s, re.I)
-        if m:
-            return m.group(1).strip()
-        if "/pasosinternacionales/" in s or "/detalle/" in s:
-            return s.strip()
-    return ""
+def construir_url_ficha(id_paso: str, nombre: str) -> str:
+    """
+    Reconstruye la URL exacta que utiliza el visor web de argentina.gob.ar:
+    /seguridad/pasosinternacionales/detalle/ruta/{id}/{Slug}
+    """
+    if not id_paso or not str(id_paso).isdigit():
+        return ""
+    slug_limpio = re.sub(r"[^A-Za-z0-9ÁÉÍÓÚáéíóúÑñÜü]+", "-", (nombre or "paso").strip()).strip("-")
+    if not slug_limpio:
+        slug_limpio = "paso"
+    return f"/seguridad/pasosinternacionales/detalle/ruta/{id_paso}/{quote(slug_limpio)}"
 
 
 def clasificar_medio(texto_completo: str, url_detalle: str = "", tipo_raw: str = "") -> str:
@@ -643,6 +641,9 @@ def normalizar_estado(estado_raw):
 
 
 def extraer_estado_desde_html_ficha(soup) -> str:
+    """
+    Lee el estado real de la ficha /detalle/ruta/{id}/{slug} del visor oficial.
+    """
     contenedor = (
         soup.find("main")
         or soup.find("article")
@@ -661,7 +662,7 @@ def extraer_estado_desde_html_ficha(soup) -> str:
 
         clases_str = " ".join(el.get("class") or [])
         es_badge_alerta = bool(
-            re.search(r"(danger|cerrad|inhabilit|alert|label|badge|estado|status|warning)", clases_str, re.I)
+            re.search(r"(danger|cerrad|inhabilit|alert|label|badge|estado|status|warning|success|abiert)", clases_str, re.I)
         )
         es_etiqueta_estado = bool(
             re.match(
@@ -677,33 +678,24 @@ def extraer_estado_desde_html_ficha(soup) -> str:
             if PATRON_ABIERTO.search(txt):
                 return "ABIERTO"
 
-    for label_el in contenedor.find_all(["dt", "th", "strong", "label", "div", "span"]):
-        lbl_txt = normalizar_texto(label_el.get_text(" ", strip=True))
-        if lbl_txt in ("ESTADO", "ESTADO DEL PASO", "SITUACION", "TRANSITABILIDAD", "HABILITACION"):
-            hermano = label_el.find_next_sibling()
-            if hermano:
-                val_norm = normalizar_texto(hermano.get_text(" ", strip=True))
-                if es_cierre_real(val_norm):
-                    return "CERRADO"
-                if PATRON_ABIERTO.search(val_norm):
-                    return "ABIERTO"
-
     texto_main = normalizar_texto(contenedor.get_text(" ", strip=True))
-    if re.search(
-        r"\b(?:ESTADO(?:\s+DEL\s+PASO)?|SITUACION|PASO(?:\s+FRONTERIZO|\s+INTERNACIONAL)?)\s*:?\s*"
-        r"(?:SE\s+ENCUENTRA\s+|ESTA\s+)?"
-        r"(?:CERRADO|CERRADA|INHABILITADO|INHABILITADA|NO\s+HABILITADO|NO\s+ABIERTO|SUSPENDIDO|CLAUSURADO|INTRANSITABLE)\b",
-        texto_main,
-    ):
-        return "CERRADO"
 
-    if re.search(
-        r"\b(?:ESTADO(?:\s+DEL\s+PASO)?|SITUACION|PASO(?:\s+FRONTERIZO|\s+INTERNACIONAL)?)\s*:?\s*"
-        r"(?:SE\s+ENCUENTRA\s+|ESTA\s+)?"
-        r"(?:ABIERTO|ABIERTA|HABILITADO|HABILITADA)\b",
+    # Patrón exacto del encabezado de ficha: "Localidad ( AR ) - Localidad ( CL ) Cerrado. Horario: ..."
+    m_visor = re.search(
+        r"\(\s*(?:AR|ARGENTINA)\s*\)\s*-\s*.*?\(\s*(?:CL|CHILE|UY|URUGUAY|BR|BRASIL|PY|PARAGUAY|BO|BOLIVIA)\s*\)\s*"
+        r"(CERRADO|CERRADA|INHABILITADO|INHABILITADA|ABIERTO|ABIERTA|HABILITADO|HABILITADA)\b",
         texto_main,
-    ):
-        return "ABIERTO"
+    )
+    if m_visor:
+        return "CERRADO" if es_cierre_real(m_visor.group(1)) else "ABIERTO"
+
+    m_horario = re.search(
+        r"\b(CERRADO|CERRADA|INHABILITADO|INHABILITADA|ABIERTO|ABIERTA|HABILITADO|HABILITADA)\s+"
+        r"(?:HORARIO|EL\s+PASO\s+CIERRA)\b",
+        texto_main,
+    )
+    if m_horario:
+        return "CERRADO" if es_cierre_real(m_horario.group(1)) else "ABIERTO"
 
     return ""
 
@@ -758,7 +750,7 @@ def consultar_ficha_detalle(tarea):
 
 
 # ==============================================================================
-# PERSISTENCIA EN CSV (CON SUPERVISIÓN Y CORRECCIONES EXTERNAS)
+# PERSISTENCIA EN CSV (CON SUPERVISIÓN Y CORRECCIONES EXTERNAS OPCIONALES)
 # ==============================================================================
 def cargar_overrides() -> dict:
     overrides = {}
@@ -829,9 +821,6 @@ def ejecutar_extraccion():
 
         raw_nom = p.get("nombre") or p.get("title") or p.get("paso") or p.get("nombre_paso") or ""
         nombre, url_detalle = extraer_nombre_y_url(raw_nom)
-        if not url_detalle:
-            url_detalle = extraer_campo(p, ["url", "path", "link", "view_node", "enlace", "ficha"])
-        url_detalle = buscar_url_detalle(p, url_detalle)
 
         if es_paso_excluido(nombre):
             continue
@@ -839,6 +828,12 @@ def ejecutar_extraccion():
         provincia_raw = extraer_campo(p, ["provincia", "jurisdiccion", "distrito"])
         pais = extraer_campo(p, ["pais", "pais_limitrofe", "limitrofe", "frontera"])
         tipo_raw = extraer_campo(p, ["tipo", "medio", "via", "categoria", "modalidad"])
+
+        id_paso = generar_id_paso(p, nombre, provincia_raw)
+        if not url_detalle:
+            url_detalle = extraer_campo(p, ["url", "path", "link", "view_node", "enlace", "ficha"])
+        if not url_detalle:
+            url_detalle = construir_url_ficha(id_paso, nombre)
 
         estados_candidatos = [
             extraer_campo(p, [clave])
@@ -863,9 +858,7 @@ def ejecutar_extraccion():
         lat_raw = extraer_campo(p, ["latitud", "lat"])
         lon_raw = extraer_campo(p, ["longitud", "lon", "lng"])
 
-        id_paso = generar_id_paso(p, nombre, provincia_raw)
         previo = maestro.get(id_paso, {})
-
         nom_final = nombre or previo.get("nombre_paso", "")
         prov_final = normalizar_provincia(provincia_raw or previo.get("provincia", ""), nom_final)
 
@@ -882,7 +875,7 @@ def ejecutar_extraccion():
         tareas_detalle.append((id_paso, url_detalle, datos_base[id_paso]["nombre"], tipo_raw))
 
     if tareas_detalle:
-        print(f"Ejecutando doble chequeo en ficha individual HTML para los {len(tareas_detalle)} pasos...")
+        print(f"Consultando ficha individual del visor (/detalle/ruta/...) para los {len(tareas_detalle)} pasos...")
         corregidos_detalle = 0
         fichas_ok = 0
         with ThreadPoolExecutor(max_workers=10) as executor:
@@ -899,26 +892,22 @@ def ejecutar_extraccion():
                 if medio_ficha:
                     datos_base[id_p]["medio"] = medio_ficha
 
+                # La ficha individual del visor tiene prioridad sobre el JSON cacheado
                 estado_anterior = datos_base[id_p]["estado"]
-                if estado_ficha == "CERRADO" or estado_anterior == "CERRADO":
-                    estado_final = "CERRADO"
-                elif estado_ficha in ("ABIERTO", "CERRADO"):
-                    estado_final = estado_ficha
-                else:
-                    estado_final = estado_anterior
+                estado_final = estado_ficha if estado_ficha in ("ABIERTO", "CERRADO") else estado_anterior
 
                 if estado_final != estado_anterior:
                     corregidos_detalle += 1
                     print(
-                        f"  [DOBLE CHEQUEO] {datos_base[id_p]['nombre']} ({datos_base[id_p]['provincia']}): "
-                        f"JSON={estado_anterior} -> FICHA={estado_ficha} => FINAL={estado_final}"
+                        f"  [VISOR FICHA] {datos_base[id_p]['nombre']} ({datos_base[id_p]['provincia']}): "
+                        f"JSON={estado_anterior} -> VISOR={estado_ficha}"
                     )
 
                 datos_base[id_p]["estado"] = estado_final
 
         print(
-            f"Doble chequeo finalizado -> Fichas leídas OK: {fichas_ok}/{len(tareas_detalle)} | "
-            f"Corregidos: {corregidos_detalle}"
+            f"Sincronización con visor finalizada -> Fichas leídas OK: {fichas_ok}/{len(tareas_detalle)} | "
+            f"Actualizados desde ficha: {corregidos_detalle}"
         )
 
     registros_hoy = {}
