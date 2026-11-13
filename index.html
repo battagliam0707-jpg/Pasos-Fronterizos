@@ -952,8 +952,8 @@
 
    function normalizarEstado(raw) {
       const val = normalizarTexto(raw).toUpperCase();
-      if (val.includes("ABIERTO") || val.includes("HABILITADO")) return "Abierto";
-      if (val.includes("CERRADO") || val.includes("INHABILITADO")) return "Cerrado";
+      if (/\b(CERRADO|INHABILITADO|NO HABILITADO|NO ABIERTO|SUSPENDIDO)\b/.test(val)) return "Cerrado";
+      if (/\b(ABIERTO|HABILITADO)\b/.test(val)) return "Abierto";
       return "Sin dato";
     }
 
