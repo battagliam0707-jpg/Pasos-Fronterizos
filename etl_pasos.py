@@ -40,10 +40,22 @@ MESES_ES = {
     "12": "12 - Diciembre",
 }
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (compatible; MonitorPasosFronterizos/1.0)",
-    "Accept": "application/json, text/html;q=0.9",
+HEADERS_JSON = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/json, text/javascript, */*; q=0.01",
     "X-Requested-With": "XMLHttpRequest",
+}
+
+HEADERS_HTML = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "es-AR,es;q=0.9,en;q=0.8",
 }
 
 PATRON_CERRADO = re.compile(
@@ -57,6 +69,7 @@ PATRON_CERRADO = re.compile(
 )
 
 PATRON_ABIERTO = re.compile(r"\b(ABIERTO|ABIERTA|HABILITADO|HABILITADA)\b")
+PATRON_HORARIO_NOCTURNO = re.compile(r"\bCERRADO\s+DE\s+\d{1,2}")
 
 
 # ==============================================================================
@@ -71,7 +84,13 @@ def normalizar_texto(texto: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
 
-# 17 pasos marcados como "NO" en la auditoría
+def es_cierre_real(txt_norm: str) -> bool:
+    if not txt_norm:
+        return False
+    sin_horario = PATRON_HORARIO_NOCTURNO.sub("", txt_norm)
+    return bool(PATRON_CERRADO.search(sin_horario))
+
+
 PASOS_EXCLUIDOS = (
     "HUAYTIQUINA",
     "LA CHAPETONA",
@@ -501,7 +520,7 @@ def supervisar_coordenada(nombre_paso: str, prov_norm: str, lat_raw: str, lon_ra
 
 
 # ==============================================================================
-# EXTRACCIÓN Y NORMALIZACIÓN DE DATOS DEL PORTAL OFICIAL (CON DOBLE CHEQUEO)
+# EXTRACCIÓN Y NORMALIZACIÓN DE DATOS DEL PORTAL OFICIAL
 # ==============================================================================
 def limpiar_html(valor) -> str:
     if valor is None:
@@ -530,6 +549,21 @@ def extraer_nombre_y_url(valor_nombre):
         texto = slug.replace("-", " ").replace("_", " ").strip().title()
 
     return texto, url_detalle
+
+
+def buscar_url_detalle(item: dict, url_inicial: str) -> str:
+    if url_inicial:
+        return url_inicial
+    for v in item.values():
+        if not v:
+            continue
+        s = str(v)
+        m = re.search(r'href=["\']([^"\']+)["\']', s, re.I)
+        if m:
+            return m.group(1).strip()
+        if "/pasosinternacionales/" in s or "/detalle/" in s:
+            return s.strip()
+    return ""
 
 
 def clasificar_medio(texto_completo: str, url_detalle: str = "", tipo_raw: str = "") -> str:
@@ -584,20 +618,21 @@ def clasificar_medio(texto_completo: str, url_detalle: str = "", tipo_raw: str =
 
 def normalizar_estado(estado_raw):
     texto_limpio = limpiar_html(str(estado_raw or ""))
-    if not texto_limpio and "<" in str(estado_raw):
+    if "<" in str(estado_raw):
         soup = BeautifulSoup(str(estado_raw), "html.parser")
         attrs = []
         for tag in soup.find_all(True):
             for attr in ("title", "alt", "aria-label"):
                 if tag.get(attr):
                     attrs.append(str(tag.get(attr)))
-        texto_limpio = " ".join(attrs)
+        if attrs:
+            texto_limpio = f"{texto_limpio} {' '.join(attrs)}".strip()
 
     estado = normalizar_texto(texto_limpio)
     if not estado or estado in ("SIN DATO", "SIN DATOS", "N A", "NONE", "NAN"):
         return "SIN_DATO"
 
-    if PATRON_CERRADO.search(estado):
+    if es_cierre_real(estado):
         return "CERRADO"
 
     if PATRON_ABIERTO.search(estado):
@@ -606,10 +641,11 @@ def normalizar_estado(estado_raw):
     return "SIN_DATO"
 
 
-def extraer_estado_desde_html_ficha(soup) -> str:
+def extraer_estado_desde_html_ficha(soup):
     """
-    Lee el estado operativo real directamente desde la ficha individual HTML
-    de cada paso en argentina.gob.ar, evitando falsos positivos por textos de horarios.
+    Analiza la ficha individual HTML en argentina.gob.ar buscando el estado real
+    en alertas, badges, etiquetas de estado y atributos de iconos.
+    Retorna (estado, fragmento_detectado).
     """
     contenedor = (
         soup.find("main")
@@ -618,46 +654,70 @@ def extraer_estado_desde_html_ficha(soup) -> str:
         or soup
     )
 
+    # 1. Revisar badges, alertas o bloques de estado explícito (hasta 300 caracteres)
     for el in contenedor.find_all(["span", "div", "p", "strong", "li", "td", "dd", "h2", "h3", "h4"]):
-        txt = normalizar_texto(el.get_text(" ", strip=True))
-        if not txt or len(txt) > 90:
+        txt_raw = el.get_text(" ", strip=True)
+        attrs_extra = " ".join(
+            str(el.get(a)) for a in ("title", "alt", "aria-label") if el.get(a)
+        )
+        combinado = f"{txt_raw} {attrs_extra}".strip()
+        txt = normalizar_texto(combinado)
+        if not txt or len(txt) > 300:
             continue
+
         clases_str = " ".join(el.get("class") or [])
         es_badge_alerta = bool(
-            re.search(r"(danger|cerrad|inhabilit|alert|label|badge|estado|status)", clases_str, re.I)
+            re.search(r"(danger|cerrad|inhabilit|alert|label|badge|estado|status|warning)", clases_str, re.I)
         )
         es_etiqueta_estado = bool(
             re.match(
-                r"^(ESTADO|SITUACION|TRANSITABILIDAD|"
+                r"^(ESTADO|SITUACION|TRANSITABILIDAD|HABILITACION|"
                 r"PASO\s+(?:CERRADO|ABIERTO|HABILITADO|INHABILITADO)|"
                 r"CERRADO|CERRADA|ABIERTO|ABIERTA|HABILITADO|HABILITADA|INHABILITADO|NO\s+HABILITADO)\b",
                 txt,
             )
         )
         if es_badge_alerta or es_etiqueta_estado:
-            if PATRON_CERRADO.search(txt):
-                return "CERRADO"
+            if es_cierre_real(txt):
+                return "CERRADO", combinado[:140]
             if PATRON_ABIERTO.search(txt):
-                return "ABIERTO"
+                return "ABIERTO", combinado[:140]
 
-    texto_main = normalizar_texto(contenedor.get_text(" ", strip=True))
-    if re.search(
+    # 2. Revisar pares clave-valor (ej: dt/dd o th/td o .field-label / .field-item)
+    for label_el in contenedor.find_all(["dt", "th", "strong", "label", "div", "span"]):
+        lbl_txt = normalizar_texto(label_el.get_text(" ", strip=True))
+        if lbl_txt in ("ESTADO", "ESTADO DEL PASO", "SITUACION", "TRANSITABILIDAD", "HABILITACION"):
+            hermano = label_el.find_next_sibling()
+            if hermano:
+                val_raw = hermano.get_text(" ", strip=True)
+                val_norm = normalizar_texto(val_raw)
+                if es_cierre_real(val_norm):
+                    return "CERRADO", f"{lbl_txt}: {val_raw[:120]}"
+                if PATRON_ABIERTO.search(val_norm):
+                    return "ABIERTO", f"{lbl_txt}: {val_raw[:120]}"
+
+    # 3. Revisar enunciados directos en el texto principal de la ficha
+    texto_main_raw = contenedor.get_text(" ", strip=True)
+    texto_main = normalizar_texto(texto_main_raw)
+    m_cerrado = re.search(
         r"\b(?:ESTADO(?:\s+DEL\s+PASO)?|SITUACION|PASO(?:\s+FRONTERIZO|\s+INTERNACIONAL)?)\s*:?\s*"
         r"(?:SE\s+ENCUENTRA\s+|ESTA\s+)?"
         r"(?:CERRADO|CERRADA|INHABILITADO|INHABILITADA|NO\s+HABILITADO|NO\s+ABIERTO|SUSPENDIDO|CLAUSURADO|INTRANSITABLE)\b",
         texto_main,
-    ):
-        return "CERRADO"
+    )
+    if m_cerrado:
+        return "CERRADO", m_cerrado.group(0)
 
-    if re.search(
+    m_abierto = re.search(
         r"\b(?:ESTADO(?:\s+DEL\s+PASO)?|SITUACION|PASO(?:\s+FRONTERIZO|\s+INTERNACIONAL)?)\s*:?\s*"
         r"(?:SE\s+ENCUENTRA\s+|ESTA\s+)?"
         r"(?:ABIERTO|ABIERTA|HABILITADO|HABILITADA)\b",
         texto_main,
-    ):
-        return "ABIERTO"
+    )
+    if m_abierto:
+        return "ABIERTO", m_abierto.group(0)
 
-    return ""
+    return "", texto_main_raw[:140]
 
 
 def generar_id_paso(item: dict, nombre: str, provincia: str) -> str:
@@ -683,11 +743,18 @@ def extraer_campo(item: dict, claves_posibles: list) -> str:
 def consultar_ficha_detalle(tarea):
     id_paso, url_relativa, nombre_actual, tipo_raw = tarea
     if not url_relativa:
-        return id_paso, nombre_actual, clasificar_medio(nombre_actual, "", tipo_raw), ""
+        return (
+            id_paso,
+            nombre_actual,
+            clasificar_medio(nombre_actual, "", tipo_raw),
+            "",
+            "SIN_URL",
+            "",
+        )
 
     url_completa = url_relativa if url_relativa.startswith("http") else f"{BASE_URL}{url_relativa}"
     try:
-        resp = requests.get(url_completa, headers=HEADERS, timeout=15)
+        resp = requests.get(url_completa, headers=HEADERS_HTML, timeout=15)
         if resp.status_code == 200:
             soup = BeautifulSoup(resp.text, "html.parser")
             h1 = soup.find("h1")
@@ -696,17 +763,30 @@ def consultar_ficha_detalle(tarea):
 
             texto_pagina = soup.get_text(" ", strip=True)
             medio = clasificar_medio(f"{nombre_ficha} {texto_pagina}", resp.url, tipo_raw)
-            estado_ficha = extraer_estado_desde_html_ficha(soup)
+            estado_ficha, fragmento = extraer_estado_desde_html_ficha(soup)
             nombre_final = (
                 nombre_actual
                 if nombre_actual and not nombre_actual.startswith("Paso ")
                 else (nombre_ficha or nombre_actual)
             )
-            return id_paso, nombre_final, medio, estado_ficha
-    except requests.RequestException:
-        pass
-
-    return id_paso, nombre_actual, clasificar_medio(nombre_actual, url_relativa, tipo_raw), ""
+            return id_paso, nombre_final, medio, estado_ficha, f"HTTP_200 ({url_completa})", fragmento
+        return (
+            id_paso,
+            nombre_actual,
+            clasificar_medio(nombre_actual, url_relativa, tipo_raw),
+            "",
+            f"HTTP_{resp.status_code} ({url_completa})",
+            "",
+        )
+    except requests.RequestException as exc:
+        return (
+            id_paso,
+            nombre_actual,
+            clasificar_medio(nombre_actual, url_relativa, tipo_raw),
+            "",
+            f"ERROR_{type(exc).__name__} ({url_completa})",
+            "",
+        )
 
 
 # ==============================================================================
@@ -745,7 +825,7 @@ def guardar_maestro(maestro: dict):
 
 def ejecutar_extraccion():
     print(f"[{AHORA.strftime('%Y-%m-%d %H:%M:%S')}] Consultando API oficial de Pasos Fronterizos...")
-    resp = requests.get(LISTADO_URL, headers=HEADERS, timeout=30)
+    resp = requests.get(LISTADO_URL, headers=HEADERS_JSON, timeout=30)
     resp.raise_for_status()
     payload = resp.json()
 
@@ -769,7 +849,8 @@ def ejecutar_extraccion():
         raw_nom = p.get("nombre") or p.get("title") or p.get("paso") or p.get("nombre_paso") or ""
         nombre, url_detalle = extraer_nombre_y_url(raw_nom)
         if not url_detalle:
-            url_detalle = extraer_campo(p, ["url", "path", "link", "view_node"])
+            url_detalle = extraer_campo(p, ["url", "path", "link", "view_node", "enlace", "ficha"])
+        url_detalle = buscar_url_detalle(p, url_detalle)
 
         if es_paso_excluido(nombre):
             continue
@@ -798,6 +879,10 @@ def ejecutar_extraccion():
         estado_raw = " | ".join(val for val in estados_candidatos if val)
         estado_json = normalizar_estado(estado_raw)
 
+        if "SOCOMPA" in normalizar_texto(nombre):
+            print(f"[DIAGNÓSTICO SOCOMPA] JSON bruto: {p}")
+            print(f"[DIAGNÓSTICO SOCOMPA] url_detalle='{url_detalle}' | estado_json='{estado_json}'")
+
         lat_raw = extraer_campo(p, ["latitud", "lat"])
         lon_raw = extraer_campo(p, ["longitud", "lon", "lng"])
 
@@ -817,16 +902,18 @@ def ejecutar_extraccion():
             "lon_raw": lon_raw or previo.get("Longitud", ""),
         }
 
-        # Doble chequeo en ficha individual HTML para TODOS los pasos
         tareas_detalle.append((id_paso, url_detalle, datos_base[id_paso]["nombre"], tipo_raw))
 
     if tareas_detalle:
         print(f"Ejecutando doble chequeo en ficha individual HTML para los {len(tareas_detalle)} pasos...")
         corregidos_detalle = 0
+        fallos_http = 0
         with ThreadPoolExecutor(max_workers=10) as executor:
-            for id_p, nombre_ficha, medio_ficha, estado_ficha in executor.map(
+            for id_p, nombre_ficha, medio_ficha, estado_ficha, info_http, fragmento in executor.map(
                 consultar_ficha_detalle, tareas_detalle
             ):
+                if not info_http.startswith("HTTP_200"):
+                    fallos_http += 1
                 if nombre_ficha:
                     datos_base[id_p]["nombre"] = nombre_ficha
                     datos_base[id_p]["provincia"] = normalizar_provincia(
@@ -849,9 +936,19 @@ def ejecutar_extraccion():
                         f"  [DOBLE CHEQUEO] {datos_base[id_p]['nombre']} ({datos_base[id_p]['provincia']}): "
                         f"JSON={estado_anterior} -> FICHA={estado_ficha} => FINAL={estado_final}"
                     )
+
+                if "SOCOMPA" in normalizar_texto(datos_base[id_p]["nombre"]):
+                    print(
+                        f"[DIAGNÓSTICO SOCOMPA] {info_http} | estado_ficha='{estado_ficha}' "
+                        f"| fragmento='{fragmento}' => estado_final='{estado_final}'"
+                    )
+
                 datos_base[id_p]["estado"] = estado_final
 
-        print(f"Total de estados corregidos tras doble chequeo en ficha: {corregidos_detalle}")
+        print(
+            f"Doble chequeo finalizado -> Corregidos: {corregidos_detalle} | "
+            f"Fichas sin HTTP 200: {fallos_http}"
+        )
 
     registros_hoy = {}
     stats_coord = {"CATALOGO": 0, "API_VALIDA": 0, "FALLBACK_PROV": 0, "SIN_COORD": 0}
@@ -893,7 +990,7 @@ def ejecutar_extraccion():
     guardar_maestro(maestro)
     print(f"Supervisión geográfica -> {stats_coord}")
 
-    # Actualizar histórico diario (filtrando excluidos y supervisando coordenadas en filas previas)
+    # Actualizar histórico diario
     historico = {}
     if os.path.exists(ARCHIVO_HISTORICO):
         with open(ARCHIVO_HISTORICO, "r", encoding="utf-8-sig", newline="") as f:
