@@ -3,2367 +3,758 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Observatorio de Pasos Fronterizos — Argentina</title>
+  <title>Monitor de Pasos Fronterizos | República Argentina</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Fuente Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
-  <!-- Leaflet.js (Mapa Interactivo sin API Key) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- PapaParse (Parseo robusto de CSV con UTF-8 BOM, comillas y comas) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-          },
-        },
-      },
-    };
-  </script>
+  <!-- Chart.js & PapaParse -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <style>
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background-color: #f8fafc;
       color: #0f172a;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
-
-    /* Altura y contención estricta del mapa */
     #map {
-      height: 440px;
+      height: 520px;
       width: 100%;
-      position: relative;
-      overflow: hidden;
-      z-index: 10;
-      background-color: #e2e8f0;
+      border-radius: 0.75rem;
+      z-index: 1;
     }
-
-    @media (min-width: 1024px) {
-      #map {
-        height: 475px;
-      }
-    }
-
-    /* Estilizado de Popups Leaflet */
     .leaflet-popup-content-wrapper {
-      border-radius: 12px;
-      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25);
-      border: 1px solid #e2e8f0;
-      padding: 2px;
+      border-radius: 0.65rem;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.18);
     }
-
-    .leaflet-popup-content {
-      margin: 12px 14px;
-      font-family: 'Inter', sans-serif;
+    .table-container {
+      max-height: 520px;
+      overflow-y: auto;
     }
-
-    /* Marcadores circulares de alto contraste sobre imagen satelital */
-    .custom-marker-pin {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 9999px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-      line-height: 1;
-    }
-
-    .custom-marker-pin:hover {
-      transform: scale(1.25);
-      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.45), 0 4px 12px rgba(0, 0, 0, 0.8);
-      z-index: 999 !important;
-    }
-
-    /* Scrollbars sutiles */
-    .custom-scroll::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    .custom-scroll::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 9999px;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 9999px;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+    thead th {
+      position: sticky;
+      top: 0;
+      background-color: #f1f5f9;
+      z-index: 10;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased">
+<body class="min-h-screen flex flex-col">
 
-  <!-- ===================================================================== -->
-  <!-- BARRA SUPERIOR: TÍTULO, ESTADO DE SINCRONIZACIÓN Y FILTROS            -->
-  <!-- ===================================================================== -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-      <!-- Identidad y estado de conexión -->
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-sm shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+  <!-- Header -->
+  <header class="bg-slate-900 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="inline-block w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+          <h1 class="text-xl sm:text-2xl font-bold tracking-tight">Monitor de Pasos Fronterizos</h1>
         </div>
-        <div>
-          <div class="flex items-center gap-2.5 flex-wrap">
-            <h1 class="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
-              Observatorio de Pasos Fronterizos — Argentina
-            </h1>
-            <span id="syncStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border bg-amber-50 text-amber-800 border-amber-200">
-              <span id="syncStatusDot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-              <span id="syncStatusText">Cargando datos...</span>
-            </span>
-          </div>
-          <p class="text-xs text-slate-500 mt-0.5">Monitoreo operativo diario de pasos internacionales de Argentina</p>
-        </div>
+        <p class="text-slate-300 text-xs sm:text-sm mt-0.5">
+          Seguimiento diario y acumulado mensual de habilitación fronteriza · Fuente: Ministerio de Seguridad
+        </p>
       </div>
-
-      <!-- Controles Superiores: Filtros por Año, Mes y Provincia -->
-      <div class="flex items-center gap-2 flex-wrap">
-        <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-          <label for="filtroAnio" class="text-xs font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">
-            Año:
-          </label>
-          <select
-            id="filtroAnio"
-            class="text-sm font-bold text-slate-900 bg-transparent focus:outline-none cursor-pointer pr-1"
-            aria-label="Filtrar por año"
-          >
-            <option value="">Cargando...</option>
-          </select>
-        </div>
-
-        <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-          <label for="filtroMes" class="text-xs font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">
-            Mes:
-          </label>
-          <select
-            id="filtroMes"
-            class="text-sm font-bold text-slate-900 bg-transparent focus:outline-none cursor-pointer pr-1"
-            aria-label="Filtrar por mes"
-          >
-            <option value="TODOS">Todos los meses</option>
-          </select>
-        </div>
-
-        <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-          <label for="filtroProvincia" class="text-xs font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">
-            Provincia:
-          </label>
-          <select
-            id="filtroProvincia"
-            class="text-sm font-bold text-slate-900 bg-transparent focus:outline-none cursor-pointer pr-1 max-w-[190px] truncate"
-            aria-label="Filtrar por provincia"
-          >
-            <option value="TODAS">Todas las provincias</option>
-          </select>
-        </div>
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        <span id="badge-ultima-fecha" class="bg-slate-800 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg font-medium">
+          Última jornada: cargando...
+        </span>
+        <span id="badge-dias-registrados" class="bg-sky-950 border border-sky-800 text-sky-200 px-3 py-1.5 rounded-lg font-medium">
+          Jornadas acumuladas: —
+        </span>
+        <button id="btn-recargar" type="button"
+          class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3 py-1.5 rounded-lg transition cursor-pointer">
+          Actualizar datos
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- ===================================================================== -->
-  <!-- CONTENIDO PRINCIPAL                                                   -->
-  <!-- ===================================================================== -->
-  <main class="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-    <!-- Cartel de Fallo en la actualización (oculto salvo error al tomar los datos) -->
-    <div id="errorBanner" role="alert" class="hidden rounded-2xl bg-red-50 border border-red-300 p-4 text-xs sm:text-sm text-red-900 flex items-start gap-3 shadow-xs">
-      <svg class="w-5 h-5 text-[#dc2626] shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86l-7.5 13A1 1 0 003.65 18.5h16.7a1 1 0 00.86-1.5l-7.5-13a1 1 0 00-1.72 0z" />
-      </svg>
-      <div>
-        <p class="font-bold text-[#dc2626] text-sm">Fallo en la actualización</p>
-        <p id="errorBannerDetalle" class="mt-0.5 text-red-800"></p>
+    <!-- Alerta de error (oculta por defecto) -->
+    <div id="alerta-error" class="hidden bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl text-sm"></div>
+
+    <!-- Filtros -->
+    <section class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Año</label>
+          <select id="filtro-anio" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Mes</label>
+          <select id="filtro-mes" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <option value="">Todos los meses</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">País Limítrofe</label>
+          <select id="filtro-pais" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <option value="">Todos los países</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Provincia</label>
+          <select id="filtro-provincia" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <option value="">Todas las provincias</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Medio</label>
+          <select id="filtro-medio" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <option value="">Todos los medios</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Estado Último Día</label>
+          <select id="filtro-estado" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <option value="">Todos</option>
+            <option value="ABIERTO">Abierto</option>
+            <option value="CERRADO">Cerrado</option>
+            <option value="SIN_DATO">Sin dato</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Buscar Paso</label>
+          <input id="filtro-busqueda" type="text" placeholder="Ej: Cano, Jama, Cristo..."
+            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
+        </div>
       </div>
-    </div>
-
-    <!-- =================================================================== -->
-    <!-- 4 TARJETAS KPI COMPACTAS CON DATOS REALES                           -->
-    <!-- =================================================================== -->
-    <section aria-label="Indicadores generales reales" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <!-- KPI 1: Total Pasos Relevados -->
-      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 flex flex-col justify-between">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Pasos Relevados</span>
-          <span class="p-2 rounded-xl bg-slate-100 text-slate-700">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </span>
-        </div>
-        <div class="mt-2.5 flex items-baseline gap-2">
-          <span id="kpiTotalPasos" class="text-2xl sm:text-3xl font-bold text-slate-900">—</span>
-          <span id="kpiAnioSubtexto" class="text-xs text-slate-500">pasos catalogados</span>
-        </div>
-        <p class="mt-1 text-[11px] text-slate-500">Registrados en el parte del día</p>
-      </div>
-
-      <!-- KPI 2: Abiertos (Último Parte) -->
-      <div class="bg-white rounded-2xl border border-emerald-200/90 shadow-sm p-4 flex flex-col justify-between">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700">Abiertos (Último Parte)</span>
-          <span class="p-2 rounded-xl bg-emerald-50 text-[#16a34a]">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          </span>
-        </div>
-        <div class="mt-2.5 flex items-baseline gap-2">
-          <span id="kpiAbiertos" class="text-2xl sm:text-3xl font-bold text-[#16a34a]">—</span>
-          <span id="kpiAbiertosPct" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">0%</span>
-        </div>
-        <p class="mt-1 text-[11px] text-slate-500">Pasos habilitados ese día</p>
-      </div>
-
-      <!-- KPI 3: Cerrados (Último Parte) -->
-      <div class="bg-white rounded-2xl border border-red-200/90 shadow-sm p-4 flex flex-col justify-between">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold uppercase tracking-wider text-red-700">Cerrados (Último Parte)</span>
-          <span class="p-2 rounded-xl bg-red-50 text-[#dc2626]">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </span>
-        </div>
-        <div class="mt-2.5 flex items-baseline gap-2">
-          <span id="kpiCerrados" class="text-2xl sm:text-3xl font-bold text-[#dc2626]">—</span>
-          <span id="kpiCerradosPct" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-700">0%</span>
-        </div>
-        <p id="kpiSinDatoNota" class="mt-1 text-[11px] text-slate-500">Inhabilitados ese día</p>
-      </div>
-
-      <!-- KPI 4: Fecha del Parte -->
-      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 flex flex-col justify-between">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Fecha del Parte</span>
-          <span class="p-2 rounded-xl bg-slate-100 text-slate-700">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </span>
-        </div>
-        <div class="mt-2.5 flex items-baseline gap-2">
-          <span id="kpiUltimaFecha" class="text-xl sm:text-2xl font-bold text-slate-900">—</span>
-        </div>
-        <p id="kpiDiasRelevadosTotal" class="mt-1 text-[11px] text-slate-500">Calculando jornadas registradas...</p>
+      <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+        <span id="resumen-filtros">Mostrando todos los pasos monitoreados.</span>
+        <button id="btn-limpiar-filtros" type="button" class="text-sky-700 hover:text-sky-900 font-semibold cursor-pointer">
+          Restablecer filtros
+        </button>
       </div>
     </section>
 
-    <!-- =================================================================== -->
-    <!-- ÁREA PRINCIPAL EN 2 COLUMNAS:                                       -->
-    <!-- IZQUIERDA (Mapa Satelital Esri + Tabla sincronizada con zoom)       -->
-    <!-- DERECHA   (Gráfico de Área + % de Pasos Abiertos por Provincia)     -->
-    <!-- =================================================================== -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+    <!-- KPI Cards -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Pasos Monitoreados</p>
+        <p id="kpi-total-pasos" class="text-3xl font-bold text-slate-900 mt-1">—</p>
+        <p id="kpi-hoy-detalle" class="text-xs text-slate-500 mt-1">Último día: —</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-emerald-500">
+        <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">Días Abierto (Acumulado)</p>
+        <p id="kpi-dias-abierto" class="text-3xl font-bold text-emerald-600 mt-1">—</p>
+        <p class="text-xs text-slate-500 mt-1">Suma de jornadas habilitadas</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-rose-500">
+        <p class="text-xs font-semibold uppercase tracking-wider text-rose-700">Días Cerrado (Acumulado)</p>
+        <p id="kpi-dias-cerrado" class="text-3xl font-bold text-rose-600 mt-1">—</p>
+        <p class="text-xs text-slate-500 mt-1">Suma de jornadas cerradas</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-sky-500">
+        <p class="text-xs font-semibold uppercase tracking-wider text-sky-700">Tasa de Operatividad</p>
+        <p id="kpi-operatividad" class="text-3xl font-bold text-sky-600 mt-1">—</p>
+        <p id="kpi-dias-sindato" class="text-xs text-slate-500 mt-1">Días sin dato: —</p>
+      </div>
+    </section>
 
-      <!-- COLUMNA IZQUIERDA (7 cols) -->
-      <div class="lg:col-span-7 space-y-5">
-
-        <!-- MAPA DE PASOS FRONTERIZOS (ARGENMAP IGN + OPCIÓN SATELITAL) -->
-        <section class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-          <div class="px-4 py-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h2 class="text-sm sm:text-base font-bold text-slate-900">Mapa de Pasos Fronterizos</h2>
-              <p class="text-xs text-slate-500">Acercá o desplazá el mapa para filtrar la tabla inferior según el encuadre</p>
-            </div>
-
-            <div class="flex items-center gap-2 flex-wrap">
-              <!-- Leyenda de estados -->
-              <div class="flex items-center gap-2.5 text-xs font-medium bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-200/80">
-                <span class="inline-flex items-center gap-1.5 text-emerald-700">
-                  <span class="w-4 h-4 rounded-full bg-[#16a34a] text-white inline-flex items-center justify-center shadow-2xs">
-                    <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M12 19V5M5 12l7-7 7 7" />
-                    </svg>
-                  </span>
-                  Abierto
-                </span>
-                <span class="inline-flex items-center gap-1 text-red-700">
-                  <span class="text-sm leading-none" aria-hidden="true">🛑</span>
-                  Cerrado
-                </span>
-                <span id="leyendaSinDato" class="hidden items-center gap-1.5 text-slate-600">
-                  <span class="w-2.5 h-2.5 rounded-full bg-[#64748b] ring-2 ring-slate-200"></span>
-                  Sin dato
-                </span>
-              </div>
-
-              <!-- Botón alternar Argenmap IGN / Esri Satélite -->
-              <button
-                id="btnToggleCapaMapa"
-                type="button"
-                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition shadow-xs cursor-pointer"
-                title="Alternar entre Argenmap IGN y vista satelital Esri"
-              >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                </svg>
-                <span id="labelCapaMapa">Argenmap IGN</span>
-              </button>
-            </div>
+    <!-- Mapa + Gráficos -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Mapa -->
+      <div class="lg:col-span-7 bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h2 class="text-base font-bold text-slate-800">Geolocalización de Pasos Fronterizos</h2>
+            <p class="text-xs text-slate-500">Hacé clic en un marcador o en una fila de la tabla para ver el detalle</p>
           </div>
-
-          <!-- Contenedor del Mapa Leaflet -->
-          <div class="relative overflow-hidden">
-            <div id="map"></div>
+          <div class="flex items-center gap-3 text-xs">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Abierto</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> Cerrado</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span> Sin dato</span>
+            <button id="btn-centrar-mapa" type="button" class="text-sky-700 hover:underline font-semibold cursor-pointer">
+              Centrar país
+            </button>
           </div>
-
-          <!-- Barra inferior de encuadre regional (fuera del mapa para no solaparse con atribución Leaflet) -->
-          <div class="px-4 py-2.5 bg-slate-50/90 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
-            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Enfoque regional:</span>
-            <div class="flex flex-wrap gap-1.5">
-              <button type="button" data-region="ARG" class="btn-region px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-slate-900 text-white border border-slate-900 hover:bg-slate-800 transition cursor-pointer">Todo el País</button>
-              <button type="button" data-region="TDF" class="btn-region px-2.5 py-1 text-[11px] font-medium rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition cursor-pointer">Tierra del Fuego</button>
-              <button type="button" data-region="PATAGONIA" class="btn-region px-2.5 py-1 text-[11px] font-medium rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition cursor-pointer">Patagonia</button>
-              <button type="button" data-region="CUYO" class="btn-region px-2.5 py-1 text-[11px] font-medium rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition cursor-pointer">Cuyo</button>
-              <button type="button" data-region="NOA" class="btn-region px-2.5 py-1 text-[11px] font-medium rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition cursor-pointer">NOA</button>
-              <button type="button" data-region="NEA" class="btn-region px-2.5 py-1 text-[11px] font-medium rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition cursor-pointer">NEA / Litoral</button>
-            </div>
-          </div>
-        </section>
-
-        <!-- TABLA SINCRONIZADA CON EL ZOOM DEL MAPA -->
-        <section class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-          <div class="px-4 py-3.5 border-b border-slate-200/80 bg-slate-50/70 space-y-2.5">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <h2 class="text-sm sm:text-base font-bold text-slate-900">Pasos Fronterizos en el Encuadre Actual</h2>
-                <p id="contadorZoomTabla" class="text-xs font-medium text-slate-600 mt-0.5">
-                  Mostrando 0 pasos en el encuadre actual del mapa (de 0 totales)
-                </p>
-              </div>
-              <span class="text-[11px] text-slate-400">Clic en una fila para ubicar en mapa</span>
-            </div>
-
-            <!-- Buscador rápido y filtro por modo -->
-            <div class="flex flex-col sm:flex-row gap-2">
-              <div class="relative flex-1">
-                <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
-                </svg>
-                <input
-                  id="buscadorTablaZoom"
-                  type="text"
-                  placeholder="Buscar paso, provincia o país dentro del zoom..."
-                  class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900/15"
-                />
-              </div>
-              <select
-                id="filtroModoTablaZoom"
-                aria-label="Filtrar tabla por modo"
-                class="px-3 py-1.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900/15 cursor-pointer"
-              >
-                <option value="TODOS">Todos los modos</option>
-                <option value="VIAL">Vial</option>
-                <option value="FLUVIAL">Fluvial</option>
-                <option value="FERROVIARIO">Ferroviario</option>
-                <option value="PEATONAL">Peatonal / Sendero</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="overflow-x-auto max-h-[440px] custom-scroll">
-            <table class="w-full text-left border-collapse">
-              <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200">
-                <tr>
-                  <th class="py-2.5 px-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Paso</th>
-                  <th class="py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-500">Provincia</th>
-                  <th class="py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-500">País Vecino</th>
-                  <th class="py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-500">Modo</th>
-                  <th class="py-2.5 px-4 text-[11px] font-bold uppercase tracking-wider text-slate-500 text-right">Estado</th>
-                </tr>
-              </thead>
-              <tbody id="tablaZoomBody" class="divide-y divide-slate-100 text-sm">
-                <tr>
-                  <td colspan="5" class="py-10 px-4 text-center text-slate-400 text-xs">
-                    Descargando datos reales desde GitHub...
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
+        </div>
+        <div id="map"></div>
       </div>
 
-      <!-- COLUMNA DERECHA (5 cols):                                            -->
-      <!-- SUPERIOR: GRÁFICO DE ÁREA (EVOLUCIÓN DIARIA ABIERTOS VS. CERRADOS)   -->
-      <!-- INFERIOR: % DE PASOS ABIERTOS POR PROVINCIA (DATOS DEL DÍA)          -->
-      <div class="lg:col-span-5 space-y-5">
-
-        <!-- 1. GRÁFICO DE ÁREA: EVOLUCIÓN DIARIA -->
-        <section class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-          <div class="p-4 border-b border-slate-200/80 bg-slate-50/70 space-y-3">
-            <div class="flex items-start justify-between gap-2">
-              <div>
-                <h2 class="text-sm sm:text-base font-bold text-slate-900">
-                  Evolución Diaria (Gráfico de Área)
-                </h2>
-                <p id="subtituloAreaChart" class="text-xs text-slate-500 mt-0.5">
-                  Comportamiento diario real según partes capturados
-                </p>
-              </div>
-              <span id="badgeDiasArea" class="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-700">
-                0 jornadas
-              </span>
-            </div>
-
-            <!-- Controles del Gráfico de Área -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <select
-                id="metricaAreaChart"
-                aria-label="Métrica del gráfico de área"
-                class="px-2.5 py-1.5 text-xs font-semibold bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900/15 cursor-pointer"
-              >
-                <option value="CANTIDAD">Cantidad de pasos (Abiertos vs. Cerrados)</option>
-                <option value="OPERATIVIDAD">% de Operatividad diaria</option>
-              </select>
-
-              <div class="inline-flex rounded-xl bg-slate-200/75 p-1" role="group" aria-label="Alcance del gráfico de área">
-                <button
-                  id="btnAreaTodos"
-                  type="button"
-                  class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-xs transition cursor-pointer"
-                >
-                  Todo el país
-                </button>
-                <button
-                  id="btnAreaZoom"
-                  type="button"
-                  class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition cursor-pointer"
-                >
-                  Visibles en zoom
-                </button>
-              </div>
-            </div>
+      <!-- Gráficos -->
+      <div class="lg:col-span-5 flex flex-col gap-6">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex-1">
+          <h2 class="text-base font-bold text-slate-800">Evolución Diaria (Abiertos vs. Cerrados)</h2>
+          <p class="text-xs text-slate-500 mb-3">Cantidad de pasos por jornada según filtros activos</p>
+          <div class="relative h-56">
+            <canvas id="chart-evolucion"></canvas>
           </div>
+        </div>
 
-          <!-- Lienzo SVG del Gráfico de Área + Tooltip interactivo -->
-          <div class="p-4 relative">
-            <div id="areaChartWrapper" class="relative w-full h-[215px] select-none">
-              <div class="h-full flex items-center justify-center text-xs text-slate-400">
-                Cargando serie histórica diaria...
-              </div>
-            </div>
-
-            <!-- Leyenda inferior del Gráfico de Área -->
-            <div id="areaChartLegend" class="mt-2 pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-600">
-              <div class="flex items-center gap-3">
-                <span class="inline-flex items-center gap-1.5 font-medium text-emerald-700">
-                  <span class="w-2.5 h-2.5 rounded-xs bg-[#16a34a]/30 border border-[#16a34a]"></span>
-                  Abiertos
-                </span>
-                <span id="legendItemCerrados" class="inline-flex items-center gap-1.5 font-medium text-red-700">
-                  <span class="w-2.5 h-2.5 rounded-xs bg-[#dc2626]/25 border border-[#dc2626]"></span>
-                  Cerrados
-                </span>
-              </div>
-              <span class="text-slate-400">Pasá el cursor para ver detalle diario</span>
-            </div>
-
-            <!-- Tooltip flotante -->
-            <div
-              id="areaChartTooltip"
-              class="hidden pointer-events-none absolute z-20 bg-slate-900/95 text-white rounded-xl px-3 py-2 text-xs shadow-lg border border-slate-700 min-w-[165px]"
-            ></div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex-1">
+          <h2 class="text-base font-bold text-slate-800">Acumulado por País Limítrofe</h2>
+          <p class="text-xs text-slate-500 mb-3">Días abiertos y cerrados acumulados en el período</p>
+          <div class="relative h-52">
+            <canvas id="chart-paises"></canvas>
           </div>
-        </section>
+        </div>
+      </div>
+    </section>
 
-        <!-- 2. % DE PASOS ABIERTOS POR PROVINCIA (CONTABILIDAD DEL DÍA) -->
-        <section class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col">
-          <div class="p-4 border-b border-slate-200/80 bg-slate-50/70 space-y-3">
-            <div class="flex items-start justify-between gap-2">
-              <div>
-                <h2 class="text-sm sm:text-base font-bold text-slate-900">
-                  % de Pasos Abiertos por Provincia
-                </h2>
-                <p id="subtituloProvincias" class="text-xs text-slate-500 mt-0.5">
-                  Cantidad de pasos totales, abiertos y cerrados ese día
-                </p>
-              </div>
-              <span id="badgeFechaProvincias" class="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-700">
-                —
-              </span>
-            </div>
-
-            <!-- Controles: Alcance y Ordenamiento -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-0.5">
-              <div class="inline-flex rounded-xl bg-slate-200/75 p-1" role="group" aria-label="Alcance por provincia">
-                <button
-                  id="btnProvTodos"
-                  type="button"
-                  class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-xs transition cursor-pointer"
-                >
-                  Todas las provincias
-                </button>
-                <button
-                  id="btnProvZoom"
-                  type="button"
-                  class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition cursor-pointer"
-                >
-                  Visibles en zoom
-                </button>
-              </div>
-
-              <select
-                id="ordenProvincias"
-                aria-label="Ordenar provincias"
-                class="px-2.5 py-1.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900/15 cursor-pointer"
-              >
-                <option value="PCT_DESC">Mayor % abiertos</option>
-                <option value="PCT_ASC">Menor % abiertos</option>
-                <option value="TOTAL_DESC">Mayor cantidad de pasos</option>
-                <option value="ALFABETICO">Alfabético (A - Z)</option>
-              </select>
-            </div>
-
-            <!-- Resumen de cantidades del día -->
-            <div class="grid grid-cols-3 gap-2">
-              <div class="rounded-xl bg-slate-100/90 border border-slate-200/80 px-2.5 py-2">
-                <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-600">Total Pasos</span>
-                <span id="resumenProvTotal" class="text-sm sm:text-base font-bold text-slate-900">0</span>
-              </div>
-              <div class="rounded-xl bg-emerald-50/90 border border-emerald-200/80 px-2.5 py-2">
-                <span class="block text-[10px] font-bold uppercase tracking-wider text-emerald-800">Abiertos</span>
-                <span id="resumenProvAbiertos" class="text-sm sm:text-base font-bold text-[#16a34a]">0</span>
-              </div>
-              <div class="rounded-xl bg-red-50/90 border border-red-200/80 px-2.5 py-2">
-                <span class="block text-[10px] font-bold uppercase tracking-wider text-red-800">Cerrados</span>
-                <span id="resumenProvCerrados" class="text-sm sm:text-base font-bold text-[#dc2626]">0</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Lista de barras proporcionales por provincia -->
-          <div id="cuadroProvinciasContainer" class="p-4 space-y-2.5 max-h-[540px] overflow-y-auto overflow-x-hidden custom-scroll">
-            <div class="py-12 text-center text-xs text-slate-400">
-              Calculando porcentaje de pasos abiertos por provincia...
-            </div>
-          </div>
-        </section>
-
+    <!-- Tabla Detallada -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 class="text-base font-bold text-slate-800">Detalle Acumulado por Paso Fronterizo</h2>
+          <p class="text-xs text-slate-500">Ordená haciendo clic en los encabezados o seleccioná un paso para ubicarlo en el mapa</p>
+        </div>
+        <button id="btn-exportar-csv" type="button"
+          class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition cursor-pointer self-start sm:self-auto">
+          Descargar CSV filtrado
+        </button>
       </div>
 
-    </div>
+      <div class="table-container">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+          <thead>
+            <tr class="text-left text-xs font-bold uppercase tracking-wider text-slate-600">
+              <th class="px-4 py-3 cursor-pointer hover:text-slate-900" data-sort="Nombre del Paso">Paso Fronterizo ⇅</th>
+              <th class="px-4 py-3 cursor-pointer hover:text-slate-900" data-sort="Provincia">Provincia ⇅</th>
+              <th class="px-4 py-3 cursor-pointer hover:text-slate-900" data-sort="País Limítrofe">País ⇅</th>
+              <th class="px-4 py-3 cursor-pointer hover:text-slate-900" data-sort="Medio">Medio ⇅</th>
+              <th class="px-4 py-3 text-center cursor-pointer hover:text-slate-900" data-sort="ultimoEstado">Último Día ⇅</th>
+              <th class="px-4 py-3 text-right cursor-pointer hover:text-slate-900" data-sort="Días Abierto">Días Abierto ⇅</th>
+              <th class="px-4 py-3 text-right cursor-pointer hover:text-slate-900" data-sort="Días Cerrado">Días Cerrado ⇅</th>
+              <th class="px-4 py-3 text-right cursor-pointer hover:text-slate-900" data-sort="operatividad">% Operat. ⇅</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-cuerpo" class="divide-y divide-slate-100 bg-white">
+            <tr>
+              <td colspan="8" class="px-4 py-8 text-center text-slate-400">Cargando datos...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
   </main>
 
-  <!-- Notificación flotante -->
-  <div id="toastNotificacion" class="fixed bottom-5 right-5 z-[1100] hidden max-w-sm bg-slate-900 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-lg border border-slate-700"></div>
-
-  <!-- ===================================================================== -->
-  <!-- LÓGICA DE CONEXIÓN A GITHUB, MAPA SATELITAL ESRI Y TABLERO REAL       -->
-  <!-- ===================================================================== -->
   <script>
-    // -----------------------------------------------------------------------
-    // 1. CONFIGURACIÓN DEL REPOSITORIO PÚBLICO DE GITHUB E IGN OFICIAL
-    // -----------------------------------------------------------------------
-    const GITHUB_OWNER = "battagliam0707-jpg";
-    const GITHUB_REPO = "Pasos-Fronterizos";
-    const GITHUB_API_CONTENTS = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents`;
-    const IGN_PASOS_WFS_URL =
-      "https://wms.ign.gob.ar/geoserver/defensa-seguridad/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ign:pasos_de_fronteras_internacionales&outputFormat=application/json";
+    // =========================================================================
+    // CONFIGURACIÓN Y RESILIENCIA DE COORDENADAS
+    // =========================================================================
+    const ANIO_ACTUAL = new Date().getFullYear() >= 2026 ? String(new Date().getFullYear()) : "2026";
+    const URL_CONSOLIDADO = `consolidado_pasos_${ANIO_ACTUAL}.csv`;
+    const URL_HISTORICO = `historico_diario_${ANIO_ACTUAL}.csv`;
 
-    const MESES_ES = {
-      "01": "01 - Enero",
-      "02": "02 - Febrero",
-      "03": "03 - Marzo",
-      "04": "04 - Abril",
-      "05": "05 - Mayo",
-      "06": "06 - Junio",
-      "07": "07 - Julio",
-      "08": "08 - Agosto",
-      "09": "09 - Septiembre",
-      "10": "10 - Octubre",
-      "11": "11 - Noviembre",
-      "12": "12 - Diciembre"
-    };
-
-    // -----------------------------------------------------------------------
-    // 2. CATÁLOGO AUDITADO DE COORDENADAS REALES (WGS84) POR PASO Y PROVINCIA
-    // -----------------------------------------------------------------------
-    const COORDENADAS_PASOS = {
-      // --- TIERRA DEL FUEGO (Chile y Marítimo/Fluvial) ---
-      "alfa cullen": { lat: -52.7850, lng: -68.6060, prov: "tierra del fuego" },
-      "canadon alfa": { lat: -52.7120, lng: -68.6060, prov: "tierra del fuego" },
-      "cabo espiritu santo": { lat: -52.6583, lng: -68.6060, prov: "tierra del fuego" },
-      "san sebastian": { lat: -53.3133, lng: -68.6058, prov: "tierra del fuego" },
-      "bahia san sebastian": { lat: -53.3133, lng: -68.6058, prov: "tierra del fuego" },
-      "rio bella vista": { lat: -53.8964, lng: -68.6058, prov: "tierra del fuego" },
-      "bella vista": { lat: -53.8964, lng: -68.6058, prov: "tierra del fuego" },
-      "radman": { lat: -53.8964, lng: -68.6058, prov: "tierra del fuego" },
-      "hito xix": { lat: -53.8964, lng: -68.6058, prov: "tierra del fuego" },
-      "puerto almanza": { lat: -54.8722, lng: -67.5750, prov: "tierra del fuego" },
-      "almanza": { lat: -54.8722, lng: -67.5750, prov: "tierra del fuego" },
-      "ushuaia": { lat: -54.8072, lng: -68.3044, prov: "tierra del fuego" },
-      "puerto ushuaia": { lat: -54.8072, lng: -68.3044, prov: "tierra del fuego" },
-      "rio grande": { lat: -53.7867, lng: -67.7000, prov: "tierra del fuego" },
-      "puerto rio grande": { lat: -53.7867, lng: -67.7000, prov: "tierra del fuego" },
-
-      // --- SANTA CRUZ (Chile) ---
-      "integracion austral": { lat: -52.1381, lng: -69.5214, prov: "santa cruz" },
-      "monte aymond": { lat: -52.1381, lng: -69.5214, prov: "santa cruz" },
-      "laurita": { lat: -51.6833, lng: -72.3167, prov: "santa cruz" },
-      "casas viejas": { lat: -51.7056, lng: -72.3011, prov: "santa cruz" },
-      "dorotea": { lat: -51.5833, lng: -72.3333, prov: "santa cruz" },
-      "mina uno": { lat: -51.5500, lng: -72.3167, prov: "santa cruz" },
-      "cancha carrera": { lat: -51.2589, lng: -72.3456, prov: "santa cruz" },
-      "rio don guillermo": { lat: -51.2589, lng: -72.3456, prov: "santa cruz" },
-      "lago san martin lago ohiggins": { lat: -49.0841, lng: -72.5590, prov: "santa cruz" },
-      "lago san martin": { lat: -49.0841, lng: -72.5590, prov: "santa cruz" },
-      "lago del desierto": { lat: -49.0436, lng: -72.8850, prov: "santa cruz" },
-      "hito iv": { lat: -49.0436, lng: -72.8850, prov: "santa cruz" },
-      "rio mayer": { lat: -48.2089, lng: -72.3450, prov: "santa cruz" },
-      "rivera norte": { lat: -48.2089, lng: -72.3450, prov: "santa cruz" },
-      "roballos": { lat: -47.1528, lng: -71.8556, prov: "santa cruz" },
-      "rodolfo roballos": { lat: -47.1528, lng: -71.8556, prov: "santa cruz" },
-      "ingeniero pallavicini": { lat: -46.8142, lng: -71.8364, prov: "santa cruz" },
-      "ibanez": { lat: -46.8142, lng: -71.8364, prov: "santa cruz" },
-      "jeinimeni": { lat: -46.5442, lng: -71.7167, prov: "santa cruz" },
-      "chile chico": { lat: -46.5442, lng: -71.7167, prov: "santa cruz" },
-      "puerto deseado": { lat: -47.7550, lng: -65.8933, prov: "santa cruz" },
-      "puerto san julian": { lat: -49.3067, lng: -67.7233, prov: "santa cruz" },
-      "puerto santa cruz": { lat: -50.0167, lng: -68.5167, prov: "santa cruz" },
-      "puerto rio gallegos": { lat: -51.6167, lng: -69.2167, prov: "santa cruz" },
-      "caleta olivia": { lat: -46.4333, lng: -67.5167, prov: "santa cruz" },
-
-      // --- CHUBUT (Chile) ---
-      "huemules": { lat: -45.9089, lng: -71.6442, prov: "chubut" },
-      "triana": { lat: -45.6761, lng: -71.7056, prov: "chubut" },
-      "el triana": { lat: -45.6761, lng: -71.7056, prov: "chubut" },
-      "coihaique": { lat: -45.5569, lng: -71.7331, prov: "chubut" },
-      "coyhaique": { lat: -45.5569, lng: -71.7331, prov: "chubut" },
-      "pampa alta": { lat: -45.2225, lng: -71.6750, prov: "chubut" },
-      "rio frias": { lat: -44.5583, lng: -71.7333, prov: "chubut" },
-      "las pampas": { lat: -44.2167, lng: -71.7000, prov: "chubut" },
-      "rio encuentro": { lat: -43.5889, lng: -71.7556, prov: "chubut" },
-      "palena": { lat: -43.5889, lng: -71.7556, prov: "chubut" },
-      "futaleufu": { lat: -43.1828, lng: -71.7564, prov: "chubut" },
-      "rio puelo": { lat: -42.1000, lng: -71.7333, prov: "chubut" },
-      "puelo": { lat: -42.1000, lng: -71.7333, prov: "chubut" },
-      "puerto madryn": { lat: -42.7667, lng: -65.0333, prov: "chubut" },
-      "comodoro rivadavia": { lat: -45.8667, lng: -67.4667, prov: "chubut" },
-
-      // --- RÍO NEGRO (Chile) ---
-      "vuelta del rio": { lat: -41.7833, lng: -71.8500, prov: "rio negro" },
-      "rio manso": { lat: -41.5036, lng: -71.8492, prov: "rio negro" },
-      "paso el leon": { lat: -41.5036, lng: -71.8492, prov: "rio negro" },
-      "vuriloche": { lat: -41.2250, lng: -71.8333, prov: "rio negro" },
-      "perez rosales": { lat: -41.0631, lng: -71.8358, prov: "rio negro" },
-      "vicente perez rosales": { lat: -41.0631, lng: -71.8358, prov: "rio negro" },
-      "san antonio oeste": { lat: -40.7333, lng: -64.9500, prov: "rio negro" },
-
-      // --- NEUQUÉN (Chile) ---
-      "cardenal antonio samore": { lat: -40.7131, lng: -71.9439, prov: "neuquen" },
-      "cardenal samore": { lat: -40.7131, lng: -71.9439, prov: "neuquen" },
-      "hua hum": { lat: -40.1189, lng: -71.6631, prov: "neuquen" },
-      "carirrine": { lat: -39.7931, lng: -71.6531, prov: "neuquen" },
-      "mamuil malal": { lat: -39.5856, lng: -71.4847, prov: "neuquen" },
-      "icalma": { lat: -38.8314, lng: -71.2819, prov: "neuquen" },
-      "pino hachado": { lat: -38.6639, lng: -70.8964, prov: "neuquen" },
-      "copahue": { lat: -37.8167, lng: -71.1667, prov: "neuquen" },
-      "pichachen": { lat: -37.4569, lng: -71.1167, prov: "neuquen" },
-
-      // --- MENDOZA (Chile) ---
-      "pehuenche": { lat: -35.9839, lng: -70.4025, prov: "mendoza" },
-      "planchon vergara": { lat: -35.1636, lng: -70.4919, prov: "mendoza" },
-      "vergara": { lat: -35.1636, lng: -70.4919, prov: "mendoza" },
-      "las damas": { lat: -34.9667, lng: -70.3500, prov: "mendoza" },
-      "cajon del maipo": { lat: -34.1667, lng: -69.8333, prov: "mendoza" },
-      "portillo de piuquenes": { lat: -33.6333, lng: -69.8667, prov: "mendoza" },
-      "sistema cristo redentor": { lat: -32.8253, lng: -70.0711, prov: "mendoza" },
-      "cristo redentor": { lat: -32.8253, lng: -70.0711, prov: "mendoza" },
-      "horcones": { lat: -32.8253, lng: -70.0711, prov: "mendoza" },
-
-      // --- SAN JUAN, LA RIOJA Y CATAMARCA (Chile) ---
-      "pascua lama": { lat: -29.3186, lng: -70.0156, prov: "san juan" },
-      "agua negra": { lat: -30.1931, lng: -69.8264, prov: "san juan" },
-      "miranda": { lat: -30.6667, lng: -70.2333, prov: "san juan" },
-      "el portillo del ventillo": { lat: -30.7167, lng: -70.2667, prov: "san juan" },
-      "portillo del ventillo": { lat: -30.7167, lng: -70.2667, prov: "san juan" },
-      "guana": { lat: -30.7333, lng: -70.2667, prov: "san juan" },
-      "valle hermoso": { lat: -30.7833, lng: -70.2833, prov: "san juan" },
-      "portillo": { lat: -30.7667, lng: -70.2667, prov: "san juan" },
-      "los azules": { lat: -30.9500, lng: -70.3167, prov: "san juan" },
-      "calderon": { lat: -31.2667, lng: -70.5333, prov: "san juan" },
-      "el azufre": { lat: -31.3000, lng: -70.5500, prov: "san juan" },
-      "casa de piedra": { lat: -31.5500, lng: -70.5667, prov: "san juan" },
-      "puentecillas": { lat: -31.6667, lng: -70.5167, prov: "san juan" },
-      "mondaca": { lat: -31.8500, lng: -70.4167, prov: "san juan" },
-      "las ojotas": { lat: -31.9167, lng: -70.2333, prov: "san juan" },
-      "quebrada fria": { lat: -32.0833, lng: -70.3500, prov: "san juan" },
-      "las llaretas": { lat: -32.1500, lng: -70.3167, prov: "san juan" },
-      "pircas negras": { lat: -28.0811, lng: -69.3436, prov: "la rioja" },
-      "san francisco": { lat: -26.8769, lng: -68.3019, prov: "catamarca" },
-
-      // --- SALTA Y JUJUY (Chile, Bolivia y Paraguay) ---
-      "socompa": { lat: -24.4556, lng: -68.2917, prov: "salta" },
-      "laguna sico": { lat: -23.8667, lng: -67.2667, prov: "salta" },
-      "sico": { lat: -23.8419, lng: -67.2608, prov: "salta" },
-      "huaytiquina": { lat: -23.6833, lng: -67.1500, prov: "salta" },
-      "jama norte": { lat: -23.2234, lng: -67.0557, prov: "jujuy" },
-      "jama sur": { lat: -23.2310, lng: -67.0629, prov: "jujuy" },
-      "jama": { lat: -23.2375, lng: -67.0714, prov: "jujuy" },
-      "cienaga de paicone": { lat: -22.1667, lng: -66.5333, prov: "jujuy" },
-      "la quiaca villazon": { lat: -22.1036, lng: -65.5956, prov: "jujuy" },
-      "la quiaca": { lat: -22.1036, lng: -65.5956, prov: "jujuy" },
-      "santa victoria": { lat: -22.2483, lng: -64.9667, prov: "salta" },
-      "el condado la mamora": { lat: -22.3833, lng: -64.5667, prov: "salta" },
-      "los toldos": { lat: -22.3833, lng: -64.5667, prov: "salta" },
-      "aguas blancas bermejo": { lat: -22.7258, lng: -64.3644, prov: "salta" },
-      "aguas blancas": { lat: -22.7258, lng: -64.3644, prov: "salta" },
-      "puerto chalanas": { lat: -22.7311, lng: -64.3622, prov: "salta" },
-      "salvador mazza yacuiba": { lat: -22.0542, lng: -63.6869, prov: "salta" },
-      "salvador mazza": { lat: -22.0542, lng: -63.6869, prov: "salta" },
-      "mision la paz pozo hondo": { lat: -22.3789, lng: -62.5206, prov: "salta" },
-
-      // --- FORMOSA Y CHACO (Paraguay) ---
-      "el remanso la verde": { lat: -23.6333, lng: -60.9667, prov: "formosa" },
-      "paso lamadrid": { lat: -23.9167, lng: -60.5333, prov: "formosa" },
-      "isleta paraje rojas silva": { lat: -24.4000, lng: -60.4000, prov: "formosa" },
-      "rojas silva": { lat: -24.4000, lng: -60.4000, prov: "formosa" },
-      "general belgrano": { lat: -24.7484, lng: -58.8335, prov: "formosa" },
-      "general bruguez": { lat: -24.7484, lng: -58.8335, prov: "formosa" },
-      "clorinda puerto jose falcon": { lat: -25.2636, lng: -57.7119, prov: "formosa" },
-      "san ignacio de loyola": { lat: -25.2636, lng: -57.7119, prov: "formosa" },
-      "pasarela la fraternidad": { lat: -25.2897, lng: -57.7172, prov: "formosa" },
-      "puerto pilcomayo ita enramada": { lat: -25.3711, lng: -57.6514, prov: "formosa" },
-      "puerto pilcomayo": { lat: -25.3711, lng: -57.6514, prov: "formosa" },
-      "formosa alberdi": { lat: -26.1856, lng: -58.1511, prov: "formosa" },
-      "puerto formosa": { lat: -26.1856, lng: -58.1511, prov: "formosa" },
-      "colonia cano pilar": { lat: -26.8631, lng: -58.3189, prov: "formosa" },
-      "puerto cano": { lat: -26.8631, lng: -58.3189, prov: "formosa" },
-      "puerto bermejo": { lat: -26.9333, lng: -58.5000, prov: "chaco" },
-      "las palmas humaita": { lat: -27.0667, lng: -58.5500, prov: "chaco" },
-      "isla del cerrito": { lat: -27.2833, lng: -58.6167, prov: "chaco" },
-      "puerto barranqueras": { lat: -27.4833, lng: -58.9333, prov: "chaco" },
-
-      // --- CORRIENTES (Paraguay, Brasil y Uruguay) ---
-      "puerto corrientes": { lat: -27.4633, lng: -58.8433, prov: "corrientes" },
-      "paso de la patria": { lat: -27.3167, lng: -58.5667, prov: "corrientes" },
-      "itati itacora": { lat: -27.2667, lng: -58.2333, prov: "corrientes" },
-      "yahape": { lat: -27.3667, lng: -57.6667, prov: "corrientes" },
-      "ita ibate": { lat: -27.4250, lng: -57.3333, prov: "corrientes" },
-      "san antonio de apipe": { lat: -27.5000, lng: -56.7500, prov: "corrientes" },
-      "ituzaingo ayolas": { lat: -27.4861, lng: -56.6972, prov: "corrientes" },
-      "yacyreta": { lat: -27.4861, lng: -56.6972, prov: "corrientes" },
-      "garruchos": { lat: -28.1833, lng: -55.6333, prov: "corrientes" },
-      "garavi": { lat: -28.3167, lng: -55.8167, prov: "corrientes" },
-      "santo tome sao borja": { lat: -28.6094, lng: -56.0136, prov: "corrientes" },
-      "santo tome": { lat: -28.6094, lng: -56.0136, prov: "corrientes" },
-      "alvear itaqui": { lat: -29.1061, lng: -56.5511, prov: "corrientes" },
-      "yapeyu": { lat: -29.4667, lng: -56.8167, prov: "corrientes" },
-      "paso de los libres uruguaiana": { lat: -29.7442, lng: -57.0911, prov: "corrientes" },
-      "paso de los libres": { lat: -29.7442, lng: -57.0911, prov: "corrientes" },
-      "monte caseros bella union": { lat: -30.2547, lng: -57.6242, prov: "corrientes" },
-
-      // --- MISIONES (Paraguay y Brasil) ---
-      "posadas encarnacion": { lat: -27.3714, lng: -55.8825, prov: "misiones" },
-      "san roque gonzalez de santa cruz": { lat: -27.3714, lng: -55.8825, prov: "misiones" },
-      "tren posadas encarnacion": { lat: -27.3725, lng: -55.8819, prov: "misiones" },
-      "candelaria": { lat: -27.4561, lng: -55.7461, prov: "misiones" },
-      "santa ana": { lat: -27.3589, lng: -55.5889, prov: "misiones" },
-      "san ignacio puerto paraiso": { lat: -27.2344, lng: -55.5567, prov: "misiones" },
-      "puerto san ignacio": { lat: -27.2344, lng: -55.5567, prov: "misiones" },
-      "san ignacio": { lat: -27.2344, lng: -55.5567, prov: "misiones" },
-      "puerto mani": { lat: -27.1258, lng: -55.5089, prov: "misiones" },
-      "bella vista sur": { lat: -27.1258, lng: -55.5089, prov: "misiones" },
-      "corpus": { lat: -27.1261, lng: -55.5089, prov: "misiones" },
-      "puerto oasis": { lat: -26.9708, lng: -55.2486, prov: "misiones" },
-      "capitan meza": { lat: -26.9708, lng: -55.2486, prov: "misiones" },
-      "puerto leoni": { lat: -26.9500, lng: -55.1333, prov: "misiones" },
-      "puerto rico puerto triunfo": { lat: -26.7989, lng: -55.0256, prov: "misiones" },
-      "puerto rico": { lat: -26.7989, lng: -55.0256, prov: "misiones" },
-      "puerto garuhape": { lat: -26.7916, lng: -54.9917, prov: "misiones" },
-      "3 de mayo": { lat: -26.7916, lng: -54.9917, prov: "misiones" },
-      "puerto paranay": { lat: -26.6748, lng: -54.8154, prov: "misiones" },
-      "colonia alborada": { lat: -26.6748, lng: -54.8154, prov: "misiones" },
-      "montecarlo": { lat: -26.5594, lng: -54.8039, prov: "misiones" },
-      "ape aime": { lat: -26.5594, lng: -54.8039, prov: "misiones" },
-      "puerto piray": { lat: -26.4697, lng: -54.7169, prov: "misiones" },
-      "7 de agosto": { lat: -26.4697, lng: -54.7169, prov: "misiones" },
-      "puerto pinares": { lat: -26.4061, lng: -54.6939, prov: "misiones" },
-      "carlos antonio lopez": { lat: -26.4061, lng: -54.6939, prov: "misiones" },
-      "eldorado mayor otano": { lat: -26.4063, lng: -54.6939, prov: "misiones" },
-      "eldorado": { lat: -26.4063, lng: -54.6939, prov: "misiones" },
-      "puerto victoria": { lat: -26.3350, lng: -54.6636, prov: "misiones" },
-      "capitan urbina": { lat: -26.3350, lng: -54.6636, prov: "misiones" },
-      "puerto mado": { lat: -26.2303, lng: -54.6294, prov: "misiones" },
-      "lomas valentinas": { lat: -26.2303, lng: -54.6294, prov: "misiones" },
-      "puerto esperanza": { lat: -26.0167, lng: -54.6333, prov: "misiones" },
-      "puerto wanda": { lat: -25.9739, lng: -54.6064, prov: "misiones" },
-      "ita vera": { lat: -25.9739, lng: -54.6064, prov: "misiones" },
-      "puerto libertad": { lat: -25.9648, lng: -54.6039, prov: "misiones" },
-      "martinez de irala": { lat: -25.9648, lng: -54.6039, prov: "misiones" },
-      "puerto iguazu": { lat: -25.5933, lng: -54.5788, prov: "misiones" },
-      "tres fronteras": { lat: -25.5933, lng: -54.5788, prov: "misiones" },
-      "puerto meira": { lat: -25.5936, lng: -54.5781, prov: "misiones" },
-      "tancredo neves": { lat: -25.6000, lng: -54.5620, prov: "misiones" },
-      "foz de iguazu": { lat: -25.6000, lng: -54.5620, prov: "misiones" },
-      "comandante andresito": { lat: -25.6017, lng: -53.9779, prov: "misiones" },
-      "andresito capanema": { lat: -25.6017, lng: -53.9779, prov: "misiones" },
-      "integracion planalto": { lat: -25.7706, lng: -53.8522, prov: "misiones" },
-      "alicia san antonio": { lat: -27.4639, lng: -54.3442, prov: "misiones" },
-      "puerto alicia": { lat: -27.4639, lng: -54.3442, prov: "misiones" },
-      "colonia alicia": { lat: -27.4639, lng: -54.3442, prov: "misiones" },
-      "san antonio santo antonio": { lat: -26.0569, lng: -53.7305, prov: "misiones" },
-      "san antonio": { lat: -26.0569, lng: -53.7305, prov: "misiones" },
-      "bernardo de irigoyen": { lat: -26.2547, lng: -53.6441, prov: "misiones" },
-      "dionisio cerqueira": { lat: -26.2547, lng: -53.6441, prov: "misiones" },
-      "pepiri guazu": { lat: -26.6120, lng: -53.7369, prov: "misiones" },
-      "el soberbio porto soberbo": { lat: -27.2982, lng: -54.1937, prov: "misiones" },
-      "el soberbio": { lat: -27.2982, lng: -54.1937, prov: "misiones" },
-      "aurora pratos": { lat: -27.4995, lng: -54.5205, prov: "misiones" },
-      "colonia aurora": { lat: -27.4995, lng: -54.5205, prov: "misiones" },
-      "puerto londero": { lat: -27.5167, lng: -54.4833, prov: "misiones" },
-      "alba posse porto maua": { lat: -27.5713, lng: -54.6792, prov: "misiones" },
-      "alba posse": { lat: -27.5713, lng: -54.6792, prov: "misiones" },
-      "barra bonita": { lat: -27.6013, lng: -54.8431, prov: "misiones" },
-      "panambi porto vera cruz": { lat: -27.7300, lng: -54.9142, prov: "misiones" },
-      "panambi": { lat: -27.7300, lng: -54.9142, prov: "misiones" },
-      "paso de la barca porto xavier": { lat: -27.8920, lng: -55.1357, prov: "misiones" },
-      "san javier porto xavier": { lat: -27.8920, lng: -55.1357, prov: "misiones" },
-      "porto xavier": { lat: -27.8920, lng: -55.1357, prov: "misiones" },
-      "puerto san isidro san isidro": { lat: -28.0502, lng: -55.4157, prov: "misiones" },
-      "puerto santa maria": { lat: -27.9678, lng: -55.3508, prov: "misiones" },
-      "puerto azara": { lat: -28.0667, lng: -55.6667, prov: "misiones" },
-
-      // --- ENTRE RÍOS, BUENOS AIRES Y CABA (Uruguay y Fluvial/Marítimo) ---
-      "puerto federacion": { lat: -30.9833, lng: -57.9167, prov: "entre rios" },
-      "concordia salto": { lat: -31.2731, lng: -57.9347, prov: "entre rios" },
-      "salto grande": { lat: -31.2731, lng: -57.9347, prov: "entre rios" },
-      "puerto concordia": { lat: -31.4017, lng: -58.0156, prov: "entre rios" },
-      "colon paysandu": { lat: -32.2647, lng: -58.0992, prov: "entre rios" },
-      "general artigas": { lat: -32.2647, lng: -58.0992, prov: "entre rios" },
-      "puerto colon": { lat: -32.2233, lng: -58.1333, prov: "entre rios" },
-      "concepcion del uruguay": { lat: -32.4861, lng: -58.2231, prov: "entre rios" },
-      "gualeguaychu fray bentos": { lat: -33.0992, lng: -58.2489, prov: "entre rios" },
-      "libertador general san martin": { lat: -33.0992, lng: -58.2489, prov: "entre rios" },
-      "puerto boca de gualeguaychu": { lat: -33.0767, lng: -58.4167, prov: "entre rios" },
-      "puerto paranacito": { lat: -33.7167, lng: -58.6500, prov: "entre rios" },
-      "puerto ibicuy": { lat: -33.7500, lng: -59.1833, prov: "entre rios" },
-      "guazu guazucito": { lat: -33.9000, lng: -58.5000, prov: "entre rios" },
-      "puerto martin garcia": { lat: -34.1833, lng: -58.2500, prov: "buenos aires" },
-      "puerto tigre carmelo": { lat: -34.4192, lng: -58.5789, prov: "buenos aires" },
-      "tigre": { lat: -34.4192, lng: -58.5789, prov: "buenos aires" },
-      "san fernando": { lat: -34.4333, lng: -58.5500, prov: "buenos aires" },
-      "puerto san isidro": { lat: -34.4550, lng: -58.5083, prov: "buenos aires" },
-      "puerto olivos": { lat: -34.5067, lng: -58.4767, prov: "buenos aires" },
-      "puerto buenos aires": { lat: -34.5964, lng: -58.3661, prov: "caba" },
-      "buquebus": { lat: -34.5964, lng: -58.3661, prov: "caba" },
-      "colonia express": { lat: -34.6025, lng: -58.3611, prov: "caba" },
-      "puerto quilmes": { lat: -34.7067, lng: -58.2233, prov: "buenos aires" },
-      "la plata": { lat: -34.8667, lng: -57.8833, prov: "buenos aires" },
-      "escobar": { lat: -34.3167, lng: -58.7333, prov: "buenos aires" },
-      "zarate": { lat: -34.0917, lng: -59.0083, prov: "buenos aires" },
-      "campana": { lat: -34.1583, lng: -58.9583, prov: "buenos aires" },
-      "san pedro": { lat: -33.6767, lng: -59.6433, prov: "buenos aires" },
-      "ramallo": { lat: -33.4833, lng: -60.0000, prov: "buenos aires" },
-      "san nicolas": { lat: -33.3333, lng: -60.2000, prov: "buenos aires" },
-      "mar del plata": { lat: -38.0333, lng: -57.5333, prov: "buenos aires" },
-      "quequen": { lat: -38.5800, lng: -58.7033, prov: "buenos aires" },
-      "bahia blanca": { lat: -38.7867, lng: -62.2667, prov: "buenos aires" }
-    };
-
-    // Anclas fronterizas por provincia (NUNCA en el centro del país / Córdoba)
-    const ANCLAS_FRONTERA_PROVINCIAL = [
-      { match: "tierra del fuego", lat: -53.5500, lng: -68.6060, soloDesplazarLat: true },
-      { match: "santa cruz", lat: -49.5000, lng: -72.8000, soloDesplazarLat: false },
-      { match: "chubut", lat: -43.8000, lng: -71.7200, soloDesplazarLat: false },
-      { match: "rio negro", lat: -41.3000, lng: -71.8500, soloDesplazarLat: false },
-      { match: "neuquen", lat: -39.2000, lng: -71.3500, soloDesplazarLat: false },
-      { match: "mendoza", lat: -33.6000, lng: -70.0500, soloDesplazarLat: false },
-      { match: "san juan", lat: -30.2000, lng: -69.8500, soloDesplazarLat: false },
-      { match: "la rioja", lat: -28.1000, lng: -69.3500, soloDesplazarLat: false },
-      { match: "catamarca", lat: -26.9000, lng: -68.3000, soloDesplazarLat: false },
-      { match: "salta", lat: -22.8500, lng: -65.1000, soloDesplazarLat: false },
-      { match: "jujuy", lat: -22.6500, lng: -66.3500, soloDesplazarLat: false },
-      { match: "formosa", lat: -25.1000, lng: -58.1000, soloDesplazarLat: false },
-      { match: "chaco", lat: -27.1500, lng: -58.5800, soloDesplazarLat: false },
-      { match: "misiones", lat: -26.8000, lng: -54.7000, soloDesplazarLat: false },
-      { match: "corrientes", lat: -28.9000, lng: -56.4000, soloDesplazarLat: false },
-      { match: "entre rios", lat: -32.2000, lng: -58.1200, soloDesplazarLat: false },
-      { match: "buenos aires", lat: -34.4500, lng: -58.5200, soloDesplazarLat: false },
-      { match: "caba", lat: -34.6000, lng: -58.3600, soloDesplazarLat: false },
-      { match: "ciudad autonoma", lat: -34.6000, lng: -58.3600, soloDesplazarLat: false }
-    ];
-
-    const REGIONES = {
-      ARG: { center: [-38.5, -64.5], zoom: 4 },
-      TDF: { center: [-53.75, -68.25], zoom: 7 },
-      PATAGONIA: { center: [-46.2, -70.6], zoom: 5 },
-      CUYO: { center: [-32.6, -69.9], zoom: 6 },
-      NOA: { center: [-23.8, -66.2], zoom: 6 },
-      NEA: { center: [-27.8, -56.2], zoom: 6 }
-    };
-
-    // -----------------------------------------------------------------------
-    // 3. ESTADO GLOBAL DE DATOS REALES
-    // -----------------------------------------------------------------------
-    let consolidadoRows = [];       // Filas reales de consolidado_pasos_*.csv
-    let historicoRows = [];         // Filas reales de historico_diario_*.csv
-    let ignPasosCatalogo = [];      // Puntos oficiales WGS84 de IGN (ign:pasos_de_fronteras_internacionales)
-    let ultimaFechaGlobal = "";     // Última fecha YYYY-MM-DD relevada en el repo
-    let totalJornadasRelevadas = 0; // Cantidad de fechas únicas relevadas
-
-    let map;
-    let markersLayer;
-    let markerIndex = {};
-    let capaArgenmapLayer;
-    let capaSateliteGroup;
-    let esVistaArgenmap = true;
-    let alcanceProvincias = "TODAS_PROV"; // "TODAS_PROV" | "SOLO_ZOOM"
-    let alcanceAreaChart = "TODOS_PAIS";  // "TODOS_PAIS" | "SOLO_ZOOM"
-
-    // -----------------------------------------------------------------------
-    // 4. UTILIDADES DE NORMALIZACIÓN, FECHAS Y GEOLOCALIZACIÓN
-    // -----------------------------------------------------------------------
     function normalizarTexto(texto) {
       if (!texto) return "";
       return String(texto)
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/[^A-Za-z0-9\s]/g, " ")
+        .toUpperCase()
         .replace(/\s+/g, " ")
         .trim();
     }
 
-    function normalizarEstado(raw) {
-      const val = normalizarTexto(raw).toUpperCase();
-      if (val.includes("ABIERTO") || val.includes("HABILITADO")) return "Abierto";
-      if (val.includes("CERRADO") || val.includes("INHABILITADO")) return "Cerrado";
-      return "Sin dato";
+    function escapeRegExp(str) {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     }
 
-    function normalizarModo(raw) {
-      const val = normalizarTexto(raw);
-      if (!val) return "Vial";
-      if (val.includes("fluvial") || val.includes("rio") || val.includes("puerto") || val.includes("balsa") || val.includes("lancha")) {
-        return "Fluvial";
+    // Diccionario de respaldo (solo se usa si el CSV no trae Latitud/Longitud válidas)
+    // Usa coincidencia por palabra completa (\b) para evitar colisiones como "colon" dentro de "colonia"
+    const COORDENADAS_RESPALDO = [
+      { clave: "PUERTO COLONIA CANO", lat: -26.85287441766034, lng: -58.32497324228995, prov: "FORMOSA" },
+      { clave: "COLONIA CANO PILAR", lat: -26.85287441766034, lng: -58.32497324228995, prov: "FORMOSA" },
+      { clave: "COLONIA CANO", lat: -26.85287441766034, lng: -58.32497324228995, prov: "FORMOSA" },
+      { clave: "PUERTO CANO", lat: -26.85287441766034, lng: -58.32497324228995, prov: "FORMOSA" },
+      { clave: "PUERTO PILAR", lat: -26.85287441766034, lng: -58.32497324228995, prov: "FORMOSA" },
+      { clave: "PUERTO COLON", lat: -32.2156, lng: -58.1367, prov: "ENTRE RIOS" },
+      { clave: "COLON PAYSANDU", lat: -32.2656, lng: -58.0939, prov: "ENTRE RIOS" },
+    ].sort((a, b) => b.clave.length - a.clave.length);
+
+    function resolverCoordenadas(row) {
+      const latCsv = parseFloat(row.Latitud ?? row.latitud);
+      const lngCsv = parseFloat(row.Longitud ?? row.longitud);
+
+      if (!isNaN(latCsv) && !isNaN(lngCsv) && latCsv >= -56 && latCsv <= -21 && lngCsv >= -75 && lngCsv <= -52) {
+        return { lat: latCsv, lng: lngCsv };
       }
-      if (val.includes("ferroviario") || val.includes("tren") || val.includes("ferrocarril")) {
-        return "Ferroviario";
-      }
-      if (val.includes("peatonal") || val.includes("sendero")) {
-        return "Peatonal / Sendero";
-      }
-      return String(raw).trim();
-    }
 
-    function formatearFecha(isoStr) {
-      if (!isoStr) return "—";
-      const partes = String(isoStr).trim().split("-");
-      if (partes.length === 3) {
-        return `${partes[2]}/${partes[1]}/${partes[0]}`;
-      }
-      return isoStr;
-    }
-
-    function formatearFechaCorta(isoStr) {
-      if (!isoStr) return "";
-      const partes = String(isoStr).trim().split("-");
-      if (partes.length === 3) {
-        return `${partes[2]}/${partes[1]}`;
-      }
-      return isoStr;
-    }
-
-    function hashString(str) {
-      let hash = 0;
-      for (let i = 0; i < str.length; i++) {
-        hash = (hash << 5) - hash + str.charCodeAt(i);
-        hash |= 0;
-      }
-      return Math.abs(hash);
-    }
-
-    const STOPWORDS_PASO = new Set([
-      "paso", "internacional", "fronterizo", "puerto", "puente", "terminal",
-      "fluvial", "binacional", "ar", "cl", "br", "py", "uy", "bo", "de", "del", "la", "el", "los", "las", "y"
-    ]);
-
-    function extraerTokensSignificativos(texto) {
-      return normalizarTexto(texto)
-        .split(" ")
-        .filter(tok => tok.length >= 3 && !STOPWORDS_PASO.has(tok));
-    }
-
-    function buscarCoordenadaEnIGN(nombrePaso, provincia) {
-      if (!ignPasosCatalogo || ignPasosCatalogo.length === 0) return null;
-
-      const normNombre = normalizarTexto(nombrePaso);
-      const normSinPrefijo = normNombre
-        .replace(/^(paso|puerto|puente)\s+(internacional\s+)?/, "")
-        .trim();
-      const tokensPaso = extraerTokensSignificativos(nombrePaso);
-      const normProv = normalizarTexto(provincia);
-
-      let mejorCandidato = null;
-      let mejorPuntaje = 0;
-
-      for (const feat of ignPasosCatalogo) {
-        let puntaje = 0;
-
-        if (feat.norm === normNombre || feat.normSinPrefijo === normSinPrefijo) {
-          puntaje = 100;
-        } else if (
-          normSinPrefijo.length >= 5 &&
-          (feat.normSinPrefijo.includes(normSinPrefijo) || normSinPrefijo.includes(feat.normSinPrefijo))
-        ) {
-          puntaje = 82;
-        } else if (tokensPaso.length > 0 && feat.tokens.length > 0) {
-          const coincidencias = tokensPaso.filter(t => feat.tokens.includes(t)).length;
-          const union = new Set([...tokensPaso, ...feat.tokens]).size;
-          const jaccard = coincidencias / union;
-          if (coincidencias >= 2 || (coincidencias === 1 && tokensPaso.length === 1 && feat.tokens.length === 1)) {
-            puntaje = Math.round(jaccard * 80);
-          }
-        }
-
-        // Bonificación si coincide el corredor provincial aproximado
-        if (puntaje > 0 && normProv) {
-          const ancla = ANCLAS_FRONTERA_PROVINCIAL.find(a => normProv.includes(a.match));
-          if (ancla) {
-            const dist = Math.hypot(feat.lat - ancla.lat, feat.lng - ancla.lng);
-            if (dist < 4.5) puntaje += 10;
-            else if (dist > 8.5) puntaje -= 30;
-          }
-        }
-
-        if (puntaje > mejorPuntaje) {
-          mejorPuntaje = puntaje;
-          mejorCandidato = feat;
+      const nomNorm = normalizarTexto(row["Nombre del Paso"] || row.nombre_paso || "");
+      for (const item of COORDENADAS_RESPALDO) {
+        const regex = new RegExp(`\\b${escapeRegExp(item.clave)}\\b`);
+        if (regex.test(nomNorm)) {
+          return { lat: item.lat, lng: item.lng };
         }
       }
 
-      if (mejorCandidato && mejorPuntaje >= 55) {
-        return { lat: mejorCandidato.lat, lng: mejorCandidato.lng };
-      }
-      return null;
+      return { lat: -34.6037, lng: -58.3816 };
     }
 
-    function resolverCoordenadasPaso(nombrePaso, provincia) {
-      const normNombre = normalizarTexto(nombrePaso);
-      const normSinPrefijo = normNombre
-        .replace(/^(paso|puerto|puente)\s+(internacional\s+)?/, "")
-        .trim();
-      const normProv = normalizarTexto(provincia);
+    // =========================================================================
+    // ESTADO GLOBAL
+    // =========================================================================
+    let datosConsolidados = [];
+    let datosHistoricos = [];
+    let datosFiltrados = [];
+    let mapaUltimoEstado = new Map();
+    let ultimaFechaGlobal = "";
 
-      const coincideProvincia = (entry) => {
-        if (!entry || !entry.prov || !normProv) return true;
-        if (entry.prov === "caba" && normProv.includes("ciudad autonoma")) return true;
-        return normProv.includes(entry.prov);
-      };
+    let sortConfig = { key: "Nombre del Paso", asc: true };
+    let map = null;
+    let markersLayer = null;
+    let markersPorClave = new Map();
+    let chartEvolucion = null;
+    let chartPaises = null;
 
-      // 1. Prioridad máxima: catálogo auditado sobre el límite internacional (evita errores de sedes administrativas)
-      const exacto = COORDENADAS_PASOS[normNombre] || COORDENADAS_PASOS[normSinPrefijo];
-      if (exacto && coincideProvincia(exacto)) {
-        return { lat: exacto.lat, lng: exacto.lng };
-      }
+    // =========================================================================
+    // INICIALIZACIÓN DEL MAPA
+    // =========================================================================
+    function inicializarMapa() {
+      map = L.map("map", { zoomControl: true }).setView([-38.5, -63.5], 4);
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+        maxZoom: 18
+      }).addTo(map);
+      markersLayer = L.layerGroup().addTo(map);
+    }
 
-      // 2. Búsqueda parcial ordenada por longitud de clave dentro de la misma provincia
-      const entradas = Object.entries(COORDENADAS_PASOS).sort((a, b) => b[0].length - a[0].length);
-      for (const [clave, entry] of entradas) {
-        const coincideClave = clave.length >= 5
-          ? (normNombre.includes(clave) || normSinPrefijo.includes(clave))
-          : new RegExp(`\\b${clave}\\b`).test(normSinPrefijo);
-        if (coincideClave && coincideProvincia(entry)) {
-          return { lat: entry.lat, lng: entry.lng };
+    // =========================================================================
+    // CARGA DE CSV SIN CACHÉ
+    // =========================================================================
+    function cargarCSV(url) {
+      return new Promise((resolve, reject) => {
+        const urlSinCache = `${url}?t=${Date.now()}`;
+        Papa.parse(urlSinCache, {
+          download: true,
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => resolve(results.data || []),
+          error: (err) => reject(err)
+        });
+      });
+    }
+
+    async function cargarTodosLosDatos() {
+      const alerta = document.getElementById("alerta-error");
+      alerta.classList.add("hidden");
+
+      try {
+        const [consRaw, histRaw] = await Promise.all([
+          cargarCSV(URL_CONSOLIDADO),
+          cargarCSV(URL_HISTORICO).catch(() => [])
+        ]);
+
+        datosHistoricos = histRaw.map((r) => ({
+          fecha: (r.fecha || "").trim(),
+          anio: (r.anio || "").trim(),
+          mes: (r.mes || "").trim(),
+          id_paso: (r.id_paso || "").trim(),
+          nombre_paso: (r.nombre_paso || "").trim(),
+          provincia: (r.provincia || "").trim(),
+          pais: (r.pais || "").trim(),
+          medio: (r.medio || "Vial").trim(),
+          estado: (r.estado || "SIN_DATO").trim().toUpperCase()
+        })).filter((r) => r.fecha && r.nombre_paso);
+
+        // Detectar última fecha registrada y estado de cada paso en esa jornada
+        const fechasUnicas = [...new Set(datosHistoricos.map((r) => r.fecha))].sort();
+        ultimaFechaGlobal = fechasUnicas.length ? fechasUnicas[fechasUnicas.length - 1] : "";
+
+        mapaUltimoEstado.clear();
+        if (ultimaFechaGlobal) {
+          datosHistoricos
+            .filter((r) => r.fecha === ultimaFechaGlobal)
+            .forEach((r) => {
+              mapaUltimoEstado.set(normalizarTexto(r.nombre_paso), r.estado);
+            });
         }
-      }
 
-      // 3. Geometría oficial del Instituto Geográfico Nacional (IGN / MinSeg) para pasos no catalogados
-      const coordIGN = buscarCoordenadaEnIGN(nombrePaso, provincia);
-      if (coordIGN) {
-        return coordIGN;
-      }
+        document.getElementById("badge-ultima-fecha").textContent =
+          ultimaFechaGlobal ? `Última jornada: ${ultimaFechaGlobal}` : "Última jornada: sin datos";
+        document.getElementById("badge-dias-registrados").textContent =
+          `Jornadas acumuladas: ${fechasUnicas.length}`;
 
-      // 4. Búsqueda parcial sin restricción provincial si no hubo coincidencia previa
-      if (exacto) {
-        return { lat: exacto.lat, lng: exacto.lng };
-      }
-      for (const [clave, entry] of entradas) {
-        if (clave.length >= 6 && (normNombre.includes(clave) || normSinPrefijo.includes(clave))) {
-          return { lat: entry.lat, lng: entry.lng };
-        }
-      }
+        datosConsolidados = consRaw.map((r) => {
+          const nombre = (r["Nombre del Paso"] || "").trim();
+          const coords = resolverCoordenadas(r);
+          const abiertos = parseInt(r["Días Abierto"] || "0", 10) || 0;
+          const cerrados = parseInt(r["Días Cerrado"] || "0", 10) || 0;
+          const sinDato = parseInt(r["Días Sin Dato"] || "0", 10) || 0;
+          const totalValid = abiertos + cerrados;
+          const operatividad = totalValid > 0 ? Math.round((abiertos / totalValid) * 100) : 0;
+          const ultimoEstado = mapaUltimoEstado.get(normalizarTexto(nombre)) ||
+            (abiertos > 0 && cerrados === 0 ? "ABIERTO" : (cerrados > 0 && abiertos === 0 ? "CERRADO" : "SIN_DATO"));
 
-      // 5. Respaldo por ancla fronteriza provincial
-      const h = hashString(normNombre || normProv);
-      const offsetLat = ((h % 100) / 100 - 0.5) * 0.35;
-      const offsetLng = (((h >> 4) % 100) / 100 - 0.5) * 0.18;
-
-      for (const ancla of ANCLAS_FRONTERA_PROVINCIAL) {
-        if (normProv.includes(ancla.match)) {
           return {
-            lat: Number((ancla.lat + offsetLat).toFixed(4)),
-            lng: Number((ancla.soloDesplazarLat ? ancla.lng : ancla.lng + offsetLng).toFixed(4))
+            "Año": (r["Año"] || ANIO_ACTUAL).trim(),
+            "Mes": (r["Mes"] || "").trim(),
+            "Nombre del Paso": nombre,
+            "Provincia": (r["Provincia"] || "").trim(),
+            "País Limítrofe": (r["País Limítrofe"] || "").trim(),
+            "Medio": (r["Medio"] || "Vial").trim(),
+            "Días Abierto": abiertos,
+            "Días Cerrado": cerrados,
+            "Días Sin Dato": sinDato,
+            "Latitud": coords.lat,
+            "Longitud": coords.lng,
+            operatividad,
+            ultimoEstado
           };
-        }
-      }
+        }).filter((r) => r["Nombre del Paso"]);
 
-      return {
-        lat: Number((-34.5 + offsetLat).toFixed(4)),
-        lng: Number((-69.9 + offsetLng).toFixed(4))
-      };
-    }
-
-    function badgeEstadoHTML(estado) {
-      if (estado === "Abierto") {
-        return `
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-[#16a34a] border border-emerald-200 whitespace-nowrap shrink-0">
-            <span class="w-3.5 h-3.5 rounded-full bg-[#16a34a] text-white inline-flex items-center justify-center">
-              <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 19V5M5 12l7-7 7 7" />
-              </svg>
-            </span>
-            Abierto
-          </span>
-        `;
-      }
-      if (estado === "Cerrado") {
-        return `
-          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-[#dc2626] border border-red-200 whitespace-nowrap shrink-0">
-            <span class="text-xs leading-none" aria-hidden="true">🛑</span>
-            Cerrado
-          </span>
-        `;
-      }
-      return `
-        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap shrink-0">
-          Sin dato
-        </span>
-      `;
-    }
-
-    function badgeModoHTML(modo) {
-      const m = normalizarTexto(modo);
-      if (m.includes("fluvial")) {
-        return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-200/80">${modo}</span>`;
-      }
-      if (m.includes("ferroviario")) {
-        return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200/80">${modo}</span>`;
-      }
-      if (m.includes("peatonal") || m.includes("sendero")) {
-        return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/80">${modo}</span>`;
-      }
-      return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200/80">${modo || "Vial"}</span>`;
-    }
-
-    function setEstadoSincronizacion(tipo, texto) {
-      const badge = document.getElementById("syncStatusBadge");
-      const dot = document.getElementById("syncStatusDot");
-      const label = document.getElementById("syncStatusText");
-      if (!badge || !dot || !label) return;
-
-      label.textContent = texto;
-      if (tipo === "OK") {
-        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border bg-emerald-50 text-emerald-800 border-emerald-200";
-        dot.className = "w-2 h-2 rounded-full bg-[#16a34a]";
-      } else if (tipo === "ERROR") {
-        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-red-50 text-[#dc2626] border-red-200";
-        dot.className = "w-2 h-2 rounded-full bg-[#dc2626]";
-      } else {
-        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border bg-amber-50 text-amber-800 border-amber-200";
-        dot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
-      }
-    }
-
-    // -----------------------------------------------------------------------
-    // 5. CARGA AUTOMÁTICA DE CSV REALES DESDE GITHUB E IGN
-    // -----------------------------------------------------------------------
-    function parsearCSV(texto) {
-      const resultado = Papa.parse(texto, {
-        header: true,
-        skipEmptyLines: true
-      });
-      return resultado.data || [];
-    }
-
-    async function fetchTextoSeguro(url) {
-      const resp = await fetch(url, { cache: "no-store" });
-      if (!resp.ok) {
-        throw new Error(`HTTP ${resp.status} al consultar ${url}`);
-      }
-      return await resp.text();
-    }
-
-    async function cargarCatalogoOficialIGN() {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-      try {
-        const resp = await fetch(IGN_PASOS_WFS_URL, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (!resp.ok) return;
-        const geojson = await resp.json();
-        if (!geojson || !Array.isArray(geojson.features)) return;
-
-        ignPasosCatalogo = geojson.features
-          .map(f => {
-            const props = f.properties || {};
-            const coords = f.geometry && Array.isArray(f.geometry.coordinates) ? f.geometry.coordinates : null;
-            const lng = coords ? Number(coords[0]) : parseFloat(String(props.lon_pfi || "").replace(",", "."));
-            const lat = coords ? Number(coords[1]) : parseFloat(String(props.lat_pfi || "").replace(",", "."));
-            const nombre = String(props.nom_pfi || props.nombre || "").trim();
-            if (!nombre || Number.isNaN(lat) || Number.isNaN(lng)) return null;
-            const norm = normalizarTexto(nombre);
-            const normSinPrefijo = norm.replace(/^(paso|puerto|puente)\s+(internacional\s+)?/, "").trim();
-            return {
-              nombre,
-              norm,
-              normSinPrefijo,
-              tokens: extraerTokensSignificativos(nombre),
-              lat: Number(lat.toFixed(5)),
-              lng: Number(lng.toFixed(5))
-            };
-          })
-          .filter(Boolean);
-      } catch (_) {
-        clearTimeout(timeoutId);
-      }
-    }
-
-    async function cargarDatosDesdeGitHub() {
-      setEstadoSincronizacion("LOADING", "Sincronizando con GitHub...");
-      const errorBanner = document.getElementById("errorBanner");
-      const errorDetalle = document.getElementById("errorBannerDetalle");
-      if (errorBanner) errorBanner.classList.add("hidden");
-
-      try {
-        const promesaIGN = cargarCatalogoOficialIGN();
-
-        let urlsConsolidado = [];
-        let urlsHistorico = [];
-
-        try {
-          const respApi = await fetch(GITHUB_API_CONTENTS, { cache: "no-store" });
-          if (respApi.ok) {
-            const archivos = await respApi.json();
-            if (Array.isArray(archivos)) {
-              urlsConsolidado = archivos
-                .filter(f => /^consolidado_pasos_\d{4}\.csv$/i.test(f.name) && f.download_url)
-                .map(f => f.download_url);
-              urlsHistorico = archivos
-                .filter(f => /^historico_diario_\d{4}\.csv$/i.test(f.name) && f.download_url)
-                .map(f => f.download_url);
-            }
-          }
-        } catch (_) {
-          // Si la API de GitHub tiene límite de tasa, continuamos con las rutas directas raw
-        }
-
-        const anioActual = String(new Date().getFullYear());
-        const aniosFallback = Array.from(new Set(["2026", anioActual]));
-        if (urlsConsolidado.length === 0) {
-          urlsConsolidado = aniosFallback.map(
-            y => `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/consolidado_pasos_${y}.csv`
-          );
-        }
-        if (urlsHistorico.length === 0) {
-          urlsHistorico = aniosFallback.map(
-            y => `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/historico_diario_${y}.csv`
-          );
-        }
-
-        const promesasConsolidado = await Promise.allSettled(urlsConsolidado.map(fetchTextoSeguro));
-        const promesasHistorico = await Promise.allSettled(urlsHistorico.map(fetchTextoSeguro));
-        await promesaIGN;
-
-        const nuevosConsolidados = [];
-        promesasConsolidado.forEach(res => {
-          if (res.status === "fulfilled") {
-            const filas = parsearCSV(res.value);
-            filas.forEach(row => {
-              const paso = (row["Nombre del Paso"] || row["nombre_paso"] || row["Paso"] || "").trim();
-              if (!paso) return;
-              const anio = String(row["Año"] || row["Anio"] || row["anio"] || "2026").trim();
-              const mes = String(row["Mes"] || row["mes"] || "").trim();
-              nuevosConsolidados.push({
-                pasoKey: normalizarTexto(paso),
-                paso,
-                provincia: (row["Provincia"] || row["provincia"] || "Sin especificar").trim(),
-                pais: (row["País Limítrofe"] || row["Pais Limitrofe"] || row["pais"] || "Sin especificar").trim(),
-                modo: normalizarModo(row["Medio"] || row["medio"] || row["Modo"] || "Vial"),
-                anio,
-                mes,
-                diasAbierto: parseInt(row["Días Abierto"] || row["Dias Abierto"] || "0", 10) || 0,
-                diasCerrado: parseInt(row["Días Cerrado"] || row["Dias Cerrado"] || "0", 10) || 0,
-                diasSinDato: parseInt(row["Días Sin Dato"] || row["Dias Sin Dato"] || "0", 10) || 0
-              });
-            });
-          }
-        });
-
-        const nuevosHistoricos = [];
-        promesasHistorico.forEach(res => {
-          if (res.status === "fulfilled") {
-            const filas = parsearCSV(res.value);
-            filas.forEach(row => {
-              const fecha = (row["fecha"] || row["Fecha"] || "").trim();
-              const paso = (row["nombre_paso"] || row["Nombre del Paso"] || row["Paso"] || "").trim();
-              if (!fecha || !paso) return;
-              const anio = String(row["anio"] || row["Año"] || fecha.slice(0, 4)).trim();
-              const mesNum = fecha.length >= 7 ? fecha.slice(5, 7) : "";
-              const mes = String(row["mes"] || row["Mes"] || MESES_ES[mesNum] || mesNum).trim();
-              nuevosHistoricos.push({
-                fecha,
-                anio,
-                mes,
-                pasoKey: normalizarTexto(paso),
-                paso,
-                estado: normalizarEstado(row["estado"] || row["Estado"])
-              });
-            });
-          }
-        });
-
-        if (nuevosConsolidados.length === 0 && nuevosHistoricos.length === 0) {
-          throw new Error("No se pudieron obtener registros válidos de los archivos CSV del repositorio.");
-        }
-
-        consolidadoRows = nuevosConsolidados;
-        historicoRows = nuevosHistoricos;
-
-        const fechasUnicas = Array.from(new Set(historicoRows.map(r => r.fecha))).sort();
-        ultimaFechaGlobal = fechasUnicas.length > 0 ? fechasUnicas[fechasUnicas.length - 1] : "";
-        totalJornadasRelevadas = fechasUnicas.length;
-
-        poblarSelectorAnio();
-        poblarSelectorMes();
-        poblarSelectorProvincia();
-        actualizarDashboardCompleto();
-
-        setEstadoSincronizacion(
-          "OK",
-          ultimaFechaGlobal ? `Actualizado · ${formatearFecha(ultimaFechaGlobal)}` : "Datos reales sincronizados"
-        );
+        poblarSelectores();
+        aplicarFiltros();
       } catch (err) {
-        console.error("Error al sincronizar datos desde GitHub:", err);
-        setEstadoSincronizacion("ERROR", "Fallo en la actualización");
-        if (errorBanner && errorDetalle) {
-          errorDetalle.textContent = "No fue posible descargar los archivos CSV actualizados desde el repositorio de GitHub.";
-          errorBanner.classList.remove("hidden");
+        alerta.textContent = `No se pudieron cargar los archivos CSV (${URL_CONSOLIDADO}). Verificá que el workflow de GitHub Actions haya generado los datos.`;
+        alerta.classList.remove("hidden");
+        console.error(err);
+      }
+    }
+
+    // =========================================================================
+    // SELECTORES Y FILTRADO
+    // =========================================================================
+    function poblarSelectores() {
+      const llenarSelect = (id, valores, incluirTodos = true, textoTodos = "Todos") => {
+        const sel = document.getElementById(id);
+        const valorPrevio = sel.value;
+        sel.innerHTML = incluirTodos ? `<option value="">${textoTodos}</option>` : "";
+        [...new Set(valores.filter(Boolean))].sort().forEach((v) => {
+          const opt = document.createElement("option");
+          opt.value = v;
+          opt.textContent = v;
+          sel.appendChild(opt);
+        });
+        if (valorPrevio && [...sel.options].some((o) => o.value === valorPrevio)) {
+          sel.value = valorPrevio;
         }
-      }
+      };
+
+      llenarSelect("filtro-anio", datosConsolidados.map((d) => d["Año"]), false);
+      llenarSelect("filtro-mes", datosConsolidados.map((d) => d["Mes"]), true, "Todos los meses");
+      llenarSelect("filtro-pais", datosConsolidados.map((d) => d["País Limítrofe"]), true, "Todos los países");
+      llenarSelect("filtro-provincia", datosConsolidados.map((d) => d["Provincia"]), true, "Todas las provincias");
+      llenarSelect("filtro-medio", datosConsolidados.map((d) => d["Medio"]), true, "Todos los medios");
     }
 
-    // -----------------------------------------------------------------------
-    // 6. SELECTORES Y FILTRADO DE DATOS REALES
-    // -----------------------------------------------------------------------
-    function poblarSelectorAnio() {
-      const select = document.getElementById("filtroAnio");
-      const prevVal = select.value;
-      const aniosSet = new Set();
+    function aplicarFiltros() {
+      const fAnio = document.getElementById("filtro-anio").value;
+      const fMes = document.getElementById("filtro-mes").value;
+      const fPais = document.getElementById("filtro-pais").value;
+      const fProv = document.getElementById("filtro-provincia").value;
+      const fMedio = document.getElementById("filtro-medio").value;
+      const fEstado = document.getElementById("filtro-estado").value;
+      const fBusq = normalizarTexto(document.getElementById("filtro-busqueda").value);
 
-      consolidadoRows.forEach(r => { if (r.anio) aniosSet.add(r.anio); });
-      historicoRows.forEach(r => { if (r.anio) aniosSet.add(r.anio); });
-
-      const anios = Array.from(aniosSet).sort((a, b) => b.localeCompare(a));
-      select.innerHTML = anios.map(a => `<option value="${a}">${a}</option>`).join("") +
-        `<option value="TODOS">Todos</option>`;
-
-      if (prevVal && Array.from(select.options).some(o => o.value === prevVal)) {
-        select.value = prevVal;
-      } else if (anios.length > 0) {
-        select.value = anios[0];
-      }
-    }
-
-    function poblarSelectorMes() {
-      const select = document.getElementById("filtroMes");
-      const anioSel = document.getElementById("filtroAnio").value;
-      const prevVal = select.value;
-      const mesesSet = new Set();
-
-      consolidadoRows.forEach(r => {
-        if ((anioSel === "TODOS" || r.anio === anioSel) && r.mes) mesesSet.add(r.mes);
-      });
-      historicoRows.forEach(r => {
-        if ((anioSel === "TODOS" || r.anio === anioSel) && r.mes) mesesSet.add(r.mes);
-      });
-
-      const meses = Array.from(mesesSet).sort((a, b) => a.localeCompare(b, "es"));
-      select.innerHTML = `<option value="TODOS">Todos los meses</option>` +
-        meses.map(m => `<option value="${m}">${m}</option>`).join("");
-
-      if (prevVal && Array.from(select.options).some(o => o.value === prevVal)) {
-        select.value = prevVal;
-      } else {
-        select.value = "TODOS";
-      }
-    }
-
-    function poblarSelectorProvincia() {
-      const select = document.getElementById("filtroProvincia");
-      const anioSel = document.getElementById("filtroAnio").value;
-      const prevVal = select.value;
-      const provSet = new Set();
-
-      consolidadoRows.forEach(r => {
-        if ((anioSel === "TODOS" || r.anio === anioSel) && r.provincia) provSet.add(r.provincia);
-      });
-
-      const provincias = Array.from(provSet).sort((a, b) => a.localeCompare(b, "es"));
-      select.innerHTML = `<option value="TODAS">Todas las provincias</option>` +
-        provincias.map(p => `<option value="${p}">${p}</option>`).join("");
-
-      if (prevVal && Array.from(select.options).some(o => o.value === prevVal)) {
-        select.value = prevVal;
-      } else {
-        select.value = "TODAS";
-      }
-    }
-
-    function obtenerClavesPasosPorProvincia(provSel) {
-      if (!provSel || provSel === "TODAS") return null;
-      const claves = new Set();
-      consolidadoRows.forEach(r => {
-        if (r.provincia === provSel) claves.add(r.pasoKey);
-      });
-      return claves;
-    }
-
-    function obtenerEstadoMasRecientePeriodo(anioSel, mesSel, provSel) {
-      const clavesProv = obtenerClavesPasosPorProvincia(provSel);
-      const registrosFiltrados = historicoRows.filter(r => {
-        if (anioSel && anioSel !== "TODOS" && r.anio !== anioSel) return false;
-        if (mesSel && mesSel !== "TODOS" && r.mes !== mesSel) return false;
-        if (clavesProv && !clavesProv.has(r.pasoKey)) return false;
+      datosFiltrados = datosConsolidados.filter((d) => {
+        if (fAnio && d["Año"] !== fAnio) return false;
+        if (fMes && d["Mes"] !== fMes) return false;
+        if (fPais && d["País Limítrofe"] !== fPais) return false;
+        if (fProv && d["Provincia"] !== fProv) return false;
+        if (fMedio && d["Medio"] !== fMedio) return false;
+        if (fEstado && d.ultimoEstado !== fEstado) return false;
+        if (fBusq) {
+          const haystack = normalizarTexto(`${d["Nombre del Paso"]} ${d["Provincia"]} ${d["País Limítrofe"]}`);
+          if (!haystack.includes(fBusq)) return false;
+        }
         return true;
       });
 
-      let fechaMaxPeriodo = "";
-      registrosFiltrados.forEach(r => {
-        if (r.fecha > fechaMaxPeriodo) fechaMaxPeriodo = r.fecha;
-      });
-
-      const estadoPorPasoMap = new Map();
-      registrosFiltrados.forEach(r => {
-        const previo = estadoPorPasoMap.get(r.pasoKey);
-        if (!previo || r.fecha >= previo.fecha) {
-          estadoPorPasoMap.set(r.pasoKey, { estado: r.estado, fecha: r.fecha });
+      const histFiltrado = datosHistoricos.filter((h) => {
+        if (fAnio && h.anio !== fAnio) return false;
+        if (fMes && h.mes !== fMes) return false;
+        if (fPais && h.pais !== fPais) return false;
+        if (fProv && h.provincia !== fProv) return false;
+        if (fMedio && h.medio !== fMedio) return false;
+        if (fBusq) {
+          const haystack = normalizarTexto(`${h.nombre_paso} ${h.provincia} ${h.pais}`);
+          if (!haystack.includes(fBusq)) return false;
         }
+        return true;
       });
 
-      return { fechaMaxPeriodo, registrosFiltrados, estadoPorPasoMap };
+      document.getElementById("resumen-filtros").textContent =
+        `Mostrando ${datosFiltrados.length} de ${datosConsolidados.length} registros.`;
+
+      actualizarKPIs();
+      actualizarMapa();
+      actualizarGraficos(histFiltrado);
+      actualizarTabla();
     }
 
-    function obtenerPasosFiltrados() {
-      const anioSel = document.getElementById("filtroAnio").value;
-      const mesSel = document.getElementById("filtroMes").value;
-      const provSel = document.getElementById("filtroProvincia").value;
+    // =========================================================================
+    // KPIs
+    // =========================================================================
+    function actualizarKPIs() {
+      const totalPasos = new Set(datosFiltrados.map((d) => d["Nombre del Paso"])).size;
+      const sumAbiertos = datosFiltrados.reduce((acc, d) => acc + d["Días Abierto"], 0);
+      const sumCerrados = datosFiltrados.reduce((acc, d) => acc + d["Días Cerrado"], 0);
+      const sumSinDato = datosFiltrados.reduce((acc, d) => acc + d["Días Sin Dato"], 0);
 
-      const { fechaMaxPeriodo, estadoPorPasoMap } = obtenerEstadoMasRecientePeriodo(anioSel, mesSel, provSel);
-      const catalogoMap = new Map();
+      const hoyAbiertos = datosFiltrados.filter((d) => d.ultimoEstado === "ABIERTO").length;
+      const hoyCerrados = datosFiltrados.filter((d) => d.ultimoEstado === "CERRADO").length;
 
-      consolidadoRows.forEach(r => {
-        if (anioSel && anioSel !== "TODOS" && r.anio !== anioSel) return;
-        if (mesSel && mesSel !== "TODOS" && r.mes !== mesSel) return;
-        if (provSel && provSel !== "TODAS" && r.provincia !== provSel) return;
+      const totalValidos = sumAbiertos + sumCerrados;
+      const tasa = totalValidos > 0 ? ((sumAbiertos / totalValidos) * 100).toFixed(1) : "0.0";
 
-        if (!catalogoMap.has(r.pasoKey)) {
-          catalogoMap.set(r.pasoKey, {
-            id: r.pasoKey,
-            paso: r.paso,
-            provincia: r.provincia,
-            pais: r.pais,
-            modo: r.modo
-          });
-        }
-      });
-
-      // Si algún paso aparece en el histórico diario y aún no en el consolidado, también lo incluimos
-      historicoRows.forEach(r => {
-        if (anioSel && anioSel !== "TODOS" && r.anio !== anioSel) return;
-        if (mesSel && mesSel !== "TODOS" && r.mes !== mesSel) return;
-        if (provSel && provSel !== "TODAS") return;
-        if (!catalogoMap.has(r.pasoKey)) {
-          catalogoMap.set(r.pasoKey, {
-            id: r.pasoKey,
-            paso: r.paso,
-            provincia: "Sin especificar",
-            pais: "Sin especificar",
-            modo: "Vial"
-          });
-        }
-      });
-
-      return Array.from(catalogoMap.values()).map(item => {
-        const infoEstado = estadoPorPasoMap.get(item.id);
-        const coords = resolverCoordenadasPaso(item.paso, item.provincia);
-        return {
-          ...item,
-          estado: infoEstado ? infoEstado.estado : "Sin dato",
-          fechaEstado: infoEstado ? infoEstado.fecha : fechaMaxPeriodo,
-          lat: coords.lat,
-          lng: coords.lng
-        };
-      });
+      document.getElementById("kpi-total-pasos").textContent = totalPasos;
+      document.getElementById("kpi-hoy-detalle").textContent =
+        `Último día: ${hoyAbiertos} abiertos · ${hoyCerrados} cerrados`;
+      document.getElementById("kpi-dias-abierto").textContent = sumAbiertos.toLocaleString("es-AR");
+      document.getElementById("kpi-dias-cerrado").textContent = sumCerrados.toLocaleString("es-AR");
+      document.getElementById("kpi-operatividad").textContent = `${tasa}%`;
+      document.getElementById("kpi-dias-sindato").textContent =
+        `Días sin dato: ${sumSinDato.toLocaleString("es-AR")}`;
     }
 
-    // -----------------------------------------------------------------------
-    // 7. MAPA BASE ARGENMAP (IGN) + OPCIÓN SATELITAL ESRI
-    // -----------------------------------------------------------------------
-    function inicializarMapa() {
-      map = L.map("map", {
-        center: REGIONES.ARG.center,
-        zoom: REGIONES.ARG.zoom,
-        zoomControl: true,
-        scrollWheelZoom: true
-      });
-
-      // Capa base principal: Argenmap TMS (Instituto Geográfico Nacional)
-      capaArgenmapLayer = L.tileLayer(
-        "https://wms.ign.gob.ar/geoserver/gwc/service/tms/1.0.0/capabaseargenmap@EPSG%3A3857@png/{z}/{x}/{-y}.png",
-        {
-          attribution: 'Cartografía &copy; <a href="https://www.ign.gob.ar/" target="_blank" rel="noopener">IGN Argentina</a> (Argenmap)',
-          maxZoom: 18
-        }
-      ).addTo(map);
-
-      // Segunda opción: Vista Satelital Esri + Límites y topónimos
-      const esriImagery = L.tileLayer(
-        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        {
-          attribution: "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics",
-          maxZoom: 18
-        }
-      );
-
-      const esriBoundariesPlaces = L.tileLayer(
-        "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-        {
-          attribution: "&copy; Esri",
-          maxZoom: 18
-        }
-      );
-
-      capaSateliteGroup = L.layerGroup([esriImagery, esriBoundariesPlaces]);
-
-      markersLayer = L.layerGroup().addTo(map);
-
-      map.on("moveend zoomend", () => {
-        actualizarVistasSegunZoom();
-      });
-    }
-
-    function calcularAperturaUltimoMes(pasoKey, anioSel) {
-      let maxFecha = "";
-      historicoRows.forEach(r => {
-        if (anioSel && anioSel !== "TODOS" && r.anio !== anioSel) return;
-        if (r.fecha > maxFecha) maxFecha = r.fecha;
-      });
-
-      if (maxFecha && maxFecha.length >= 7) {
-        const ultimoYM = maxFecha.slice(0, 7);
-        const estadosPorFecha = new Map();
-        historicoRows.forEach(r => {
-          if (r.pasoKey === pasoKey && r.fecha.startsWith(ultimoYM)) {
-            estadosPorFecha.set(r.fecha, r.estado);
-          }
-        });
-
-        if (estadosPorFecha.size > 0) {
-          let abiertos = 0;
-          estadosPorFecha.forEach(est => {
-            if (est === "Abierto") abiertos += 1;
-          });
-          return {
-            abiertos,
-            total: estadosPorFecha.size
-          };
-        }
-      }
-
-      // Respaldo desde consolidado si aún no se cargó el detalle diario
-      const filasPaso = consolidadoRows
-        .filter(r => r.pasoKey === pasoKey && (!anioSel || anioSel === "TODOS" || r.anio === anioSel))
-        .sort((a, b) => (a.mes || "").localeCompare(b.mes || ""));
-
-      if (filasPaso.length > 0) {
-        const ultimaFila = filasPaso[filasPaso.length - 1];
-        const total = ultimaFila.diasAbierto + ultimaFila.diasCerrado + ultimaFila.diasSinDato;
-        if (total > 0) {
-          return {
-            abiertos: ultimaFila.diasAbierto,
-            total
-          };
-        }
-      }
-
-      return { abiertos: 0, total: 0 };
-    }
-
-    function crearIconoMarcador(estado) {
-      if (estado === "Abierto") {
-        return L.divIcon({
-          className: "custom-div-icon",
-          html: `<div class="custom-marker-pin" style="width:22px;height:22px;background-color:#16a34a;border:2px solid #ffffff;" title="Abierto">
-                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
-                     <path d="M12 19V5M5 12l7-7 7 7" />
-                   </svg>
-                 </div>`,
-          iconSize: [22, 22],
-          iconAnchor: [11, 11],
-          popupAnchor: [0, -12]
-        });
-      }
-
-      if (estado === "Cerrado") {
-        return L.divIcon({
-          className: "custom-div-icon",
-          html: `<div class="custom-marker-pin" style="width:22px;height:22px;background-color:#ffffff;border:2px solid #dc2626;font-size:13px;" title="Cerrado">
-                   <span style="line-height:1;display:block;transform:translateY(-0.5px);">🛑</span>
-                 </div>`,
-          iconSize: [22, 22],
-          iconAnchor: [11, 11],
-          popupAnchor: [0, -12]
-        });
-      }
-
-      return L.divIcon({
-        className: "custom-div-icon",
-        html: `<div class="custom-marker-pin" style="width:15px;height:15px;background-color:#64748b;border:2px solid #ffffff;" title="Sin dato"></div>`,
-        iconSize: [15, 15],
-        iconAnchor: [7.5, 7.5],
-        popupAnchor: [0, -9]
-      });
-    }
-
-    function renderizarMarcadores(pasosFiltrados) {
+    // =========================================================================
+    // MAPA INTERACTIVO
+    // =========================================================================
+    function actualizarMapa() {
       markersLayer.clearLayers();
-      markerIndex = {};
-      const anioSel = document.getElementById("filtroAnio").value;
+      markersPorClave.clear();
+      const bounds = [];
 
-      pasosFiltrados.forEach(p => {
-        const aperturaMes = calcularAperturaUltimoMes(p.id, anioSel);
-        const textoAperturaMes = aperturaMes.total > 0
-          ? `Abierto ${aperturaMes.abiertos} de ${aperturaMes.total} ${aperturaMes.total === 1 ? "día" : "días"}`
-          : "Sin registros en el último mes";
+      datosFiltrados.forEach((d) => {
+        const color = d.ultimoEstado === "ABIERTO"
+          ? "#10b981"
+          : (d.ultimoEstado === "CERRADO" ? "#ef4444" : "#94a3b8");
+
+        const badgeBg = d.ultimoEstado === "ABIERTO"
+          ? "background:#dcfce7;color:#166534;"
+          : (d.ultimoEstado === "CERRADO" ? "background:#fee2e2;color:#991b1b;" : "background:#f1f5f9;color:#475569;");
 
         const popupHtml = `
-          <div class="w-full max-w-[260px] overflow-hidden space-y-2">
-            <div class="flex items-start justify-between gap-2">
-              <h4 class="font-bold text-slate-900 text-xs leading-snug flex-1 min-w-0 break-words">${p.paso}</h4>
-              ${badgeEstadoHTML(p.estado)}
+          <div style="min-width:220px;font-family:system-ui,sans-serif;">
+            <div style="font-weight:700;font-size:14px;color:#0f172a;margin-bottom:4px;">${d["Nombre del Paso"]}</div>
+            <div style="font-size:12px;color:#475569;margin-bottom:8px;">
+              ${d["Provincia"]} · ${d["País Limítrofe"]} (${d["Medio"]})
             </div>
-            <div class="text-[11px] text-slate-600 space-y-0.5 border-t border-slate-100 pt-1.5 break-words">
-              <div><span class="font-semibold text-slate-700">Provincia:</span> ${p.provincia}</div>
-              <div><span class="font-semibold text-slate-700">País vecino:</span> ${p.pais}</div>
-              <div><span class="font-semibold text-slate-700">Modo:</span> ${p.modo}</div>
-              ${p.fechaEstado ? `<div><span class="font-semibold text-slate-700">Parte del día:</span> ${formatearFecha(p.fechaEstado)}</div>` : ""}
-            </div>
-            <div class="pt-1.5 border-t border-slate-100 flex items-center justify-between gap-2">
-              <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Último mes:</span>
-              <span class="text-[11px] font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md whitespace-nowrap">
-                ${textoAperturaMes}
+            <div style="margin-bottom:8px;">
+              <span style="${badgeBg}padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;">
+                Último día: ${d.ultimoEstado}
               </span>
             </div>
+            <table style="width:100%;font-size:12px;border-collapse:collapse;">
+              <tr><td style="color:#64748b;padding:2px 0;">Días Abierto:</td><td style="text-align:right;font-weight:700;color:#059669;">${d["Días Abierto"]}</td></tr>
+              <tr><td style="color:#64748b;padding:2px 0;">Días Cerrado:</td><td style="text-align:right;font-weight:700;color:#dc2626;">${d["Días Cerrado"]}</td></tr>
+              <tr><td style="color:#64748b;padding:2px 0;">Días Sin Dato:</td><td style="text-align:right;font-weight:600;color:#64748b;">${d["Días Sin Dato"]}</td></tr>
+              <tr><td style="color:#64748b;padding:2px 0;">Operatividad:</td><td style="text-align:right;font-weight:700;color:#0284c7;">${d.operatividad}%</td></tr>
+            </table>
+            <div style="margin-top:6px;padding-top:4px;border-top:1px solid #e2e8f0;font-size:10px;color:#94a3b8;">
+              Coords: ${d.Latitud.toFixed(6)}, ${d.Longitud.toFixed(6)}
+            </div>
           </div>
         `;
 
-        const marker = L.marker([p.lat, p.lng], {
-          icon: crearIconoMarcador(p.estado)
-        }).bindPopup(popupHtml, { maxWidth: 280, minWidth: 220 });
+        const marker = L.circleMarker([d.Latitud, d.Longitud], {
+          radius: 7,
+          fillColor: color,
+          color: "#ffffff",
+          weight: 1.5,
+          opacity: 1,
+          fillOpacity: 0.9
+        }).bindPopup(popupHtml);
 
         marker.addTo(markersLayer);
-        markerIndex[p.id] = marker;
+        markersPorClave.set(`${d["Mes"]}|${d["Nombre del Paso"]}`, marker);
+        bounds.push([d.Latitud, d.Longitud]);
       });
-    }
 
-    // -----------------------------------------------------------------------
-    // 8. ACTUALIZACIÓN DE KPIs, TABLA DE ZOOM, GRÁFICO DE ÁREA Y PROVINCIAS
-    // -----------------------------------------------------------------------
-    function descripcionPeriodoActual() {
-      const anioSel = document.getElementById("filtroAnio").value;
-      const mesSel = document.getElementById("filtroMes").value;
-      const provSel = document.getElementById("filtroProvincia").value;
-      const txtAnio = anioSel === "TODOS" ? "Todos los años" : anioSel;
-      const txtMes = mesSel === "TODOS" ? "Todos los meses" : mesSel;
-      return provSel && provSel !== "TODAS"
-        ? `${txtAnio} · ${txtMes} · ${provSel}`
-        : `${txtAnio} · ${txtMes}`;
-    }
-
-    function actualizarDashboardCompleto() {
-      const pasosFiltrados = obtenerPasosFiltrados();
-      actualizarKPIsGenerales(pasosFiltrados);
-      renderizarMarcadores(pasosFiltrados);
-      actualizarVistasSegunZoom(pasosFiltrados);
-    }
-
-    function actualizarKPIsGenerales(pasosFiltrados) {
-      const total = pasosFiltrados.length;
-      const abiertos = pasosFiltrados.filter(p => p.estado === "Abierto").length;
-      const cerrados = pasosFiltrados.filter(p => p.estado === "Cerrado").length;
-      const sinDato = pasosFiltrados.filter(p => p.estado === "Sin dato").length;
-
-      const pctAbiertos = total > 0 ? Math.round((abiertos / total) * 100) : 0;
-      const pctCerrados = total > 0 ? Math.round((cerrados / total) * 100) : 0;
-
-      const anioSel = document.getElementById("filtroAnio").value;
-      const mesSel = document.getElementById("filtroMes").value;
-      const provSel = document.getElementById("filtroProvincia").value;
-      const { fechaMaxPeriodo, registrosFiltrados } = obtenerEstadoMasRecientePeriodo(anioSel, mesSel, provSel);
-      const fechasPeriodo = new Set(registrosFiltrados.map(r => r.fecha));
-
-      document.getElementById("kpiTotalPasos").textContent = total;
-      const subAnio = mesSel === "TODOS"
-        ? (anioSel === "TODOS" ? "en todos los años" : `en ${anioSel}`)
-        : `${mesSel.split(" - ")[1] || mesSel} ${anioSel !== "TODOS" ? anioSel : ""}`;
-      document.getElementById("kpiAnioSubtexto").textContent =
-        provSel && provSel !== "TODAS" ? `${subAnio} · ${provSel}` : subAnio;
-
-      document.getElementById("kpiAbiertos").textContent = abiertos;
-      document.getElementById("kpiAbiertosPct").textContent = `${pctAbiertos}%`;
-
-      document.getElementById("kpiCerrados").textContent = cerrados;
-      document.getElementById("kpiCerradosPct").textContent = `${pctCerrados}%`;
-
-      const notaSinDato = document.getElementById("kpiSinDatoNota");
-      const leyendaSinDato = document.getElementById("leyendaSinDato");
-      if (sinDato > 0) {
-        notaSinDato.textContent = `Además: ${sinDato} pasos sin dato reportado`;
-        leyendaSinDato.classList.remove("hidden");
-        leyendaSinDato.classList.add("inline-flex");
-      } else {
-        notaSinDato.textContent = "Inhabilitados ese día";
-        leyendaSinDato.classList.add("hidden");
-        leyendaSinDato.classList.remove("inline-flex");
+      if (bounds.length > 0 && bounds.length < datosConsolidados.length) {
+        map.fitBounds(bounds, { padding: [35, 35], maxZoom: 9 });
       }
-
-      document.getElementById("kpiUltimaFecha").textContent = formatearFecha(fechaMaxPeriodo || ultimaFechaGlobal);
-      const nJornadas = fechasPeriodo.size || totalJornadasRelevadas;
-      document.getElementById("kpiDiasRelevadosTotal").textContent =
-        nJornadas === 1
-          ? "1 jornada diaria relevada en el período"
-          : `${nJornadas} jornadas diarias relevadas en el período`;
     }
 
-    function actualizarVistasSegunZoom(pasosPreCalculados = null) {
-      const pasosFiltrados = pasosPreCalculados || obtenerPasosFiltrados();
-      const bounds = map.getBounds();
-      const pasosEnZoom = pasosFiltrados.filter(p => bounds.contains([p.lat, p.lng]));
+    // =========================================================================
+    // GRÁFICOS (EVOLUCIÓN DIARIA Y POR PAÍS)
+    // =========================================================================
+    function actualizarGraficos(histFiltrado) {
+      // 1. Evolución diaria
+      const fechas = [...new Set(histFiltrado.map((h) => h.fecha))].sort();
+      const serieAbiertos = fechas.map((f) => histFiltrado.filter((h) => h.fecha === f && h.estado === "ABIERTO").length);
+      const serieCerrados = fechas.map((f) => histFiltrado.filter((h) => h.fecha === f && h.estado === "CERRADO").length);
 
-      renderizarTablaZoom(pasosEnZoom, pasosFiltrados.length);
-      renderizarGraficoArea(pasosFiltrados, pasosEnZoom);
-      renderizarCuadroProvincias(pasosFiltrados, pasosEnZoom);
-    }
-
-    function renderizarTablaZoom(pasosEnZoom, totalPasos) {
-      const tbody = document.getElementById("tablaZoomBody");
-      const contador = document.getElementById("contadorZoomTabla");
-      const query = normalizarTexto(document.getElementById("buscadorTablaZoom").value);
-      const filtroModo = document.getElementById("filtroModoTablaZoom").value;
-
-      const filtradosTabla = pasosEnZoom.filter(p => {
-        if (filtroModo !== "TODOS") {
-          const m = (p.modo || "").toUpperCase();
-          if (filtroModo === "PEATONAL") {
-            if (!m.includes("PEATONAL") && !m.includes("SENDERO")) return false;
-          } else if (!m.includes(filtroModo)) {
-            return false;
+      if (chartEvolucion) chartEvolucion.destroy();
+      chartEvolucion = new Chart(document.getElementById("chart-evolucion"), {
+        type: "bar",
+        data: {
+          labels: fechas,
+          datasets: [
+            { label: "Abiertos", data: serieAbiertos, backgroundColor: "#10b981", borderRadius: 4 },
+            { label: "Cerrados", data: serieCerrados, backgroundColor: "#ef4444", borderRadius: 4 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { stacked: true, grid: { display: false } },
+            y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } }
+          },
+          plugins: {
+            legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } }
           }
         }
-        if (query) {
-          const textoFila = normalizarTexto(`${p.paso} ${p.provincia} ${p.pais} ${p.modo} ${p.estado}`);
-          if (!textoFila.includes(query)) return false;
-        }
-        return true;
       });
 
-      const sufijoFiltro = (query || filtroModo !== "TODOS")
-        ? ` · ${filtradosTabla.length} tras filtro`
-        : "";
-      contador.textContent = `Mostrando ${pasosEnZoom.length} pasos en el encuadre actual del mapa (de ${totalPasos} totales)${sufijoFiltro}`;
-
-      if (filtradosTabla.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="5" class="py-10 px-4 text-center text-slate-500 text-xs">
-              ${
-                pasosEnZoom.length === 0
-                  ? 'No hay pasos fronterizos visibles en el encuadre actual del mapa. Alejá el zoom o seleccioná <strong>Todo el País</strong>.'
-                  : 'Ningún paso dentro del encuadre coincide con el texto o modo seleccionado.'
-              }
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      const ordenados = [...filtradosTabla].sort((a, b) =>
-        a.pais.localeCompare(b.pais) || a.paso.localeCompare(b.paso)
+      // 2. Acumulado por País Limítrofe
+      const paises = [...new Set(datosFiltrados.map((d) => d["País Limítrofe"]).filter(Boolean))].sort();
+      const paisAbiertos = paises.map((p) =>
+        datosFiltrados.filter((d) => d["País Limítrofe"] === p).reduce((s, d) => s + d["Días Abierto"], 0)
+      );
+      const paisCerrados = paises.map((p) =>
+        datosFiltrados.filter((d) => d["País Limítrofe"] === p).reduce((s, d) => s + d["Días Cerrado"], 0)
       );
 
-      tbody.innerHTML = ordenados
-        .map(p => `
-          <tr
-            data-paso-id="${p.id}"
-            class="fila-paso cursor-pointer hover:bg-slate-50 transition-colors group"
-            title="Clic para centrar este paso en el mapa"
-          >
-            <td class="py-2.5 px-4 font-semibold text-slate-900 group-hover:text-slate-950">
-              ${p.paso}
-            </td>
-            <td class="py-2.5 px-3 text-slate-600 text-xs">
-              ${p.provincia}
-            </td>
-            <td class="py-2.5 px-3 text-slate-700 text-xs font-medium">
-              ${p.pais}
-            </td>
-            <td class="py-2.5 px-3">
-              ${badgeModoHTML(p.modo)}
-            </td>
-            <td class="py-2.5 px-4 text-right">
-              ${badgeEstadoHTML(p.estado)}
-            </td>
+      if (chartPaises) chartPaises.destroy();
+      chartPaises = new Chart(document.getElementById("chart-paises"), {
+        type: "bar",
+        data: {
+          labels: paises,
+          datasets: [
+            { label: "Días Abierto", data: paisAbiertos, backgroundColor: "#10b981", borderRadius: 4 },
+            { label: "Días Cerrado", data: paisCerrados, backgroundColor: "#ef4444", borderRadius: 4 }
+          ]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { stacked: true, beginAtZero: true },
+            y: { stacked: true, grid: { display: false } }
+          },
+          plugins: {
+            legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } }
+          }
+        }
+      });
+    }
+
+    // =========================================================================
+    // TABLA Y EXPORTACIÓN
+    // =========================================================================
+    function actualizarTabla() {
+      const tbody = document.getElementById("tabla-cuerpo");
+      const ordenados = [...datosFiltrados].sort((a, b) => {
+        const valA = a[sortConfig.key];
+        const valB = b[sortConfig.key];
+        if (typeof valA === "number" && typeof valB === "number") {
+          return sortConfig.asc ? valA - valB : valB - valA;
+        }
+        return sortConfig.asc
+          ? String(valA).localeCompare(String(valB), "es")
+          : String(valB).localeCompare(String(valA), "es");
+      });
+
+      if (!ordenados.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-slate-400">No hay pasos que coincidan con los filtros seleccionados.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = ordenados.map((d) => {
+        const badge = d.ultimoEstado === "ABIERTO"
+          ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">ABIERTO</span>`
+          : (d.ultimoEstado === "CERRADO"
+            ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">CERRADO</span>`
+            : `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">SIN DATO</span>`);
+
+        return `
+          <tr class="hover:bg-sky-50/70 transition cursor-pointer" data-clave="${d["Mes"]}|${d["Nombre del Paso"]}">
+            <td class="px-4 py-2.5 font-semibold text-slate-900">${d["Nombre del Paso"]}</td>
+            <td class="px-4 py-2.5 text-slate-600">${d["Provincia"]}</td>
+            <td class="px-4 py-2.5 text-slate-600">${d["País Limítrofe"]}</td>
+            <td class="px-4 py-2.5 text-slate-600">${d["Medio"]}</td>
+            <td class="px-4 py-2.5 text-center">${badge}</td>
+            <td class="px-4 py-2.5 text-right font-bold text-emerald-700">${d["Días Abierto"]}</td>
+            <td class="px-4 py-2.5 text-right font-bold text-rose-700">${d["Días Cerrado"]}</td>
+            <td class="px-4 py-2.5 text-right font-semibold text-sky-700">${d.operatividad}%</td>
           </tr>
-        `)
-        .join("");
+        `;
+      }).join("");
 
-      tbody.querySelectorAll(".fila-paso").forEach(fila => {
-        fila.addEventListener("click", () => {
-          const id = fila.getAttribute("data-paso-id");
-          const marker = markerIndex[id];
+      tbody.querySelectorAll("tr[data-clave]").forEach((tr) => {
+        tr.addEventListener("click", () => {
+          const marker = markersPorClave.get(tr.dataset.clave);
           if (marker) {
-            map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), 8), { duration: 0.7 });
-            setTimeout(() => marker.openPopup(), 720);
+            const ll = marker.getLatLng();
+            map.setView(ll, 11);
+            marker.openPopup();
+            document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "center" });
           }
         });
       });
     }
 
-    // -----------------------------------------------------------------------
-    // 9. GRÁFICO DE ÁREA INTERACTIVO (EVOLUCIÓN DIARIA REAL)
-    // -----------------------------------------------------------------------
-    function construirSerieDiaria(pasosEnZoom) {
-      const anioSel = document.getElementById("filtroAnio").value;
-      const mesSel = document.getElementById("filtroMes").value;
-      const provSel = document.getElementById("filtroProvincia").value;
-      const clavesProvincia = obtenerClavesPasosPorProvincia(provSel);
-      const idsPermitidos = alcanceAreaChart === "SOLO_ZOOM"
-        ? new Set(pasosEnZoom.map(p => p.id))
-        : null;
+    function exportarCSVFiltrado() {
+      const filas = datosFiltrados.map((d) => ({
+        "Año": d["Año"],
+        "Mes": d["Mes"],
+        "Nombre del Paso": d["Nombre del Paso"],
+        "Provincia": d["Provincia"],
+        "País Limítrofe": d["País Limítrofe"],
+        "Medio": d["Medio"],
+        "Último Estado": d.ultimoEstado,
+        "Días Abierto": d["Días Abierto"],
+        "Días Cerrado": d["Días Cerrado"],
+        "Días Sin Dato": d["Días Sin Dato"],
+        "Operatividad (%)": d.operatividad,
+        "Latitud": d.Latitud,
+        "Longitud": d.Longitud
+      }));
 
-      const porFecha = new Map();
-
-      historicoRows.forEach(reg => {
-        if (anioSel && anioSel !== "TODOS" && reg.anio !== anioSel) return;
-        if (mesSel && mesSel !== "TODOS" && reg.mes !== mesSel) return;
-        if (clavesProvincia && !clavesProvincia.has(reg.pasoKey)) return;
-        if (idsPermitidos && !idsPermitidos.has(reg.pasoKey)) return;
-
-        if (!porFecha.has(reg.fecha)) {
-          porFecha.set(reg.fecha, { fecha: reg.fecha, abiertos: 0, cerrados: 0, sinDato: 0 });
-        }
-        const entry = porFecha.get(reg.fecha);
-        if (reg.estado === "Abierto") entry.abiertos += 1;
-        else if (reg.estado === "Cerrado") entry.cerrados += 1;
-        else entry.sinDato += 1;
-      });
-
-      return Array.from(porFecha.values())
-        .sort((a, b) => a.fecha.localeCompare(b.fecha))
-        .map(d => {
-          const operativos = d.abiertos + d.cerrados;
-          const pctOperatividad = operativos > 0 ? Math.round((d.abiertos / operativos) * 100) : 0;
-          return {
-            ...d,
-            total: d.abiertos + d.cerrados + d.sinDato,
-            pctOperatividad
-          };
-        });
+      const csv = Papa.unparse(filas);
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `pasos_fronterizos_filtrado_${ANIO_ACTUAL}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
     }
 
-    function renderizarGraficoArea(pasosFiltrados, pasosEnZoom) {
-      const wrapper = document.getElementById("areaChartWrapper");
-      const tooltip = document.getElementById("areaChartTooltip");
-      const metrica = document.getElementById("metricaAreaChart").value;
-      const serie = construirSerieDiaria(pasosEnZoom);
-
-      document.getElementById("subtituloAreaChart").textContent =
-        `${descripcionPeriodoActual()} · ${alcanceAreaChart === "SOLO_ZOOM" ? "Pasos visibles en zoom" : "Todo el país"}`;
-      document.getElementById("badgeDiasArea").textContent =
-        serie.length === 1 ? "1 jornada" : `${serie.length} jornadas`;
-
-      const legendCerrados = document.getElementById("legendItemCerrados");
-      legendCerrados.style.display = metrica === "CANTIDAD" ? "inline-flex" : "none";
-      tooltip.classList.add("hidden");
-
-      if (serie.length === 0) {
-        wrapper.innerHTML = `
-          <div class="h-full flex flex-col items-center justify-center text-center px-4 text-xs text-slate-500 bg-slate-50/70 rounded-xl border border-dashed border-slate-200">
-            <p class="font-semibold text-slate-700">Sin registros diarios en esta selección</p>
-            <p class="mt-1 text-[11px] text-slate-400">Probá ampliando el zoom o cambiando a "Todo el país".</p>
-          </div>
-        `;
-        return;
-      }
-
-      const W = 520;
-      const H = 210;
-      const padL = 36;
-      const padR = 16;
-      const padT = 16;
-      const padB = 30;
-      const plotW = W - padL - padR;
-      const plotH = H - padT - padB;
-
-      const maxVal = metrica === "OPERATIVIDAD"
-        ? 100
-        : Math.max(1, ...serie.map(d => Math.max(d.abiertos, d.cerrados)));
-      const yMax = metrica === "OPERATIVIDAD" ? 100 : Math.ceil(maxVal * 1.12);
-
-      const getY = (val) => padT + plotH - (val / yMax) * plotH;
-
-      const puntos = serie.map((d, i) => {
-        const x = serie.length === 1
-          ? padL + plotW * 0.5
-          : padL + (i / (serie.length - 1)) * plotW;
-        return {
-          ...d,
-          x,
-          yAbierto: getY(metrica === "OPERATIVIDAD" ? d.pctOperatividad : d.abiertos),
-          yCerrado: getY(d.cerrados)
-        };
-      });
-
-      const yBase = padT + plotH;
-
-      const ticksY = [0, Math.round(yMax / 2), yMax];
-      const gridHtml = ticksY.map(t => {
-        const y = getY(t);
-        const label = metrica === "OPERATIVIDAD" ? `${t}%` : t;
-        return `
-          <line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#e2e8f0" stroke-dasharray="3 3" stroke-width="1" />
-          <text x="${padL - 6}" y="${y + 3.5}" text-anchor="end" fill="#64748b" font-size="10" font-family="Inter, sans-serif">${label}</text>
-        `;
-      }).join("");
-
-      let areaAbiertoPath = "";
-      let lineAbiertoPath = "";
-      let areaCerradoPath = "";
-      let lineCerradoPath = "";
-
-      if (puntos.length === 1) {
-        const p = puntos[0];
-        const x1 = padL + plotW * 0.22;
-        const x2 = padL + plotW * 0.78;
-        areaAbiertoPath = `M ${x1} ${yBase} L ${x1} ${p.yAbierto} L ${x2} ${p.yAbierto} L ${x2} ${yBase} Z`;
-        lineAbiertoPath = `M ${x1} ${p.yAbierto} L ${x2} ${p.yAbierto}`;
-        if (metrica === "CANTIDAD") {
-          areaCerradoPath = `M ${x1} ${yBase} L ${x1} ${p.yCerrado} L ${x2} ${p.yCerrado} L ${x2} ${yBase} Z`;
-          lineCerradoPath = `M ${x1} ${p.yCerrado} L ${x2} ${p.yCerrado}`;
-        }
-      } else {
-        lineAbiertoPath = puntos.map((p, idx) => `${idx === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.yAbierto.toFixed(1)}`).join(" ");
-        areaAbiertoPath = `${lineAbiertoPath} L ${puntos[puntos.length - 1].x.toFixed(1)} ${yBase} L ${puntos[0].x.toFixed(1)} ${yBase} Z`;
-
-        if (metrica === "CANTIDAD") {
-          lineCerradoPath = puntos.map((p, idx) => `${idx === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.yCerrado.toFixed(1)}`).join(" ");
-          areaCerradoPath = `${lineCerradoPath} L ${puntos[puntos.length - 1].x.toFixed(1)} ${yBase} L ${puntos[0].x.toFixed(1)} ${yBase} Z`;
-        }
-      }
-
-      const pasoEtiqueta = Math.max(1, Math.ceil(puntos.length / 6));
-      const xLabelsHtml = puntos.map((p, idx) => {
-        if (puntos.length > 1 && idx % pasoEtiqueta !== 0 && idx !== puntos.length - 1) return "";
-        return `
-          <text x="${p.x.toFixed(1)}" y="${H - 8}" text-anchor="middle" fill="#64748b" font-size="10" font-weight="500" font-family="Inter, sans-serif">
-            ${formatearFechaCorta(p.fecha)}
-          </text>
-        `;
-      }).join("");
-
-      const notaUnicaJornada = puntos.length === 1
-        ? `<text x="${W / 2}" y="${padT + 10}" text-anchor="middle" fill="#475569" font-size="10" font-weight="600" font-family="Inter, sans-serif">
-             Parte del día (${formatearFecha(puntos[0].fecha)}) · Abiertos: ${puntos[0].abiertos} | Cerrados: ${puntos[0].cerrados}
-           </text>`
-        : "";
-
-      wrapper.innerHTML = `
-        <svg id="areaChartSvg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="w-full h-full overflow-visible">
-          <defs>
-            <linearGradient id="gradAbiertos" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#16a34a" stop-opacity="0.34" />
-              <stop offset="100%" stop-color="#16a34a" stop-opacity="0.03" />
-            </linearGradient>
-            <linearGradient id="gradCerrados" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#dc2626" stop-opacity="0.28" />
-              <stop offset="100%" stop-color="#dc2626" stop-opacity="0.03" />
-            </linearGradient>
-          </defs>
-
-          ${gridHtml}
-          <line x1="${padL}" y1="${yBase}" x2="${W - padR}" y2="${yBase}" stroke="#cbd5e1" stroke-width="1.2" />
-
-          <path d="${areaAbiertoPath}" fill="url(#gradAbiertos)" />
-          <path d="${lineAbiertoPath}" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
-
-          ${
-            metrica === "CANTIDAD"
-              ? `<path d="${areaCerradoPath}" fill="url(#gradCerrados)" />
-                 <path d="${lineCerradoPath}" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />`
-              : ""
-          }
-
-          <line id="areaCrosshair" x1="0" y1="${padT}" x2="0" y2="${yBase}" stroke="#0f172a" stroke-width="1" stroke-dasharray="2 2" opacity="0" />
-
-          ${puntos.map(p => `
-            <circle cx="${p.x.toFixed(1)}" cy="${p.yAbierto.toFixed(1)}" r="${puntos.length <= 15 ? 4 : 2.5}" fill="#16a34a" stroke="#ffffff" stroke-width="1.5" />
-            ${
-              metrica === "CANTIDAD"
-                ? `<circle cx="${p.x.toFixed(1)}" cy="${p.yCerrado.toFixed(1)}" r="${puntos.length <= 15 ? 4 : 2.5}" fill="#dc2626" stroke="#ffffff" stroke-width="1.5" />`
-                : ""
-            }
-          `).join("")}
-
-          ${xLabelsHtml}
-          ${notaUnicaJornada}
-
-          <rect id="areaHitbox" x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="transparent" class="cursor-crosshair" />
-        </svg>
-      `;
-
-      const svg = document.getElementById("areaChartSvg");
-      const hitbox = document.getElementById("areaHitbox");
-      const crosshair = document.getElementById("areaCrosshair");
-
-      const mostrarTooltipEnX = (clientX) => {
-        const rect = svg.getBoundingClientRect();
-        const relX = ((clientX - rect.left) / rect.width) * W;
-
-        let cercano = puntos[0];
-        let minDist = Math.abs(relX - puntos[0].x);
-        for (let i = 1; i < puntos.length; i++) {
-          const dist = Math.abs(relX - puntos[i].x);
-          if (dist < minDist) {
-            minDist = dist;
-            cercano = puntos[i];
-          }
-        }
-
-        crosshair.setAttribute("x1", cercano.x.toFixed(1));
-        crosshair.setAttribute("x2", cercano.x.toFixed(1));
-        crosshair.setAttribute("opacity", "0.75");
-
-        tooltip.innerHTML = `
-          <div class="font-bold text-slate-100 border-b border-slate-700 pb-1 mb-1.5">
-            ${formatearFecha(cercano.fecha)}
-          </div>
-          <div class="space-y-1 text-[11px]">
-            <div class="flex items-center justify-between gap-4">
-              <span class="text-emerald-400 font-semibold">Abiertos:</span>
-              <span class="font-bold">${cercano.abiertos} (${cercano.pctOperatividad}%)</span>
-            </div>
-            <div class="flex items-center justify-between gap-4">
-              <span class="text-red-400 font-semibold">Cerrados:</span>
-              <span class="font-bold">${cercano.cerrados} (${100 - cercano.pctOperatividad}%)</span>
-            </div>
-          </div>
-        `;
-
-        tooltip.classList.remove("hidden");
-        const pctLeft = (cercano.x / W) * 100;
-        if (pctLeft > 62) {
-          tooltip.style.left = "auto";
-          tooltip.style.right = `${Math.max(8, 100 - pctLeft + 3)}%`;
-        } else {
-          tooltip.style.right = "auto";
-          tooltip.style.left = `${Math.max(8, pctLeft + 3)}%`;
-        }
-        tooltip.style.top = "14px";
-      };
-
-      hitbox.addEventListener("mousemove", (e) => mostrarTooltipEnX(e.clientX));
-      hitbox.addEventListener("touchmove", (e) => {
-        if (e.touches && e.touches[0]) {
-          mostrarTooltipEnX(e.touches[0].clientX);
-        }
-      }, { passive: true });
-      hitbox.addEventListener("mouseleave", () => {
-        crosshair.setAttribute("opacity", "0");
-        tooltip.classList.add("hidden");
-      });
-    }
-
-    // -----------------------------------------------------------------------
-    // 10. % DE PASOS ABIERTOS POR PROVINCIA (CANTIDAD DE PASOS ESE DÍA)
-    // -----------------------------------------------------------------------
-    function renderizarCuadroProvincias(pasosFiltrados, pasosEnZoom) {
-      const container = document.getElementById("cuadroProvinciasContainer");
-      const criterio = document.getElementById("ordenProvincias").value;
-
-      const anioSel = document.getElementById("filtroAnio").value;
-      const mesSel = document.getElementById("filtroMes").value;
-      const provSel = document.getElementById("filtroProvincia").value;
-      const { fechaMaxPeriodo } = obtenerEstadoMasRecientePeriodo(anioSel, mesSel, provSel);
-      const fechaDia = fechaMaxPeriodo || ultimaFechaGlobal;
-
-      document.getElementById("badgeFechaProvincias").textContent = formatearFecha(fechaDia);
-      document.getElementById("subtituloProvincias").textContent =
-        `Parte del ${formatearFecha(fechaDia)} · Cantidad de pasos totales, abiertos y cerrados ese día`;
-
-      const fuente = alcanceProvincias === "SOLO_ZOOM" ? pasosEnZoom : pasosFiltrados;
-
-      const totalPasos = fuente.length;
-      const totalAbiertos = fuente.filter(p => p.estado === "Abierto").length;
-      const totalCerrados = fuente.filter(p => p.estado === "Cerrado").length;
-
-      document.getElementById("resumenProvTotal").textContent = totalPasos;
-      document.getElementById("resumenProvAbiertos").textContent = totalAbiertos;
-      document.getElementById("resumenProvCerrados").textContent = totalCerrados;
-
-      if (fuente.length === 0) {
-        container.innerHTML = `
-          <div class="py-12 text-center text-xs text-slate-500">
-            No hay pasos disponibles para esta vista. Probá ampliando el zoom o cambiando a "Todas las provincias".
-          </div>
-        `;
-        return;
-      }
-
-      // Agrupar exclusivamente por provincia para el día del parte
-      const mapaProvincias = new Map();
-      fuente.forEach(p => {
-        const prov = p.provincia || "Sin especificar";
-        if (!mapaProvincias.has(prov)) {
-          mapaProvincias.set(prov, {
-            provincia: prov,
-            total: 0,
-            abiertos: 0,
-            cerrados: 0,
-            pasos: []
-          });
-        }
-        const entry = mapaProvincias.get(prov);
-        entry.total += 1;
-        if (p.estado === "Abierto") entry.abiertos += 1;
-        else if (p.estado === "Cerrado") entry.cerrados += 1;
-        entry.pasos.push(p);
-      });
-
-      const lista = Array.from(mapaProvincias.values()).map(item => {
-        const evaluados = item.abiertos + item.cerrados;
-        const pctAbierto = evaluados > 0 ? Math.round((item.abiertos / evaluados) * 100) : 0;
-        const pctCerrado = evaluados > 0 ? 100 - pctAbierto : 0;
-        return { ...item, evaluados, pctAbierto, pctCerrado };
-      });
-
-      if (criterio === "PCT_DESC") {
-        lista.sort((a, b) => b.pctAbierto - a.pctAbierto || b.abiertos - a.abiertos || a.provincia.localeCompare(b.provincia, "es"));
-      } else if (criterio === "PCT_ASC") {
-        lista.sort((a, b) => a.pctAbierto - b.pctAbierto || b.cerrados - a.cerrados || a.provincia.localeCompare(b.provincia, "es"));
-      } else if (criterio === "TOTAL_DESC") {
-        lista.sort((a, b) => b.total - a.total || b.pctAbierto - a.pctAbierto || a.provincia.localeCompare(b.provincia, "es"));
-      } else {
-        lista.sort((a, b) => a.provincia.localeCompare(b.provincia, "es"));
-      }
-
-      container.innerHTML = lista
-        .map(item => {
-          let bordeEstado = "border-l-[#64748b]";
-          let badgeColor = "bg-slate-100 text-slate-700";
-          if (item.evaluados > 0) {
-            if (item.pctAbierto >= 50) {
-              bordeEstado = "border-l-[#16a34a]";
-              badgeColor = "bg-emerald-50 text-emerald-700 border border-emerald-200";
-            } else {
-              bordeEstado = "border-l-[#dc2626]";
-              badgeColor = "bg-red-50 text-red-700 border border-red-200";
-            }
-          }
-
-          return `
-            <div
-              data-provincia="${item.provincia}"
-              class="card-provincia w-full overflow-hidden cursor-pointer rounded-xl border border-slate-200/90 border-l-4 ${bordeEstado} bg-white p-3 hover:border-slate-300 hover:shadow-xs transition"
-              title="Clic para enfocar ${item.provincia} en el mapa"
-            >
-              <div class="flex items-center justify-between gap-2 w-full">
-                <div class="flex-1 min-w-0 overflow-hidden">
-                  <h3 class="text-xs sm:text-sm font-bold text-slate-900 leading-snug truncate">${item.provincia}</h3>
-                </div>
-                <span class="shrink-0 whitespace-nowrap text-xs font-bold px-2.5 py-0.5 rounded-full ${badgeColor}">
-                  ${item.evaluados > 0 ? `${item.pctAbierto}% abiertos` : "Sin dato"}
-                </span>
-              </div>
-
-              <!-- Barra proporcional visual de Pasos Abiertos vs. Cerrados ese día -->
-              <div class="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden flex my-2">
-                ${
-                  item.evaluados > 0
-                    ? `<div class="bg-[#16a34a] h-full transition-all duration-300" style="width:${item.pctAbierto}%"></div>
-                       <div class="bg-[#dc2626] h-full transition-all duration-300" style="width:${item.pctCerrado}%"></div>`
-                    : `<div class="bg-slate-300/70 h-full w-full"></div>`
-                }
-              </div>
-
-              <!-- Conteo estricto de cantidad de pasos ese día -->
-              <div class="flex flex-wrap items-center justify-between gap-1.5 text-[11px] font-semibold w-full">
-                <span class="text-slate-700">
-                  Total: <strong class="text-slate-900">${item.total}</strong>
-                </span>
-                <div class="flex items-center gap-2.5">
-                  <span class="text-[#16a34a]">Abiertos: <strong>${item.abiertos}</strong></span>
-                  <span class="text-[#dc2626]">Cerrados: <strong>${item.cerrados}</strong></span>
-                </div>
-              </div>
-            </div>
-          `;
-        })
-        .join("");
-
-      container.querySelectorAll(".card-provincia").forEach(card => {
-        card.addEventListener("click", () => {
-          const prov = card.getAttribute("data-provincia");
-          const item = mapaProvincias.get(prov);
-          if (item && item.pasos.length > 0) {
-            if (item.pasos.length === 1) {
-              map.flyTo([item.pasos[0].lat, item.pasos[0].lng], 8, { duration: 0.7 });
-            } else {
-              const bounds = L.latLngBounds(item.pasos.map(p => [p.lat, p.lng]));
-              map.fitBounds(bounds, { padding: [45, 45], maxZoom: 8 });
-            }
-          }
-        });
-      });
-    }
-
-    // -----------------------------------------------------------------------
-    // 11. EVENTOS DE INTERFAZ E INICIALIZACIÓN
-    // -----------------------------------------------------------------------
-    function inicializarEventosUI() {
-      const filtroAnio = document.getElementById("filtroAnio");
-      const filtroMes = document.getElementById("filtroMes");
-      const filtroProvincia = document.getElementById("filtroProvincia");
-
-      filtroAnio.addEventListener("change", () => {
-        poblarSelectorMes();
-        poblarSelectorProvincia();
-        actualizarDashboardCompleto();
-      });
-
-      filtroMes.addEventListener("change", () => {
-        actualizarDashboardCompleto();
-      });
-
-      filtroProvincia.addEventListener("change", () => {
-        actualizarDashboardCompleto();
-        const provSel = filtroProvincia.value;
-        if (provSel && provSel !== "TODAS") {
-          const pasosProv = obtenerPasosFiltrados();
-          if (pasosProv.length === 1) {
-            map.flyTo([pasosProv[0].lat, pasosProv[0].lng], 8, { duration: 0.7 });
-          } else if (pasosProv.length > 1) {
-            const bounds = L.latLngBounds(pasosProv.map(p => [p.lat, p.lng]));
-            map.fitBounds(bounds, { padding: [45, 45], maxZoom: 8 });
-          }
-        } else {
-          map.flyTo(REGIONES.ARG.center, REGIONES.ARG.zoom, { duration: 0.7 });
-        }
-      });
-
-      // Alternar entre Argenmap IGN (principal) y Esri Satélite
-      document.getElementById("btnToggleCapaMapa").addEventListener("click", () => {
-        const labelCapa = document.getElementById("labelCapaMapa");
-        if (esVistaArgenmap) {
-          map.removeLayer(capaArgenmapLayer);
-          capaSateliteGroup.addTo(map);
-          labelCapa.textContent = "Esri Satélite";
-          esVistaArgenmap = false;
-        } else {
-          map.removeLayer(capaSateliteGroup);
-          capaArgenmapLayer.addTo(map);
-          labelCapa.textContent = "Argenmap IGN";
-          esVistaArgenmap = true;
-        }
-      });
-
-      // Botones de enfoque regional debajo del mapa
-      document.querySelectorAll(".btn-region").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const regionKey = btn.getAttribute("data-region");
-          const cfg = REGIONES[regionKey];
-          if (!cfg) return;
-
-          document.querySelectorAll(".btn-region").forEach(b => {
-            b.className = "btn-region px-2.5 py-1 text-[11px] font-medium rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition cursor-pointer";
-          });
-          btn.className = "btn-region px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-slate-900 text-white border border-slate-900 hover:bg-slate-800 transition cursor-pointer";
-
-          map.flyTo(cfg.center, cfg.zoom, { duration: 0.7 });
-        });
-      });
-
-      // Controles de la tabla sincronizada por zoom
-      document.getElementById("buscadorTablaZoom").addEventListener("input", () => {
-        actualizarVistasSegunZoom();
-      });
-      document.getElementById("filtroModoTablaZoom").addEventListener("change", () => {
-        actualizarVistasSegunZoom();
-      });
-
-      // Controles del Gráfico de Área
-      document.getElementById("metricaAreaChart").addEventListener("change", () => {
-        actualizarVistasSegunZoom();
-      });
-
-      const btnAreaTodos = document.getElementById("btnAreaTodos");
-      const btnAreaZoom = document.getElementById("btnAreaZoom");
-      btnAreaTodos.addEventListener("click", () => {
-        alcanceAreaChart = "TODOS_PAIS";
-        btnAreaTodos.className = "px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-xs transition cursor-pointer";
-        btnAreaZoom.className = "px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition cursor-pointer";
-        actualizarVistasSegunZoom();
-      });
-      btnAreaZoom.addEventListener("click", () => {
-        alcanceAreaChart = "SOLO_ZOOM";
-        btnAreaZoom.className = "px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-xs transition cursor-pointer";
-        btnAreaTodos.className = "px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition cursor-pointer";
-        actualizarVistasSegunZoom();
-      });
-
-      // Controles del cuadro % de Pasos Abiertos por Provincia
-      const btnProvTodos = document.getElementById("btnProvTodos");
-      const btnProvZoom = document.getElementById("btnProvZoom");
-      btnProvTodos.addEventListener("click", () => {
-        alcanceProvincias = "TODAS_PROV";
-        btnProvTodos.className = "px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-xs transition cursor-pointer";
-        btnProvZoom.className = "px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition cursor-pointer";
-        actualizarVistasSegunZoom();
-      });
-      btnProvZoom.addEventListener("click", () => {
-        alcanceProvincias = "SOLO_ZOOM";
-        btnProvZoom.className = "px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-xs transition cursor-pointer";
-        btnProvTodos.className = "px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition cursor-pointer";
-        actualizarVistasSegunZoom();
-      });
-
-      document.getElementById("ordenProvincias").addEventListener("change", () => {
-        actualizarVistasSegunZoom();
-      });
-    }
-
+    // =========================================================================
+    // EVENTOS
+    // =========================================================================
     document.addEventListener("DOMContentLoaded", () => {
       inicializarMapa();
-      inicializarEventosUI();
-      cargarDatosDesdeGitHub();
+      cargarTodosLosDatos();
+
+      ["filtro-anio", "filtro-mes", "filtro-pais", "filtro-provincia", "filtro-medio", "filtro-estado"].forEach((id) => {
+        document.getElementById(id).addEventListener("change", aplicarFiltros);
+      });
+      document.getElementById("filtro-busqueda").addEventListener("input", aplicarFiltros);
+
+      document.getElementById("btn-limpiar-filtros").addEventListener("click", () => {
+        document.getElementById("filtro-mes").value = "";
+        document.getElementById("filtro-pais").value = "";
+        document.getElementById("filtro-provincia").value = "";
+        document.getElementById("filtro-medio").value = "";
+        document.getElementById("filtro-estado").value = "";
+        document.getElementById("filtro-busqueda").value = "";
+        aplicarFiltros();
+        map.setView([-38.5, -63.5], 4);
+      });
+
+      document.getElementById("btn-centrar-mapa").addEventListener("click", () => {
+        map.setView([-38.5, -63.5], 4);
+      });
+
+      document.getElementById("btn-recargar").addEventListener("click", cargarTodosLosDatos);
+      document.getElementById("btn-exportar-csv").addEventListener("click", exportarCSVFiltrado);
+
+      document.querySelectorAll("th[data-sort]").forEach((th) => {
+        th.addEventListener("click", () => {
+          const key = th.dataset.sort;
+          if (sortConfig.key === key) {
+            sortConfig.asc = !sortConfig.asc;
+          } else {
+            sortConfig = { key, asc: true };
+          }
+          actualizarTabla();
+        });
+      });
     });
   </script>
 </body>
