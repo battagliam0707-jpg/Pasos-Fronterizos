@@ -266,7 +266,7 @@
 
     <!-- =================================================================== -->
     <!-- ÁREA PRINCIPAL EN 2 COLUMNAS:                                       -->
-    <!-- IZQUIERDA (Mapa Satelital Esri + Tabla sincronizada con zoom)       -->
+    <!-- IZQUIERDA (Mapa Argenmap IGN + Tabla sincronizada con zoom)         -->
     <!-- DERECHA   (Gráfico de Área + % de Pasos Abiertos por Provincia)     -->
     <!-- =================================================================== -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
@@ -323,7 +323,7 @@
             <div id="map"></div>
           </div>
 
-          <!-- Barra inferior de encuadre regional (fuera del mapa para no solaparse con atribución Leaflet) -->
+          <!-- Barra inferior de encuadre regional -->
           <div class="px-4 py-2.5 bg-slate-50/90 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
             <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Enfoque regional:</span>
             <div class="flex flex-wrap gap-1.5">
@@ -565,7 +565,7 @@
   <div id="toastNotificacion" class="fixed bottom-5 right-5 z-[1100] hidden max-w-sm bg-slate-900 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-lg border border-slate-700"></div>
 
   <!-- ===================================================================== -->
-  <!-- LÓGICA DE CONEXIÓN A GITHUB, MAPA SATELITAL ESRI Y TABLERO REAL       -->
+  <!-- LÓGICA DE CONEXIÓN A GITHUB, MAPA ARGENMAP IGN Y TABLERO REAL         -->
   <!-- ===================================================================== -->
   <script>
     // -----------------------------------------------------------------------
@@ -886,7 +886,7 @@
       "bahia blanca": { lat: -38.7867, lng: -62.2667, prov: "buenos aires" }
     };
 
-    // Anclas fronterizas por provincia (NUNCA en el centro del país / Córdoba)
+    // Anclas fronterizas por provincia
     const ANCLAS_FRONTERA_PROVINCIAL = [
       { match: "tierra del fuego", lat: -53.5500, lng: -68.6060, soloDesplazarLat: true },
       { match: "santa cruz", lat: -49.5000, lng: -72.8000, soloDesplazarLat: false },
@@ -923,7 +923,7 @@
     // -----------------------------------------------------------------------
     let consolidadoRows = [];       // Filas reales de consolidado_pasos_*.csv
     let historicoRows = [];         // Filas reales de historico_diario_*.csv
-    let ignPasosCatalogo = [];      // Puntos oficiales WGS84 de IGN (ign:pasos_de_fronteras_internacionales)
+    let ignPasosCatalogo = [];      // Puntos oficiales WGS84 de IGN
     let ultimaFechaGlobal = "";     // Última fecha YYYY-MM-DD relevada en el repo
     let totalJornadasRelevadas = 0; // Cantidad de fechas únicas relevadas
 
@@ -952,8 +952,17 @@
 
     function normalizarEstado(raw) {
       const val = normalizarTexto(raw).toUpperCase();
-      if (/\b(CERRADO|INHABILITADO|NO HABILITADO|NO ABIERTO|SUSPENDIDO|CLAUSURADO)\b/.test(val)) return "Cerrado";
-      if (/\b(ABIERTO|HABILITADO)\b/.test(val)) return "Abierto";
+      if (!val || val === "SIN DATO" || val === "SIN DATOS" || val === "N A" || val === "NONE" || val === "NAN") {
+        return "Sin dato";
+      }
+      if (
+        /\b(CERRADO|CERRADA|INHABILITADO|INHABILITADA|DESHABILITADO|DESHABILITADA|SIN HABILITAR|NO\s+(?:SE\s+ENCUENTRA\s+|ESTA\s+)?(?:HABILITADO|HABILITADA|ABIERTO|ABIERTA)|(?:HABILITADO|HABILITADA|ABIERTO|ABIERTA)\s+NO|SUSPENDIDO|SUSPENDIDA|CLAUSURADO|CLAUSURADA|INTRANSITABLE|CORTADO|CORTADA|INTERRUMPIDO|INTERRUMPIDA)\b/.test(val)
+      ) {
+        return "Cerrado";
+      }
+      if (/\b(ABIERTO|ABIERTA|HABILITADO|HABILITADA)\b/.test(val)) {
+        return "Abierto";
+      }
       return "Sin dato";
     }
 
@@ -999,6 +1008,19 @@
       return Math.abs(hash);
     }
 
+    function esCoordenadaArgentinaValida(lat, lng) {
+      return (
+        typeof lat === "number" &&
+        typeof lng === "number" &&
+        !Number.isNaN(lat) &&
+        !Number.isNaN(lng) &&
+        lat >= -56.0 &&
+        lat <= -21.5 &&
+        lng >= -74.0 &&
+        lng <= -53.0
+      );
+    }
+
     const STOPWORDS_PASO = new Set([
       "paso", "internacional", "fronterizo", "puerto", "puente", "terminal",
       "fluvial", "binacional", "ar", "cl", "br", "py", "uy", "bo", "de", "del", "la", "el", "los", "las", "y"
@@ -1042,7 +1064,6 @@
           }
         }
 
-        // Bonificación si coincide el corredor provincial aproximado
         if (puntaje > 0 && normProv) {
           const ancla = ANCLAS_FRONTERA_PROVINCIAL.find(a => normProv.includes(a.match));
           if (ancla) {
@@ -1064,7 +1085,11 @@
       return null;
     }
 
-    function resolverCoordenadasPaso(nombrePaso, provincia) {
+    function resolverCoordenadasPaso(nombrePaso, provincia, latCsv = null, lngCsv = null) {
+      if (esCoordenadaArgentinaValida(latCsv, lngCsv)) {
+        return { lat: latCsv, lng: lngCsv };
+      }
+
       const normNombre = normalizarTexto(nombrePaso);
       const normSinPrefijo = normNombre
         .replace(/^(paso|puerto|puente)\s+(internacional\s+)?/, "")
@@ -1077,13 +1102,11 @@
         return normProv.includes(entry.prov);
       };
 
-      // 1. Prioridad máxima: catálogo auditado sobre el límite internacional (evita errores de sedes administrativas)
       const exacto = COORDENADAS_PASOS[normNombre] || COORDENADAS_PASOS[normSinPrefijo];
       if (exacto && coincideProvincia(exacto)) {
         return { lat: exacto.lat, lng: exacto.lng };
       }
 
-      // 2. Búsqueda por palabra completa ordenada por longitud de clave dentro de la misma provincia
       const entradas = Object.entries(COORDENADAS_PASOS).sort((a, b) => b[0].length - a[0].length);
       for (const [clave, entry] of entradas) {
         const regexClave = new RegExp(`\\b${clave}\\b`);
@@ -1093,13 +1116,11 @@
         }
       }
 
-      // 3. Geometría oficial del Instituto Geográfico Nacional (IGN / MinSeg) para pasos no catalogados
       const coordIGN = buscarCoordenadaEnIGN(nombrePaso, provincia);
       if (coordIGN) {
         return coordIGN;
       }
 
-      // 4. Búsqueda por palabra completa sin restricción provincial si no hubo coincidencia previa
       if (exacto) {
         return { lat: exacto.lat, lng: exacto.lng };
       }
@@ -1110,7 +1131,6 @@
         }
       }
 
-      // 5. Respaldo por ancla fronteriza provincial
       const h = hashString(normNombre || normProv);
       const offsetLat = ((h % 100) / 100 - 0.5) * 0.35;
       const offsetLng = (((h >> 4) % 100) / 100 - 0.5) * 0.18;
@@ -1272,7 +1292,7 @@
             }
           }
         } catch (_) {
-          // Si la API de GitHub tiene límite de tasa, continuamos con las rutas directas raw
+          // Respaldo con rutas directas raw
         }
 
         const anioActual = String(new Date().getFullYear());
@@ -1301,6 +1321,8 @@
               if (!paso) return;
               const anio = String(row["Año"] || row["Anio"] || row["anio"] || "2026").trim();
               const mes = String(row["Mes"] || row["mes"] || "").trim();
+              const latCsv = parseFloat(String(row["Latitud"] || row["latitud"] || "").replace(",", "."));
+              const lngCsv = parseFloat(String(row["Longitud"] || row["longitud"] || "").replace(",", "."));
               nuevosConsolidados.push({
                 pasoKey: normalizarTexto(paso),
                 paso,
@@ -1311,7 +1333,9 @@
                 mes,
                 diasAbierto: parseInt(row["Días Abierto"] || row["Dias Abierto"] || "0", 10) || 0,
                 diasCerrado: parseInt(row["Días Cerrado"] || row["Dias Cerrado"] || "0", 10) || 0,
-                diasSinDato: parseInt(row["Días Sin Dato"] || row["Dias Sin Dato"] || "0", 10) || 0
+                diasSinDato: parseInt(row["Días Sin Dato"] || row["Dias Sin Dato"] || "0", 10) || 0,
+                latCsv: esCoordenadaArgentinaValida(latCsv, lngCsv) ? latCsv : null,
+                lngCsv: esCoordenadaArgentinaValida(latCsv, lngCsv) ? lngCsv : null
               });
             });
           }
@@ -1328,13 +1352,20 @@
               const anio = String(row["anio"] || row["Año"] || fecha.slice(0, 4)).trim();
               const mesNum = fecha.length >= 7 ? fecha.slice(5, 7) : "";
               const mes = String(row["mes"] || row["Mes"] || MESES_ES[mesNum] || mesNum).trim();
+              const latCsv = parseFloat(String(row["Latitud"] || row["latitud"] || "").replace(",", "."));
+              const lngCsv = parseFloat(String(row["Longitud"] || row["longitud"] || "").replace(",", "."));
               nuevosHistoricos.push({
                 fecha,
                 anio,
                 mes,
                 pasoKey: normalizarTexto(paso),
                 paso,
-                estado: normalizarEstado(row["estado"] || row["Estado"])
+                provincia: (row["provincia"] || row["Provincia"] || "Sin especificar").trim(),
+                pais: (row["pais"] || row["País Limítrofe"] || "Sin especificar").trim(),
+                modo: normalizarModo(row["medio"] || row["Medio"] || "Vial"),
+                estado: normalizarEstado(row["estado"] || row["Estado"]),
+                latCsv: esCoordenadaArgentinaValida(latCsv, lngCsv) ? latCsv : null,
+                lngCsv: esCoordenadaArgentinaValida(latCsv, lngCsv) ? lngCsv : null
               });
             });
           }
@@ -1463,8 +1494,14 @@
       const estadoPorPasoMap = new Map();
       registrosFiltrados.forEach(r => {
         const previo = estadoPorPasoMap.get(r.pasoKey);
-        if (!previo || r.fecha >= previo.fecha) {
+        if (!previo || r.fecha > previo.fecha) {
           estadoPorPasoMap.set(r.pasoKey, { estado: r.estado, fecha: r.fecha });
+        } else if (r.fecha === previo.fecha) {
+          if (previo.estado === "Sin dato" && r.estado !== "Sin dato") {
+            estadoPorPasoMap.set(r.pasoKey, { estado: r.estado, fecha: r.fecha });
+          } else if (r.estado === "Cerrado") {
+            estadoPorPasoMap.set(r.pasoKey, { estado: "Cerrado", fecha: r.fecha });
+          }
         }
       });
 
@@ -1490,30 +1527,33 @@
             paso: r.paso,
             provincia: r.provincia,
             pais: r.pais,
-            modo: r.modo
+            modo: r.modo,
+            latCsv: r.latCsv,
+            lngCsv: r.lngCsv
           });
         }
       });
 
-      // Si algún paso aparece en el histórico diario y aún no en el consolidado, también lo incluimos
       historicoRows.forEach(r => {
         if (anioSel && anioSel !== "TODOS" && r.anio !== anioSel) return;
         if (mesSel && mesSel !== "TODOS" && r.mes !== mesSel) return;
-        if (provSel && provSel !== "TODAS") return;
+        if (provSel && provSel !== "TODAS" && r.provincia !== provSel) return;
         if (!catalogoMap.has(r.pasoKey)) {
           catalogoMap.set(r.pasoKey, {
             id: r.pasoKey,
             paso: r.paso,
-            provincia: "Sin especificar",
-            pais: "Sin especificar",
-            modo: "Vial"
+            provincia: r.provincia || "Sin especificar",
+            pais: r.pais || "Sin especificar",
+            modo: r.modo || "Vial",
+            latCsv: r.latCsv,
+            lngCsv: r.lngCsv
           });
         }
       });
 
       return Array.from(catalogoMap.values()).map(item => {
         const infoEstado = estadoPorPasoMap.get(item.id);
-        const coords = resolverCoordenadasPaso(item.paso, item.provincia);
+        const coords = resolverCoordenadasPaso(item.paso, item.provincia, item.latCsv, item.lngCsv);
         return {
           ...item,
           estado: infoEstado ? infoEstado.estado : "Sin dato",
@@ -1535,7 +1575,6 @@
         scrollWheelZoom: true
       });
 
-      // Capa base principal: Argenmap TMS (Instituto Geográfico Nacional)
       capaArgenmapLayer = L.tileLayer(
         "https://wms.ign.gob.ar/geoserver/gwc/service/tms/1.0.0/capabaseargenmap@EPSG%3A3857@png/{z}/{x}/{-y}.png",
         {
@@ -1544,7 +1583,6 @@
         }
       ).addTo(map);
 
-      // Segunda opción: Vista Satelital Esri + Límites y topónimos
       const esriImagery = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
@@ -1582,7 +1620,10 @@
         const estadosPorFecha = new Map();
         historicoRows.forEach(r => {
           if (r.pasoKey === pasoKey && r.fecha.startsWith(ultimoYM)) {
-            estadosPorFecha.set(r.fecha, r.estado);
+            const prev = estadosPorFecha.get(r.fecha);
+            if (!prev || (prev === "Sin dato" && r.estado !== "Sin dato") || r.estado === "Cerrado") {
+              estadosPorFecha.set(r.fecha, r.estado);
+            }
           }
         });
 
@@ -1598,7 +1639,6 @@
         }
       }
 
-      // Respaldo desde consolidado si aún no se cargó el detalle diario
       const filasPaso = consolidadoRows
         .filter(r => r.pasoKey === pasoKey && (!anioSel || anioSel === "TODOS" || r.anio === anioSel))
         .sort((a, b) => (a.mes || "").localeCompare(b.mes || ""));
@@ -1869,7 +1909,8 @@
         ? new Set(pasosEnZoom.map(p => p.id))
         : null;
 
-      const porFecha = new Map();
+      // Deduplicar por (fecha, pasoKey) priorizando Cerrado > Abierto > Sin dato
+      const estadoPorFechaPaso = new Map();
 
       historicoRows.forEach(reg => {
         if (anioSel && anioSel !== "TODOS" && reg.anio !== anioSel) return;
@@ -1877,12 +1918,21 @@
         if (clavesProvincia && !clavesProvincia.has(reg.pasoKey)) return;
         if (idsPermitidos && !idsPermitidos.has(reg.pasoKey)) return;
 
-        if (!porFecha.has(reg.fecha)) {
-          porFecha.set(reg.fecha, { fecha: reg.fecha, abiertos: 0, cerrados: 0, sinDato: 0 });
+        const claveFP = `${reg.fecha}__${reg.pasoKey}`;
+        const prev = estadoPorFechaPaso.get(claveFP);
+        if (!prev || (prev.estado === "Sin dato" && reg.estado !== "Sin dato") || reg.estado === "Cerrado") {
+          estadoPorFechaPaso.set(claveFP, { fecha: reg.fecha, estado: reg.estado });
         }
-        const entry = porFecha.get(reg.fecha);
-        if (reg.estado === "Abierto") entry.abiertos += 1;
-        else if (reg.estado === "Cerrado") entry.cerrados += 1;
+      });
+
+      const porFecha = new Map();
+      estadoPorFechaPaso.forEach(({ fecha, estado }) => {
+        if (!porFecha.has(fecha)) {
+          porFecha.set(fecha, { fecha, abiertos: 0, cerrados: 0, sinDato: 0 });
+        }
+        const entry = porFecha.get(fecha);
+        if (estado === "Abierto") entry.abiertos += 1;
+        else if (estado === "Cerrado") entry.cerrados += 1;
         else entry.sinDato += 1;
       });
 
@@ -2147,7 +2197,6 @@
         return;
       }
 
-      // Agrupar exclusivamente por provincia para el día del parte
       const mapaProvincias = new Map();
       fuente.forEach(p => {
         const prov = p.provincia || "Sin especificar";
@@ -2213,7 +2262,6 @@
                 </span>
               </div>
 
-              <!-- Barra proporcional visual de Pasos Abiertos vs. Cerrados ese día -->
               <div class="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden flex my-2">
                 ${
                   item.evaluados > 0
@@ -2223,7 +2271,6 @@
                 }
               </div>
 
-              <!-- Conteo estricto de cantidad de pasos ese día -->
               <div class="flex flex-wrap items-center justify-between gap-1.5 text-[11px] font-semibold w-full">
                 <span class="text-slate-700">
                   Total: <strong class="text-slate-900">${item.total}</strong>
@@ -2288,7 +2335,6 @@
         }
       });
 
-      // Alternar entre Argenmap IGN (principal) y Esri Satélite
       document.getElementById("btnToggleCapaMapa").addEventListener("click", () => {
         const labelCapa = document.getElementById("labelCapaMapa");
         if (esVistaArgenmap) {
@@ -2304,7 +2350,6 @@
         }
       });
 
-      // Botones de enfoque regional debajo del mapa
       document.querySelectorAll(".btn-region").forEach(btn => {
         btn.addEventListener("click", () => {
           const regionKey = btn.getAttribute("data-region");
@@ -2320,7 +2365,6 @@
         });
       });
 
-      // Controles de la tabla sincronizada por zoom
       document.getElementById("buscadorTablaZoom").addEventListener("input", () => {
         actualizarVistasSegunZoom();
       });
@@ -2328,7 +2372,6 @@
         actualizarVistasSegunZoom();
       });
 
-      // Controles del Gráfico de Área
       document.getElementById("metricaAreaChart").addEventListener("change", () => {
         actualizarVistasSegunZoom();
       });
@@ -2348,7 +2391,6 @@
         actualizarVistasSegunZoom();
       });
 
-      // Controles del cuadro % de Pasos Abiertos por Provincia
       const btnProvTodos = document.getElementById("btnProvTodos");
       const btnProvZoom = document.getElementById("btnProvZoom");
       btnProvTodos.addEventListener("click", () => {
