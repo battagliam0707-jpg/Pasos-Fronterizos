@@ -1,164 +1,107 @@
-﻿Fecha,Hora Corte,Nombre del Paso,Provincia,País Limítrofe,Medio,Estado,Latitud,Longitud
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional de Ezeiza,BUENOS AIRES,Internacional,Aéreo,Habilitado,-34.822200,-58.535800
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional de San Fernando,CIUDAD AUTONOMA DE BUENOS AIRES,Limítrofe,Terrestre / Fluvial,Habilitado,-34.611800,-58.362200
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Astor Piazzolla,CIUDAD AUTONOMA DE BUENOS AIRES,Limítrofe,Terrestre / Fluvial,Habilitado,-34.610634,-58.364066
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Comandante Espora,CIUDAD AUTONOMA DE BUENOS AIRES,Limítrofe,Terrestre / Fluvial,Habilitado,-34.612624,-58.360160
-2026-11-13,2026-11-13 10:03:47,Terminal Portuaria de Buquebus,CIUDAD AUTONOMA DE BUENOS AIRES,Uruguay,Fluvial,Habilitado,-34.599700,-58.368900
-2026-11-13,2026-11-13 10:03:47,Terminal Portuaria de Colonia Express,CIUDAD AUTONOMA DE BUENOS AIRES,Uruguay,Fluvial,Habilitado,-34.623100,-58.356900
-2026-11-13,2026-11-13 10:03:47,Terminal de Cruceros Quinquela Martín,CIUDAD AUTONOMA DE BUENOS AIRES,Internacional,Marítimo / Fluvial,Habilitado,-34.585800,-58.371100
-2026-11-13,2026-11-13 10:03:47,Terminal de Cruceros del Puerto de Mar del Plata,BUENOS AIRES,Internacional,Marítimo,Habilitado,-38.038100,-57.531400
-2026-11-13,2026-11-13 10:03:47,Terminal Fluvial Binacional de Tigre,BUENOS AIRES,Uruguay,Fluvial,Habilitado,-34.421400,-58.581400
-2026-11-13,2026-11-13 10:03:47,"Yacht Club Argentino, ubicado en la Dársena Norte del Puerto de Buenos Aires",CIUDAD AUTONOMA DE BUENOS AIRES,Internacional,Marítimo / Fluvial,Habilitado,-34.598619,-58.370080
-2026-11-13,2026-11-13 10:03:47,Puerto San Nicolás,BUENOS AIRES,Internacional,Fluvial,Habilitado,-33.331400,-60.213100
-2026-11-13,2026-11-13 10:03:47,Puerto San Fernando,CIUDAD AUTONOMA DE BUENOS AIRES,Limítrofe,Terrestre / Fluvial,Habilitado,-34.609648,-58.362657
-2026-11-13,2026-11-13 10:03:47,Puerto Ramallo,CIUDAD AUTONOMA DE BUENOS AIRES,Limítrofe,Terrestre / Fluvial,Habilitado,-34.611532,-58.360016
-2026-11-13,2026-11-13 10:03:47,Puerto San Pedro,CIUDAD AUTONOMA DE BUENOS AIRES,Limítrofe,Terrestre / Fluvial,Habilitado,-34.610870,-58.364194
-2026-11-13,2026-11-13 10:03:47,Puerto Zárate,BUENOS AIRES,Internacional,Fluvial,Habilitado,-34.093100,-59.018100
-2026-11-13,2026-11-13 10:03:47,Puerto Campana,BUENOS AIRES,Internacional,Fluvial,Habilitado,-34.158100,-58.958100
-2026-11-13,2026-11-13 10:03:47,Puerto Escobar,CIUDAD AUTONOMA DE BUENOS AIRES,Limítrofe,Terrestre / Fluvial,Habilitado,-34.611877,-58.360001
-2026-11-13,2026-11-13 10:03:47,Puerto Tigre,BUENOS AIRES,Uruguay,Fluvial,Habilitado,-34.420319,-58.582580
-2026-11-13,2026-11-13 10:03:47,Puerto San Isidro,CIUDAD AUTONOMA DE BUENOS AIRES,Limítrofe,Terrestre / Fluvial,Habilitado,-34.613997,-58.362315
-2026-11-13,2026-11-13 10:03:47,Puerto Olivos,CIUDAD AUTONOMA DE BUENOS AIRES,Limítrofe,Terrestre / Fluvial,Habilitado,-34.613854,-58.361412
-2026-11-13,2026-11-13 10:03:47,Puerto de Buenos Aires,CIUDAD AUTONOMA DE BUENOS AIRES,Internacional,Marítimo / Fluvial,Habilitado,-34.589206,-58.366721
-2026-11-13,2026-11-13 10:03:47,Puerto Quilmes,CIUDAD AUTONOMA DE BUENOS AIRES,Limítrofe,Terrestre / Fluvial,Habilitado,-34.610667,-58.360314
-2026-11-13,2026-11-13 10:03:47,Puerto La Plata,CIUDAD AUTONOMA DE BUENOS AIRES,Limítrofe,Terrestre / Fluvial,Habilitado,-34.609619,-58.361475
-2026-11-13,2026-11-13 10:03:47,Puerto Mar Del Plata,BUENOS AIRES,Internacional,Marítimo,Habilitado,-38.037019,-57.532580
-2026-11-13,2026-11-13 10:03:47,Puerto Quequén,BUENOS AIRES,Internacional,Marítimo,Habilitado,-38.578100,-58.703100
-2026-11-13,2026-11-13 10:03:47,Puerto Bahía Blanca,BUENOS AIRES,Internacional,Marítimo,Habilitado,-38.788100,-62.268100
-2026-11-13,2026-11-13 10:03:47,Puerto Martín García,BUENOS AIRES,Uruguay,Fluvial,Habilitado,-34.188900,-58.255300
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Coronel Felipe Varela,CATAMARCA,Internacional,Aéreo,Habilitado,-28.592462,-65.754983
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Resistencia,CHACO,Internacional,Aéreo,Habilitado,-27.450000,-59.056100
-2026-11-13,2026-11-13 10:03:47,Puerto Barranqueras,CHACO,Internacional,Fluvial,Habilitado,-27.486100,-58.931900
-2026-11-13,2026-11-13 10:03:47,Puerto Las Palmas - Puerto Humaitá,CHACO,Paraguay,Fluvial,Habilitado,-27.094200,-58.686100
-2026-11-13,2026-11-13 10:03:47,Puerto Bermejo - Puerto Pilar,CHACO,Paraguay,Fluvial,Habilitado,-26.926400,-58.508300
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional General Enrique Mosconi,CHUBUT,Internacional,Aéreo,Habilitado,-45.785300,-67.465600
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Almirante Marco Andrés Zar,CHUBUT,Internacional,Aéreo,Habilitado,-43.210500,-65.270300
-2026-11-13,2026-11-13 10:03:47,Aeropuerto El Tehuelche,CHUBUT,Internacional,Aéreo,Habilitado,-42.759200,-65.102700
-2026-11-13,2026-11-13 10:03:47,"Aeropuerto ""Brigadier General Antonio Parodi""",CHUBUT,Internacional,Aéreo,Habilitado,-42.908000,-71.139500
-2026-11-13,2026-11-13 10:03:47,Puerto de la Ciudad de Puerto Madryn,CHUBUT,Internacional,Marítimo,Habilitado,-42.761100,-65.031900
-2026-11-13,2026-11-13 10:03:47,Puerto Comodoro Rivadavia,CHUBUT,Internacional,Marítimo,Habilitado,-45.864400,-67.465800
-2026-11-13,2026-11-13 10:03:47,Paso Fronterizo Futaleufú,CHUBUT,Chile,Terrestre,Habilitado,-43.180300,-71.751900
-2026-11-13,2026-11-13 10:03:47,Paso Fronterizo Huemules,CHUBUT,Chile,Terrestre,Habilitado,-45.916700,-71.650000
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Ingeniero Aeronáutico Ambrosio Taravella,CORDOBA,Internacional,Aéreo,Habilitado,-31.323600,-64.208100
-2026-11-13,2026-11-13 10:03:47,Centro de Frontera Paso de los Libres - Uruguayana,CORRIENTES,Brasil,Terrestre,Habilitado,-29.733800,-57.101900
-2026-11-13,2026-11-13 10:03:47,Paso Fronterizo Santo Tomé - Sao Borja,CORRIENTES,Brasil,Terrestre,Habilitado,-28.590600,-56.031700
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Doctor Fernando Piragine Niveyro,CORRIENTES,Internacional,Aéreo,Habilitado,-27.445500,-58.761900
-2026-11-13,2026-11-13 10:03:47,Puerto Alvear - Puerto Itaquí,CORRIENTES,Brasil,Fluvial,Habilitado,-29.112800,-56.555600
-2026-11-13,2026-11-13 10:03:47,Puerto Itá Ibaté - Panchito López,CORRIENTES,Paraguay,Fluvial,Habilitado,-27.428100,-57.338900
-2026-11-13,2026-11-13 10:03:47,Puerto San Antonio de Apipé,CORRIENTES,Paraguay,Fluvial,Habilitado,-27.513100,-56.743100
-2026-11-13,2026-11-13 10:03:47,Puerto Ituzaingó,CORRIENTES,Paraguay,Fluvial,Habilitado,-27.581900,-56.688100
-2026-11-13,2026-11-13 10:03:47,Puerto Corrientes,CORRIENTES,Internacional,Fluvial,Habilitado,-27.463100,-58.836400
-2026-11-13,2026-11-13 10:03:47,Puerto Goya,CORRIENTES,Internacional,Fluvial,Habilitado,-29.143100,-59.273100
-2026-11-13,2026-11-13 10:03:47,Puerto Esquina,CORRIENTES,Internacional,Fluvial,Habilitado,-30.013100,-59.533100
-2026-11-13,2026-11-13 10:03:47,Puerto Garruchos - Garruchos,CORRIENTES,Brasil,Fluvial,Habilitado,-28.177200,-55.642500
-2026-11-13,2026-11-13 10:03:47,Puerto Itatí - Puerto Itá Corá,CORRIENTES,Paraguay,Fluvial,Habilitado,-27.269400,-58.245000
-2026-11-13,2026-11-13 10:03:47,Puerto Yapeyú - Puerto San Marcos,CORRIENTES,Brasil,Fluvial,Habilitado,-29.470000,-56.811100
-2026-11-13,2026-11-13 10:03:47,Puerto Yahapé - Puerto Cerrito,CORRIENTES,Paraguay,Fluvial,Habilitado,-27.373600,-57.651900
-2026-11-13,2026-11-13 10:03:47,Puerto Paso de la Patria - Paso de la Patria,CORRIENTES,Paraguay,Fluvial,Habilitado,-27.314400,-58.574200
-2026-11-13,2026-11-13 10:03:47,Puerto Monte Caseros - Bella Unión,CORRIENTES,Uruguay,Fluvial,Habilitado,-30.251900,-57.622200
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Comodoro Pierrestegui,ENTRE RIOS,Limítrofe,Terrestre / Fluvial,Habilitado,-33.094700,-58.246400
-2026-11-13,2026-11-13 10:03:47,Aeropuerto General Justo José de Urquiza,ENTRE RIOS,Limítrofe,Terrestre / Fluvial,Habilitado,-33.094243,-58.244248
-2026-11-13,2026-11-13 10:03:47,Centro de Frontera Concordia - Salto,ENTRE RIOS,Uruguay,Terrestre,Habilitado,-31.260800,-57.961700
-2026-11-13,2026-11-13 10:03:47,Puente Internacional Colón - Paysandú,ENTRE RIOS,Uruguay,Terrestre,Habilitado,-32.265600,-58.093900
-2026-11-13,2026-11-13 10:03:47,Puente Internacional Gualeguaychú - Fray Bentos,ENTRE RIOS,Uruguay,Terrestre,Habilitado,-33.111400,-58.246400
-2026-11-13,2026-11-13 10:03:47,Puerto Diamante,ENTRE RIOS,Internacional,Fluvial,Habilitado,-32.063100,-60.646400
-2026-11-13,2026-11-13 10:03:47,Puerto Ibicuy,ENTRE RIOS,Internacional,Fluvial,Habilitado,-33.748100,-59.176400
-2026-11-13,2026-11-13 10:03:47,Terminal Portuaria del Guazú,ENTRE RIOS,Internacional,Fluvial,Habilitado,-33.893100,-58.883100
-2026-11-13,2026-11-13 10:03:47,Puerto de Paraná,ENTRE RIOS,Internacional,Fluvial,Habilitado,-31.709200,-60.573600
-2026-11-13,2026-11-13 10:03:47,Puerto de La Paz,ENTRE RIOS,Internacional,Fluvial,Habilitado,-30.667200,-59.640300
-2026-11-13,2026-11-13 10:03:47,Puerto Concepción del Uruguay,ENTRE RIOS,Uruguay,Fluvial,Habilitado,-32.483300,-58.222200
-2026-11-13,2026-11-13 10:03:47,Puerto Concordia,ENTRE RIOS,Uruguay,Fluvial,Habilitado,-31.402200,-58.003600
-2026-11-13,2026-11-13 10:03:47,Puerto Luis,ENTRE RIOS,Uruguay,Fluvial,Habilitado,-31.209789,-57.930817
-2026-11-13,2026-11-13 10:03:47,Puerto Paranacito - Nueva Palmira,ENTRE RIOS,Uruguay,Fluvial,Habilitado,-31.708119,-60.574780
-2026-11-13,2026-11-13 10:03:47,Puerto Boca de Gualeguaychú - Fray Bentos,ENTRE RIOS,Uruguay,Fluvial,Habilitado,-33.110319,-58.247580
-2026-11-13,2026-11-13 10:03:47,Puerto Colón - Puerto Paysandú,ENTRE RIOS,Uruguay,Fluvial,Habilitado,-32.215600,-58.136700
-2026-11-13,2026-11-13 10:03:47,Puerto Federación - Villa Constitución,ENTRE RIOS,Uruguay,Fluvial,Habilitado,-30.993100,-57.915300
-2026-11-13,2026-11-13 10:03:47,Puerto Santa Eloisa - Belén,ENTRE RIOS,Uruguay,Fluvial,Habilitado,-30.761606,-57.822300
-2026-11-13,2026-11-13 10:03:47,Puerto Guazú Guazucito – Carmelo,ENTRE RIOS,Uruguay,Fluvial,Habilitado,-34.014700,-58.395600
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional El Pucú,FORMOSA,Internacional,Aéreo,Habilitado,-26.212700,-58.228100
-2026-11-13,2026-11-13 10:03:47,Puerto Formosa - Puerto Alberdi,FORMOSA,Paraguay,Fluvial,Habilitado,-26.183600,-58.163600
-2026-11-13,2026-11-13 10:03:47,Puerto Pilcomayo - Puerto Itá Enramada,FORMOSA,Paraguay,Fluvial,Habilitado,-25.373600,-57.651900
-2026-11-13,2026-11-13 10:03:47,Puerto Colonia Cano - Puerto Pilar,FORMOSA,Paraguay,Fluvial,Habilitado,-26.853231,-58.324608
-2026-11-13,2026-11-13 10:03:47,Puente Internacional San Ignacio de Loyola: Clorinda - José Falcón,FORMOSA,Paraguay,Terrestre,Habilitado,-25.263600,-57.711900
-2026-11-13,2026-11-13 10:03:47,Paso El Remanso - La Verde,FORMOSA,Paraguay,Terrestre,Habilitado,-23.987892,-60.458126
-2026-11-13,2026-11-13 10:03:47,Paso Lamadrid - Misión San Leonardo,FORMOSA,Paraguay,Terrestre,Habilitado,-23.897911,-60.755810
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Gobernador Horacio Guzmán,JUJUY,Internacional,Aéreo,Habilitado,-24.392800,-65.097800
-2026-11-13,2026-11-13 10:03:47,Paso Fronterizo La Quiaca – Villazón,JUJUY,Bolivia,Terrestre,Habilitado,-22.096700,-65.596400
-2026-11-13,2026-11-13 10:03:47,Paso Fronterizo Jama - San Pedro de Atacama,JUJUY,Chile,Terrestre,Habilitado,-23.237200,-67.072500
-2026-11-13,2026-11-13 10:03:47,Aeropuerto de Santa Rosa,LA PAMPA,Limítrofe,Terrestre / Fluvial,Habilitado,-36.688300,-64.275600
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Capitán Almandos Vicente Almonacid,LA RIOJA,Limítrofe,Terrestre / Fluvial,Habilitado,-27.848900,-69.255600
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Gobernador Francisco Gabrielli El Plumerillo,MENDOZA,Internacional,Aéreo,Habilitado,-32.831700,-68.792900
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Comodoro Ricardo Salomón,MENDOZA,Internacional,Aéreo,Habilitado,-35.493600,-69.574300
-2026-11-13,2026-11-13 10:03:47,Centro de Frontera Sistema Cristo Redentor,MENDOZA,Chile,Terrestre,Habilitado,-32.825300,-70.070800
-2026-11-13,2026-11-13 10:03:47,Paso Fronterizo Pehuenche,MENDOZA,Chile,Terrestre,Habilitado,-35.973600,-70.398300
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Cataratas del Iguazú,MISIONES,Internacional,Aéreo,Habilitado,-25.737300,-54.473400
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Libertador General Jóse de San Martín,MISIONES,Paraguay,Fluvial,Habilitado,-25.964700,-54.603900
-2026-11-13,2026-11-13 10:03:47,Centro de Frontera Iguazú - Puente internacional Tancredo Neves,MISIONES,Brasil,Terrestre,Habilitado,-25.588300,-54.561700
-2026-11-13,2026-11-13 10:03:47,Centro de Frontera Posadas - Encarnación,MISIONES,Paraguay,Terrestre,Habilitado,-27.370300,-55.881400
-2026-11-13,2026-11-13 10:03:47,Bernardo de Irigoyen - Dionísio Cerqueira,MISIONES,Brasil,Terrestre,Habilitado,-26.254700,-53.643900
-2026-11-13,2026-11-13 10:03:47,Puerto Alba Posse - Porto Maua,MISIONES,Brasil,Fluvial,Habilitado,-27.571400,-54.679200
-2026-11-13,2026-11-13 10:03:47,Puerto El Soberbio - Porto Soberbo,MISIONES,Brasil,Fluvial,Habilitado,-27.298100,-54.193600
-2026-11-13,2026-11-13 10:03:47,Paso de la Barca - San Javier - Porto Xavie,MISIONES,Brasil,Fluvial,Habilitado,-27.891900,-55.135600
-2026-11-13,2026-11-13 10:03:47,Puerto Panambi - Porto Vera Cruz,MISIONES,Brasil,Fluvial,Habilitado,-27.730000,-54.914200
-2026-11-13,2026-11-13 10:03:47,Puerto Rico - Puerto Triunfo,MISIONES,Paraguay,Fluvial,Habilitado,-26.791900,-55.024400
-2026-11-13,2026-11-13 10:03:47,Puerto Leoni - Puerto Triunfo Triunfo,MISIONES,Paraguay,Fluvial,Habilitado,-26.976400,-55.174200
-2026-11-13,2026-11-13 10:03:47,Puerto Eldorado – Puerto Mayor Julio Otaño,MISIONES,Paraguay,Fluvial,Habilitado,-26.406400,-54.693900
-2026-11-13,2026-11-13 10:03:47,Puerto San Isidro - San Isidro,MISIONES,Brasil,Fluvial,Habilitado,-28.050300,-55.415800
-2026-11-13,2026-11-13 10:03:47,Puerto Santa María - Colonia Florida,MISIONES,Brasil,Fluvial,Habilitado,-27.967800,-55.350800
-2026-11-13,2026-11-13 10:03:47,Puerto Garuhapé - Puerto 3 de mayo,MISIONES,Paraguay,Fluvial,Habilitado,-26.791400,-54.953900
-2026-11-13,2026-11-13 10:03:47,Puerto Paranay - Colonia Alborada,MISIONES,Paraguay,Fluvial,Habilitado,-26.674400,-54.815000
-2026-11-13,2026-11-13 10:03:47,Puerto Oasis - Capitán Meza,MISIONES,Paraguay,Fluvial,Habilitado,-27.065000,-55.288000
-2026-11-13,2026-11-13 10:03:47,Puerto Maní - Puerto Bella Vista - Sur,MISIONES,Paraguay,Fluvial,Habilitado,-27.143600,-55.448100
-2026-11-13,2026-11-13 10:03:47,Puerto San Ignacio - Puerto Paraíso,MISIONES,Paraguay,Fluvial,Habilitado,-27.253100,-55.546900
-2026-11-13,2026-11-13 10:03:47,Puerto Candelaria,MISIONES,Paraguay,Fluvial,Habilitado,-27.456400,-55.748100
-2026-11-13,2026-11-13 10:03:47,Puerto Santa Ana,MISIONES,Paraguay,Fluvial,Habilitado,-27.326400,-55.595000
-2026-11-13,2026-11-13 10:03:47,Puerto Iguazú - Puerto Tres Fronteras,MISIONES,Paraguay,Fluvial,Habilitado,-25.595000,-54.581000
-2026-11-13,2026-11-13 10:03:47,Puerto Montecarlo - Puerto Ape Aimé,MISIONES,Paraguay,Fluvial,Habilitado,-26.559400,-54.803900
-2026-11-13,2026-11-13 10:03:47,Puerto Pinares - Carlos Antonio López,MISIONES,Paraguay,Fluvial,Habilitado,-26.395000,-54.691000
-2026-11-13,2026-11-13 10:03:47,Puerto Piray - Puerto 7 de agosto,MISIONES,Paraguay,Fluvial,Habilitado,-26.472800,-54.726100
-2026-11-13,2026-11-13 10:03:47,Puerto Victoria - Capitán Urbina,MISIONES,Paraguay,Fluvial,Habilitado,-26.335000,-54.663600
-2026-11-13,2026-11-13 10:03:47,Puerto Mado - Puerto Lomas Valentinas,MISIONES,Paraguay,Fluvial,Habilitado,-26.230300,-54.629400
-2026-11-13,2026-11-13 10:03:47,Puerto Libertad - Puerto Domingo Martínez de Irala,MISIONES,Paraguay,Fluvial,Habilitado,-25.963619,-54.605080
-2026-11-13,2026-11-13 10:03:47,Puerto Wanda - Puerto Itá Verá,MISIONES,Paraguay,Fluvial,Habilitado,-25.973000,-54.604500
-2026-11-13,2026-11-13 10:03:47,Puerto Iguazú - Puerto Meira,MISIONES,Brasil,Fluvial,Habilitado,-25.593300,-54.578900
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Juan Domingo Perón,NEUQUEN,Limítrofe,Terrestre / Fluvial,Habilitado,-38.653100,-70.903600
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Aviador Carlos Campos,NEUQUEN,Limítrofe,Terrestre / Fluvial,Habilitado,-38.653888,-70.901546
-2026-11-13,2026-11-13 10:03:47,Paso Fronterizo Pino Hachado,NEUQUEN,Chile,Terrestre,Habilitado,-38.663100,-70.896400
-2026-11-13,2026-11-13 10:03:47,Paso Fronterizo Cardenal Samoré,NEUQUEN,Chile,Terrestre,Habilitado,-40.713100,-71.943600
-2026-11-13,2026-11-13 10:03:47,Hua Hum,NEUQUEN,Chile,Terrestre / Lacustre,Habilitado,-40.116700,-71.666700
-2026-11-13,2026-11-13 10:03:47,Icalma,NEUQUEN,Chile,Terrestre,Habilitado,-38.833300,-71.266700
-2026-11-13,2026-11-13 10:03:47,Mamuil Malal,NEUQUEN,Chile,Terrestre,Habilitado,-39.583300,-71.483300
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Teniente Luis Candelaria de Bariloche,RIO NEGRO,Internacional,Aéreo,Habilitado,-41.151200,-71.157500
-2026-11-13,2026-11-13 10:03:47,Paso Fronterizo Pérez Rosales,RIO NEGRO,Chile,Terrestre / Lacustre,Habilitado,-41.063100,-71.816400
-2026-11-13,2026-11-13 10:03:47,Muelle Punta Colorada,RIO NEGRO,Internacional,Marítimo,Habilitado,-41.698300,-65.007800
-2026-11-13,2026-11-13 10:03:47,Puerto San Antonio Este,RIO NEGRO,Internacional,Marítimo,Habilitado,-40.803100,-64.881900
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Martín Miguel de Güemes,SALTA,Internacional,Aéreo,Habilitado,-24.856000,-65.486200
-2026-11-13,2026-11-13 10:03:47,Paso Fronterizo Salvador Mazza,SALTA,Bolivia,Terrestre,Habilitado,-22.053300,-63.683600
-2026-11-13,2026-11-13 10:03:47,Sico,SALTA,Chile,Terrestre,Habilitado,-23.835000,-67.253300
-2026-11-13,2026-11-13 10:03:47,"Puerto ""Las Chalanas""",SALTA,Bolivia,Fluvial,Habilitado,-22.731900,-64.351400
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Domingo Faustino Sarmiento,SAN JUAN,Internacional,Aéreo,Habilitado,-31.571500,-68.418200
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Brigadier Mayor César Raúl Ojeda,SAN LUIS,Limítrofe,Terrestre / Fluvial,Habilitado,-33.273100,-66.356400
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Comandante Armando Tola de El Calafate,SANTA CRUZ,Internacional,Aéreo,Habilitado,-50.280300,-72.053100
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Piloto Civil Norberto Fernández,SANTA CRUZ,Internacional,Aéreo,Habilitado,-51.608900,-69.312600
-2026-11-13,2026-11-13 10:03:47,Puerto Punta Quilla,SANTA CRUZ,Internacional,Marítimo,Habilitado,-50.116700,-68.416700
-2026-11-13,2026-11-13 10:03:47,Puerto Río Gallegos,SANTA CRUZ,Internacional,Marítimo,Habilitado,-51.607819,-69.313780
-2026-11-13,2026-11-13 10:03:47,Puerto Deseado,SANTA CRUZ,Internacional,Marítimo,Habilitado,-47.752800,-65.893600
-2026-11-13,2026-11-13 10:03:47,Puerto Caleta Olivia,SANTA CRUZ,Internacional,Marítimo,Habilitado,-46.443100,-67.513100
-2026-11-13,2026-11-13 10:03:47,Puerto Santa Cruz,SANTA CRUZ,Internacional,Marítimo,Habilitado,-50.018900,-68.523100
-2026-11-13,2026-11-13 10:03:47,Integración Austral,SANTA CRUZ,Chile,Terrestre,Habilitado,-52.143100,-69.518600
-2026-11-13,2026-11-13 10:03:47,Jeinimeni,SANTA CRUZ,Chile,Terrestre,Habilitado,-46.544200,-71.636100
-2026-11-13,2026-11-13 10:03:47,Dorotea,SANTA CRUZ,Chile,Terrestre,Habilitado,-51.573600,-72.345800
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional de Rosario Islas Malvinas,SANTA FE,Internacional,Aéreo,Habilitado,-32.903600,-60.785000
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Sauce Viejo,SANTA FE,Limítrofe,Terrestre / Fluvial,Habilitado,-32.944200,-60.630600
-2026-11-13,2026-11-13 10:03:47,Puerto Santa Fé,SANTA FE,Internacional,Fluvial,Habilitado,-31.648100,-60.701400
-2026-11-13,2026-11-13 10:03:47,Puerto General San Martín,SANTA FE,Internacional,Fluvial,Habilitado,-32.713100,-60.723100
-2026-11-13,2026-11-13 10:03:47,Puerto San Lorenzo,SANTA FE,Internacional,Fluvial,Habilitado,-32.748100,-60.728100
-2026-11-13,2026-11-13 10:03:47,Puerto Rosario,SANTA FE,Internacional,Fluvial,Habilitado,-32.948100,-60.631400
-2026-11-13,2026-11-13 10:03:47,Puerto Villa Constitución,SANTA FE,Internacional,Fluvial,Habilitado,-33.228100,-60.328100
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Termas de Río Hondo,SANTIAGO DEL ESTERO,Limítrofe,Terrestre / Fluvial,Habilitado,-27.495600,-64.935800
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Malvinas Argentinas,TIERRA DEL FUEGO,Internacional,Aéreo,Habilitado,-54.843300,-68.295800
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Río Grande Hermes Quijada,TIERRA DEL FUEGO,Internacional,Aéreo,Habilitado,-53.786100,-67.698900
-2026-11-13,2026-11-13 10:03:47,San Sebastián,TIERRA DEL FUEGO,Chile,Terrestre,Habilitado,-53.321900,-68.604200
-2026-11-13,2026-11-13 10:03:47,Puerto de Ushuaia,TIERRA DEL FUEGO,Limítrofe,Terrestre / Fluvial,Habilitado,-53.320940,-68.605024
-2026-11-13,2026-11-13 10:03:47,Puerto Río Grande,TIERRA DEL FUEGO,Internacional,Marítimo,Habilitado,-53.785019,-67.700080
-2026-11-13,2026-11-13 10:03:47,Aeropuerto Internacional Teniente Benjamín Matienzo,TUCUMAN,Limítrofe,Terrestre / Fluvial,Habilitado,-26.840800,-65.104700
+﻿id_paso,nombre_paso,provincia,pais,medio,verificado,Latitud,Longitud
+27,Agua Negra,SAN JUAN,CHILE,Vial,SI,-30.193100,-69.826400
+23,Aguas Blancas - Bermejo,SALTA,BOLIVIA,Vial,SI,-22.726400,-64.370000
+106,Alfa Cullen,TIERRA DEL FUEGO,CHILE,Vial,SI,-52.683300,-68.600000
+93,El Azufre,SAN JUAN,CHILE,Vial,SI,-31.300000,-70.550000
+8,Andresito - Capanema,MISIONES,BRASIL,Vial,SI,-25.601700,-53.978100
+91,Quebrada Fría,SAN JUAN,CHILE,Vial,SI,-32.083300,-70.350000
+12,Bernardo de Irigoyen - Dionisio Cerqueira,MISIONES,BRASIL,Vial,SI,-26.254700,-53.643900
+96,Cajón del Maipo,MENDOZA,CHILE,Vial,SI,-34.190939,-69.704362
+92,Puerto Colonia Aurora - Porto Pratos,MISIONES,BRASIL,Fluvial,SI,-27.499400,-54.520600
+42,Puerto Piray - Puerto 7 de Agosto,MISIONES,PARAGUAY,Fluvial,SI,-26.472800,-54.726100
+41,Puerto Mado - Puerto Lomas Valentinas,MISIONES,PARAGUAY,Fluvial,SI,-26.230300,-54.629400
+94,Casa de Piedra,SAN JUAN,CHILE,Vial,SI,-31.550000,-70.566700
+107,Cañadon Alfa,TIERRA DEL FUEGO,CHILE,Vial,SI,-52.716700,-68.600000
+110,Cerro Redondo,SANTA CRUZ,CHILE,Vial,SI,-52.183300,-69.083300
+71,Puerto Colonia Cano - Puerto Pilar,FORMOSA,PARAGUAY,Fluvial,SI,-26.853231,-58.324608
+17,Puerto Alvear - Puerto Itaqui,CORRIENTES,BRASIL,Fluvial,SI,-29.112800,-56.555600
+3,Colón - Paysandú,ENTRE RIOS,URUGUAY,Vial,SI,-32.265600,-58.093900
+5,Concordia - Salto,ENTRE RIOS,URUGUAY,Vial,SI,-31.260800,-57.961700
+43,Puerto Montecarlo - Puerto Ape Aime,MISIONES,PARAGUAY,Fluvial,SI,-26.559400,-54.803900
+55,Coyhaique,CHUBUT,CHILE,Vial,SI,-45.483300,-71.600000
+108,Cóndor - Daniel Posesión,SANTA CRUZ,CHILE,Vial,SI,-52.166700,-69.250000
+109,Cóndor II,SANTA CRUZ,CHILE,Vial,SI,-52.172000,-69.240000
+102,De Buta Mallin,NEUQUEN,CHILE,Vial,SI,-37.216700,-71.133300
+89,Panambí - Vera Cruz,MISIONES,BRASIL,Vial,SI,-27.730000,-54.914200
+61,Puerto Yahape - Puerto Cerrito,CORRIENTES,PARAGUAY,Fluvial,SI,-27.373600,-57.651900
+35,El Condado - La Mamora,SALTA,BOLIVIA,Vial,SI,-22.190000,-64.653100
+87,El Soberbio - Porto Soberbo,MISIONES,BRASIL,Vial,SI,-27.298100,-54.193600
+49,Puerto Leoni - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial,SI,-26.976400,-55.174200
+4,Puerto Pilcomayo - Puerto Ita Enramada,FORMOSA,PARAGUAY,Fluvial,SI,-25.373600,-57.651900
+88,Puerto Alba Posse - Porto Maua,MISIONES,BRASIL,Fluvial,SI,-27.571400,-54.679200
+39,Puerto Victoria - Capitan Urbina,MISIONES,PARAGUAY,Fluvial,SI,-26.335000,-54.663600
+105,Hua Hum (Fluvial),NEUQUEN,CHILE,Fluvial,SI,-40.119000,-71.662000
+56,Puerto Iguazu - Puerto Tres Fronteras,MISIONES,PARAGUAY,Fluvial,SI,-25.595000,-54.581000
+38,Puerto Wanda - Puerto Ita Vera,MISIONES,PARAGUAY,Fluvial,SI,-25.973000,-54.604500
+2,Monte Dinero,SANTA CRUZ,CHILE,Vial,SI,-52.239468,-68.883148
+60,Puerto Ita Ibate - Panchito Lopez,CORRIENTES,PARAGUAY,Fluvial,SI,-27.428100,-57.338900
+15,Puerto Eldorado - Puerto Mayor Julio Otaño,MISIONES,PARAGUAY,Fluvial,SI,-26.406400,-54.693900
+68,Puerto Martin Garcia - Carmelo,BUENOS AIRES,URUGUAY,Fluvial,SI,-34.188900,-58.255300
+6,Puerto Santa María - Colonia Florida,MISIONES,BRASIL,Fluvial,SI,-27.967800,-55.350800
+19,Jama,JUJUY,CHILE,Vial,SI,-23.237200,-67.072500
+100,Jama Norte,JUJUY,CHILE,Vial,SI,-23.227301,-67.063069
+101,Jama Sur,JUJUY,CHILE,Vial,SI,-23.233026,-67.064815
+58,Jeinimeni,SANTA CRUZ,CHILE,Vial,SI,-46.544200,-71.636100
+18,La Quiaca - Villazón,JUJUY,BOLIVIA,Vial,SI,-22.096700,-65.596400
+65,Puerto La Cruz - Itaqui,CORRIENTES,BRASIL,Fluvial,SI,-29.178300,-56.633600
+99,Laguna Sico,SALTA,CHILE,Vial,SI,-23.874876,-67.271398
+97,Las Damas,MENDOZA,CHILE,Vial,SI,-34.884690,-70.291109
+98,Las Leñas,MENDOZA,CHILE,Vial,SI,-34.451771,-70.064398
+79,Puerto Concepcion del Uruguay - Paysandu,ENTRE RIOS,URUGUAY,Fluvial,SI,-32.483300,-58.222200
+80,Puerto Boca del Gualeguaychu - Fray Bentos,ENTRE RIOS,URUGUAY,Fluvial,SI,-33.111400,-58.246400
+51,Puerto Oasis - Capitan Meza,MISIONES,PARAGUAY,Fluvial,SI,-27.065000,-55.288000
+62,Puerto Garruchos - Garruchos,CORRIENTES,BRASIL,Fluvial,SI,-28.177200,-55.642500
+83,Puerto Federacion - Villa Constitucion,ENTRE RIOS,URUGUAY,Fluvial,SI,-30.993100,-57.915300
+40,Puerto Pinares - Carlos Antonio Lopez,MISIONES,PARAGUAY,Fluvial,SI,-26.395000,-54.691000
+66,Puerto Monte Caseros - Bella Union,CORRIENTES,URUGUAY,Fluvial,SI,-30.251900,-57.622200
+86,Puerto Paranacito - Nueva Palmira,ENTRE RIOS,URUGUAY,Fluvial,SI,-31.709200,-60.573600
+72,Misión La Paz - Pozo Hondo,SALTA,PARAGUAY,Vial,SI,-22.378900,-62.518600
+81,Mondaca,SAN JUAN,CHILE,Vial,SI,-31.850000,-70.416700
+54,Pampa Alta,CHUBUT,CHILE,Vial,SI,-45.230420,-71.327320
+31,Pasarela La Fraternidad,FORMOSA,PARAGUAY,Vial,SI,-25.286100,-57.705600
+28,Pascua Lama,SAN JUAN,CHILE,Vial,SI,-29.318900,-70.015600
+7,Paso El Remanso - La Verde,FORMOSA,PARAGUAY,Vial,SI,-23.987892,-60.458126
+16,Paso Lamadrid - Misión San Leonardo,FORMOSA,PARAGUAY,Vial,SI,-23.897911,-60.755810
+10,Paso de la Barca - Porto Xavier,MISIONES,BRASIL,Vial,SI,-27.891900,-55.135600
+73,Puerto Itati - Puerto Ita Cora,CORRIENTES,PARAGUAY,Fluvial,SI,-27.269400,-58.245000
+32,Pehuenche,MENDOZA,CHILE,Vial,SI,-35.973600,-70.398300
+13,Pepiri Guazú - Sao Miguel,MISIONES,BRASIL,Vial,SI,-26.612200,-53.736900
+34,Pichachén,NEUQUEN,CHILE,Vial,SI,-37.452500,-71.126900
+37,Puerto Libertad - Puerto Domingo Martínez de Irala,MISIONES,PARAGUAY,Fluvial,SI,-25.964700,-54.603900
+26,Pircas Negras,LA RIOJA,CHILE,Vial,SI,-28.046700,-69.313300
+67,Puerto Guazu Guazucito - Carmelo,BUENOS AIRES,URUGUAY,Fluvial,SI,-34.014950,-58.395321
+30,Portillo de Piuquenes,MENDOZA,CHILE,Vial,SI,-33.613675,-69.498853
+1,Posadas - Encarnación,MISIONES,PARAGUAY,Vial,SI,-27.370300,-55.881400
+82,Puerto Colon - Puerto Paysandu,ENTRE RIOS,URUGUAY,Fluvial,SI,-32.215600,-58.136700
+77,Puerto Almanza - Puerto Williams,TIERRA DEL FUEGO,CHILE,Fluvial,SI,-54.869400,-67.575000
+74,Santo Tomé - Sao Borja,CORRIENTES,BRASIL,Vial,SI,-28.590600,-56.031700
+52,Triana,CHUBUT,CHILE,Vial,SI,-45.572530,-71.698310
+24,Puerto Chalanas - Bermejo,SALTA,BOLIVIA,Fluvial,SI,-22.731900,-64.351400
+11,Puerto Concordia - Salto,ENTRE RIOS,URUGUAY,Fluvial,SI,-31.402200,-58.003600
+70,Río Bella Vista (Ex Radman),TIERRA DEL FUEGO,CHILE,Vial,SI,-53.983300,-68.600000
+46,Vuriloche,RIO NEGRO,CHILE,Vial,SI,-41.232810,-71.770120
+90,Valle Hermoso,SAN JUAN,CHILE,Vial,SI,-30.783140,-70.283190
+69,San Sebastián,TIERRA DEL FUEGO,CHILE,Vial,SI,-53.321900,-68.604200
+75,Puerto Las Palmas - Puerto Humaita,CHACO,PARAGUAY,Fluvial,SI,-27.094200,-58.686100
+84,Puerto Luis - Constitucion,ENTRE RIOS,URUGUAY,Fluvial,SI,-31.209789,-57.930817
+50,Río Encuentro,CHUBUT,CHILE,Vial,SI,-43.583300,-71.733300
+45,Pérez Rosales,RIO NEGRO,CHILE,Vial,SI,-41.063100,-71.816400
+76,Puerto Paso de la Patria - Paso de la Patria,CORRIENTES,PARAGUAY,Fluvial,SI,-27.314400,-58.574200
+57,Río Mayer - Ribera Norte,SANTA CRUZ,CHILE,Vial,SI,-48.183300,-72.333300
+44,Puerto Rico - Puerto Triunfo,MISIONES,PARAGUAY,Fluvial,SI,-26.791900,-55.024400
+59,Roballos,SANTA CRUZ,CHILE,Vial,SI,-47.150000,-71.850000
+48,Río Puelo,CHUBUT,CHILE,Vial,SI,-42.100000,-71.716700
+53,Río Frías,CHUBUT,CHILE,Vial,SI,-44.579590,-71.056280
+47,Río Manso,RIO NEGRO,CHILE,Vial,SI,-41.500000,-71.850000
+85,Puerto Santa Eloisa - Belen,ENTRE RIOS,URUGUAY,Fluvial,SI,-30.761606,-57.822300
+64,Río Mosco,SANTA CRUZ,CHILE,Vial,SI,-48.489390,-72.552780
+104,Reigolil,NEUQUEN,CHILE,Vial,SI,-39.116700,-71.416700
+63,Río Don Guillermo,SANTA CRUZ,CHILE,Vial,SI,-51.250000,-72.250000
+22,Salvador Mazza - Yacuiba,SALTA,BOLIVIA,Vial,SI,-22.053300,-63.683600
+14,San Antonio - Santo Antonio,MISIONES,BRASIL,Vial,SI,-26.056900,-53.730600
+25,San Francisco,CATAMARCA,CHILE,Vial,SI,-26.878100,-68.301700
+20,Sico,SALTA,CHILE,Vial,SI,-23.835000,-67.253300
+29,Sistema Cristo Redentor,MENDOZA,CHILE,Vial,SI,-32.825300,-70.070800
+21,Socompa,SALTA,CHILE,Vial,SI,-24.448300,-68.288900
+33,Vergara,MENDOZA,CHILE,Vial,SI,-35.183300,-70.516700
+36,Yaciretá - Yaciretá,CORRIENTES,PARAGUAY,Vial,SI,-27.487670,-56.686010
