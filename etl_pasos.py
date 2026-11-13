@@ -687,7 +687,13 @@ def normalizar_estado(estado_raw):
         return "SIN_DATO"
 
     if re.search(
-        r"\b(CERRADO|CERRADA|INHABILITADO|INHABILITADA|NO HABILITADO|NO HABILITADA|NO ABIERTO|NO ABIERTA|SUSPENDIDO|SUSPENDIDA|CLAUSURADO|CLAUSURADA)\b",
+        r"\b("
+        r"CERRADO|CERRADA|"
+        r"INHABILITADO|INHABILITADA|DESHABILITADO|DESHABILITADA|SIN HABILITAR|"
+        r"NO\s+(?:SE\s+ENCUENTRA\s+|ESTA\s+)?(?:HABILITADO|HABILITADA|ABIERTO|ABIERTA)|"
+        r"(?:HABILITADO|HABILITADA|ABIERTO|ABIERTA)\s+NO|"
+        r"SUSPENDIDO|SUSPENDIDA|CLAUSURADO|CLAUSURADA|INTRANSITABLE|CORTADO|CORTADA|INTERRUMPIDO|INTERRUMPIDA"
+        r")\b",
         estado,
     ):
         return "CERRADO"
@@ -763,9 +769,11 @@ def ejecutar_extraccion():
         pais = limpiar_html(
             extraer_campo(p, ["pais", "pais_limitrofe", "pais_nombre", "nombre_pais", "country"])
         )
-        estado_raw = extraer_campo(
-            p, ["estado_prioridad", "estado", "estado_paso", "status", "situacion"]
-        )
+        estados_candidatos = [
+            extraer_campo(p, [clave])
+            for clave in ("estado_prioridad", "estado", "estado_paso", "status", "situacion", "habilitado")
+        ]
+        estado_raw = " | ".join(val for val in estados_candidatos if val)
         lat_raw = extraer_campo(p, ["latitud", "lat"])
         lon_raw = extraer_campo(p, ["longitud", "lon", "lng"])
 
