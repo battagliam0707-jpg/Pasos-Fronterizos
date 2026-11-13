@@ -22,6 +22,7 @@ BASE_URL = "https://www.argentina.gob.ar"
 LISTADO_URL = f"{BASE_URL}/seguridad/pasosinternacionales/listado"
 
 ARCHIVO_MAESTRO = "maestro_pasos.csv"
+ARCHIVO_OVERRIDES = "overrides_pasos.csv"
 ARCHIVO_HISTORICO = f"historico_diario_{ANIO_ACTUAL}.csv"
 ARCHIVO_CONSOLIDADO = f"consolidado_pasos_{ANIO_ACTUAL}.csv"
 
@@ -641,12 +642,7 @@ def normalizar_estado(estado_raw):
     return "SIN_DATO"
 
 
-def extraer_estado_desde_html_ficha(soup):
-    """
-    Analiza la ficha individual HTML en argentina.gob.ar buscando el estado real
-    en alertas, badges, etiquetas de estado y atributos de iconos.
-    Retorna (estado, fragmento_detectado).
-    """
+def extraer_estado_desde_html_ficha(soup) -> str:
     contenedor = (
         soup.find("main")
         or soup.find("article")
@@ -654,14 +650,12 @@ def extraer_estado_desde_html_ficha(soup):
         or soup
     )
 
-    # 1. Revisar badges, alertas o bloques de estado explícito (hasta 300 caracteres)
     for el in contenedor.find_all(["span", "div", "p", "strong", "li", "td", "dd", "h2", "h3", "h4"]):
         txt_raw = el.get_text(" ", strip=True)
         attrs_extra = " ".join(
             str(el.get(a)) for a in ("title", "alt", "aria-label") if el.get(a)
         )
-        combinado = f"{txt_raw} {attrs_extra}".strip()
-        txt = normalizar_texto(combinado)
+        txt = normalizar_texto(f"{txt_raw} {attrs_extra}".strip())
         if not txt or len(txt) > 300:
             continue
 
@@ -679,45 +673,39 @@ def extraer_estado_desde_html_ficha(soup):
         )
         if es_badge_alerta or es_etiqueta_estado:
             if es_cierre_real(txt):
-                return "CERRADO", combinado[:140]
+                return "CERRADO"
             if PATRON_ABIERTO.search(txt):
-                return "ABIERTO", combinado[:140]
+                return "ABIERTO"
 
-    # 2. Revisar pares clave-valor (ej: dt/dd o th/td o .field-label / .field-item)
     for label_el in contenedor.find_all(["dt", "th", "strong", "label", "div", "span"]):
         lbl_txt = normalizar_texto(label_el.get_text(" ", strip=True))
         if lbl_txt in ("ESTADO", "ESTADO DEL PASO", "SITUACION", "TRANSITABILIDAD", "HABILITACION"):
             hermano = label_el.find_next_sibling()
             if hermano:
-                val_raw = hermano.get_text(" ", strip=True)
-                val_norm = normalizar_texto(val_raw)
+                val_norm = normalizar_texto(hermano.get_text(" ", strip=True))
                 if es_cierre_real(val_norm):
-                    return "CERRADO", f"{lbl_txt}: {val_raw[:120]}"
+                    return "CERRADO"
                 if PATRON_ABIERTO.search(val_norm):
-                    return "ABIERTO", f"{lbl_txt}: {val_raw[:120]}"
+                    return "ABIERTO"
 
-    # 3. Revisar enunciados directos en el texto principal de la ficha
-    texto_main_raw = contenedor.get_text(" ", strip=True)
-    texto_main = normalizar_texto(texto_main_raw)
-    m_cerrado = re.search(
+    texto_main = normalizar_texto(contenedor.get_text(" ", strip=True))
+    if re.search(
         r"\b(?:ESTADO(?:\s+DEL\s+PASO)?|SITUACION|PASO(?:\s+FRONTERIZO|\s+INTERNACIONAL)?)\s*:?\s*"
         r"(?:SE\s+ENCUENTRA\s+|ESTA\s+)?"
         r"(?:CERRADO|CERRADA|INHABILITADO|INHABILITADA|NO\s+HABILITADO|NO\s+ABIERTO|SUSPENDIDO|CLAUSURADO|INTRANSITABLE)\b",
         texto_main,
-    )
-    if m_cerrado:
-        return "CERRADO", m_cerrado.group(0)
+    ):
+        return "CERRADO"
 
-    m_abierto = re.search(
+    if re.search(
         r"\b(?:ESTADO(?:\s+DEL\s+PASO)?|SITUACION|PASO(?:\s+FRONTERIZO|\s+INTERNACIONAL)?)\s*:?\s*"
         r"(?:SE\s+ENCUENTRA\s+|ESTA\s+)?"
         r"(?:ABIERTO|ABIERTA|HABILITADO|HABILITADA)\b",
         texto_main,
-    )
-    if m_abierto:
-        return "ABIERTO", m_abierto.group(0)
+    ):
+        return "ABIERTO"
 
-    return "", texto_main_raw[:140]
+    return ""
 
 
 def generar_id_paso(item: dict, nombre: str, provincia: str) -> str:
@@ -743,14 +731,7 @@ def extraer_campo(item: dict, claves_posibles: list) -> str:
 def consultar_ficha_detalle(tarea):
     id_paso, url_relativa, nombre_actual, tipo_raw = tarea
     if not url_relativa:
-        return (
-            id_paso,
-            nombre_actual,
-            clasificar_medio(nombre_actual, "", tipo_raw),
-            "",
-            "SIN_URL",
-            "",
-        )
+        return id_paso, nombre_actual, clasificar_medio(nombre_actual, "", tipo_raw), "", False
 
     url_completa = url_relativa if url_relativa.startswith("http") else f"{BASE_URL}{url_relativa}"
     try:
@@ -763,35 +744,34 @@ def consultar_ficha_detalle(tarea):
 
             texto_pagina = soup.get_text(" ", strip=True)
             medio = clasificar_medio(f"{nombre_ficha} {texto_pagina}", resp.url, tipo_raw)
-            estado_ficha, fragmento = extraer_estado_desde_html_ficha(soup)
+            estado_ficha = extraer_estado_desde_html_ficha(soup)
             nombre_final = (
                 nombre_actual
                 if nombre_actual and not nombre_actual.startswith("Paso ")
                 else (nombre_ficha or nombre_actual)
             )
-            return id_paso, nombre_final, medio, estado_ficha, f"HTTP_200 ({url_completa})", fragmento
-        return (
-            id_paso,
-            nombre_actual,
-            clasificar_medio(nombre_actual, url_relativa, tipo_raw),
-            "",
-            f"HTTP_{resp.status_code} ({url_completa})",
-            "",
-        )
-    except requests.RequestException as exc:
-        return (
-            id_paso,
-            nombre_actual,
-            clasificar_medio(nombre_actual, url_relativa, tipo_raw),
-            "",
-            f"ERROR_{type(exc).__name__} ({url_completa})",
-            "",
-        )
+            return id_paso, nombre_final, medio, estado_ficha, True
+    except requests.RequestException:
+        pass
+
+    return id_paso, nombre_actual, clasificar_medio(nombre_actual, url_relativa, tipo_raw), "", False
 
 
 # ==============================================================================
-# PERSISTENCIA EN CSV (CON SUPERVISIÓN INTEGRADA)
+# PERSISTENCIA EN CSV (CON SUPERVISIÓN Y CORRECCIONES EXTERNAS)
 # ==============================================================================
+def cargar_overrides() -> dict:
+    overrides = {}
+    if os.path.exists(ARCHIVO_OVERRIDES):
+        with open(ARCHIVO_OVERRIDES, "r", encoding="utf-8-sig", newline="") as f:
+            for row in csv.DictReader(f):
+                nom = normalizar_texto(row.get("nombre_paso", ""))
+                est = normalizar_texto(row.get("estado_forzado", "")).replace(" ", "_")
+                if nom and est in ("ABIERTO", "CERRADO", "SIN_DATO"):
+                    overrides[nom] = (est, row.get("motivo", "").strip())
+    return overrides
+
+
 def cargar_maestro() -> dict:
     maestro = {}
     if os.path.exists(ARCHIVO_MAESTRO):
@@ -839,6 +819,7 @@ def ejecutar_extraccion():
     print(f"Registros recibidos del portal: {len(items)}")
 
     maestro = cargar_maestro()
+    overrides = cargar_overrides()
     datos_base = {}
     tareas_detalle = []
 
@@ -879,10 +860,6 @@ def ejecutar_extraccion():
         estado_raw = " | ".join(val for val in estados_candidatos if val)
         estado_json = normalizar_estado(estado_raw)
 
-        if "SOCOMPA" in normalizar_texto(nombre):
-            print(f"[DIAGNÓSTICO SOCOMPA] JSON bruto: {p}")
-            print(f"[DIAGNÓSTICO SOCOMPA] url_detalle='{url_detalle}' | estado_json='{estado_json}'")
-
         lat_raw = extraer_campo(p, ["latitud", "lat"])
         lon_raw = extraer_campo(p, ["longitud", "lon", "lng"])
 
@@ -907,13 +884,13 @@ def ejecutar_extraccion():
     if tareas_detalle:
         print(f"Ejecutando doble chequeo en ficha individual HTML para los {len(tareas_detalle)} pasos...")
         corregidos_detalle = 0
-        fallos_http = 0
+        fichas_ok = 0
         with ThreadPoolExecutor(max_workers=10) as executor:
-            for id_p, nombre_ficha, medio_ficha, estado_ficha, info_http, fragmento in executor.map(
+            for id_p, nombre_ficha, medio_ficha, estado_ficha, ok_http in executor.map(
                 consultar_ficha_detalle, tareas_detalle
             ):
-                if not info_http.startswith("HTTP_200"):
-                    fallos_http += 1
+                if ok_http:
+                    fichas_ok += 1
                 if nombre_ficha:
                     datos_base[id_p]["nombre"] = nombre_ficha
                     datos_base[id_p]["provincia"] = normalizar_provincia(
@@ -937,17 +914,11 @@ def ejecutar_extraccion():
                         f"JSON={estado_anterior} -> FICHA={estado_ficha} => FINAL={estado_final}"
                     )
 
-                if "SOCOMPA" in normalizar_texto(datos_base[id_p]["nombre"]):
-                    print(
-                        f"[DIAGNÓSTICO SOCOMPA] {info_http} | estado_ficha='{estado_ficha}' "
-                        f"| fragmento='{fragmento}' => estado_final='{estado_final}'"
-                    )
-
                 datos_base[id_p]["estado"] = estado_final
 
         print(
-            f"Doble chequeo finalizado -> Corregidos: {corregidos_detalle} | "
-            f"Fichas sin HTTP 200: {fallos_http}"
+            f"Doble chequeo finalizado -> Fichas leídas OK: {fichas_ok}/{len(tareas_detalle)} | "
+            f"Corregidos: {corregidos_detalle}"
         )
 
     registros_hoy = {}
@@ -956,6 +927,13 @@ def ejecutar_extraccion():
     for id_p, info in datos_base.items():
         if es_paso_excluido(info["nombre"]):
             continue
+
+        nom_norm = normalizar_texto(info["nombre"])
+        for clave_ov, (estado_ov, motivo_ov) in overrides.items():
+            if clave_ov in nom_norm:
+                info["estado"] = estado_ov
+                print(f"  [OVERRIDE] {info['nombre']} -> {estado_ov} ({motivo_ov})")
+                break
 
         medio_final = info["medio"] or clasificar_medio(info["nombre"], "", "")
         lat_sup, lon_sup, origen_coord = supervisar_coordenada(
