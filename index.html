@@ -614,15 +614,15 @@
       "puerto rio grande": { lat: -53.7867, lng: -67.7000, prov: "tierra del fuego" },
 
       // --- SANTA CRUZ (Chile) ---
-      "rio mosco": { lat: -48.489390, lng: -72.552780, prov: "santa cruz" },
-      "condor": { lat: -52.162630, lng: -69.150710, prov: "santa cruz" },
-      "condor ii": { lat: -52.283480, lng: -68.739340, prov: "santa cruz" },
+      "integracion austral": { lat: -52.139030, lng: -69.519470, prov: "santa cruz" },
+      "monte aymond": { lat: -52.139030, lng: -69.519470, prov: "santa cruz" },
+      "monte dinero": { lat: -52.239468, lng: -68.883148, prov: "santa cruz" },
+      "cerro redondo": { lat: -52.223420, lng: -68.946270, prov: "santa cruz" },
       "condor daniel posesion": { lat: -52.162630, lng: -69.150710, prov: "santa cruz" },
       "daniel posesion": { lat: -52.162630, lng: -69.150710, prov: "santa cruz" },
-      "cerro redondo": { lat: -52.223420, lng: -68.946270, prov: "santa cruz" },
-      "integracion austral": { lat: -52.139030, lng: -69.519470, prov: "santa cruz" },
-      "monte dinero": { lat: -52.239468, lng: -68.883148, prov: "santa cruz" },
-      "monte aymond": { lat: -52.139030, lng: -69.519470, prov: "santa cruz" },
+      "condor ii": { lat: -52.283480, lng: -68.739340, prov: "santa cruz" },
+      "condor": { lat: -52.162630, lng: -69.150710, prov: "santa cruz" },
+      "rio mosco": { lat: -48.489390, lng: -72.552780, prov: "santa cruz" },
       "laurita": { lat: -51.6833, lng: -72.3167, prov: "santa cruz" },
       "casas viejas": { lat: -51.7056, lng: -72.3011, prov: "santa cruz" },
       "dorotea": { lat: -51.5833, lng: -72.3333, prov: "santa cruz" },
@@ -950,9 +950,9 @@
         .trim();
     }
 
-   function normalizarEstado(raw) {
+    function normalizarEstado(raw) {
       const val = normalizarTexto(raw).toUpperCase();
-      if (/\b(CERRADO|INHABILITADO|NO HABILITADO|NO ABIERTO|SUSPENDIDO)\b/.test(val)) return "Cerrado";
+      if (/\b(CERRADO|INHABILITADO|NO HABILITADO|NO ABIERTO|SUSPENDIDO|CLAUSURADO)\b/.test(val)) return "Cerrado";
       if (/\b(ABIERTO|HABILITADO)\b/.test(val)) return "Abierto";
       return "Sin dato";
     }
@@ -1083,7 +1083,7 @@
         return { lat: exacto.lat, lng: exacto.lng };
       }
 
-    // 2. Búsqueda por palabra completa ordenada por longitud de clave dentro de la misma provincia
+      // 2. Búsqueda por palabra completa ordenada por longitud de clave dentro de la misma provincia
       const entradas = Object.entries(COORDENADAS_PASOS).sort((a, b) => b[0].length - a[0].length);
       for (const [clave, entry] of entradas) {
         const regexClave = new RegExp(`\\b${clave}\\b`);
@@ -1099,11 +1099,11 @@
         return coordIGN;
       }
 
-      // 4. Búsqueda parcial sin restricción provincial si no hubo coincidencia previa
+      // 4. Búsqueda por palabra completa sin restricción provincial si no hubo coincidencia previa
       if (exacto) {
         return { lat: exacto.lat, lng: exacto.lng };
       }
-   for (const [clave, entry] of entradas) {
+      for (const [clave, entry] of entradas) {
         const regexClave = new RegExp(`\\b${clave}\\b`);
         if (clave.length >= 6 && (regexClave.test(normNombre) || regexClave.test(normSinPrefijo))) {
           return { lat: entry.lat, lng: entry.lng };
@@ -1203,7 +1203,8 @@
     }
 
     async function fetchTextoSeguro(url) {
-      const resp = await fetch(url, { cache: "no-store" });
+      const sep = url.includes("?") ? "&" : "?";
+      const resp = await fetch(`${url}${sep}t=${Date.now()}`, { cache: "no-store" });
       if (!resp.ok) {
         throw new Error(`HTTP ${resp.status} al consultar ${url}`);
       }
@@ -1258,7 +1259,7 @@
         let urlsHistorico = [];
 
         try {
-          const respApi = await fetch(GITHUB_API_CONTENTS, { cache: "no-store" });
+          const respApi = await fetch(`${GITHUB_API_CONTENTS}?t=${Date.now()}`, { cache: "no-store" });
           if (respApi.ok) {
             const archivos = await respApi.json();
             if (Array.isArray(archivos)) {
